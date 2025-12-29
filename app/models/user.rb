@@ -5,7 +5,7 @@ class User < ApplicationRecord
     student: "student",
     teacher: "teacher",
     admin: "admin"
-  }
+  }, prefix: true
 
   has_many :taught_classes,
            class_name: "SchoolClass",

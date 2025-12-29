@@ -8,14 +8,14 @@
     absent: "absent",
     late: "late",
     excused: "excused"
-  }, _prefix: true
+  }, prefix: true
 
   enum :verification_method, {
     qrcode: "qrcode",
     manual: "manual",
     gps: "gps",
     beacon: "beacon"
-  }, _prefix: true
+  }, prefix: true
 
   validates :date, :status, :verification_method, presence: true
   validates :user_id, uniqueness: { scope: [:school_class_id, :date] }
