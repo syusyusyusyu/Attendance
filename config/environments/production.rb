@@ -88,6 +88,9 @@ Rails.application.configure do
   if ENV["RENDER_EXTERNAL_HOSTNAME"].present?
     config.hosts << ENV["RENDER_EXTERNAL_HOSTNAME"]
   end
+  if ENV["APP_HOST"].present?
+    config.hosts << ENV["APP_HOST"]
+  end
   #
   # Skip DNS rebinding protection for the default health check endpoint.
   # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
