@@ -78,8 +78,7 @@ GEM
     base64 (0.3.0)
     bcrypt (3.1.20)
     bcrypt_pbkdf (1.1.2)
-    bcrypt_pbkdf (1.1.2-arm64-darwin)
-    bcrypt_pbkdf (1.1.2-x86_64-darwin)
+    bcrypt_pbkdf (1.1.2-x64-mingw-ucrt)
     benchmark (0.5.0)
     bigdecimal (4.0.1)
     bindex (0.8.1)
@@ -176,34 +175,17 @@ GEM
       net-protocol
     net-ssh (7.3.0)
     nio4r (2.7.5)
-    nokogiri (1.19.0-aarch64-linux-gnu)
-      racc (~> 1.4)
-    nokogiri (1.19.0-aarch64-linux-musl)
-      racc (~> 1.4)
-    nokogiri (1.19.0-arm-linux-gnu)
-      racc (~> 1.4)
-    nokogiri (1.19.0-arm-linux-musl)
-      racc (~> 1.4)
-    nokogiri (1.19.0-arm64-darwin)
-      racc (~> 1.4)
-    nokogiri (1.19.0-x86_64-darwin)
+    nokogiri (1.19.0-x64-mingw-ucrt)
       racc (~> 1.4)
     nokogiri (1.19.0-x86_64-linux-gnu)
-      racc (~> 1.4)
-    nokogiri (1.19.0-x86_64-linux-musl)
       racc (~> 1.4)
     ostruct (0.6.3)
     parallel (1.27.0)
     parser (3.3.10.0)
       ast (~> 2.4.1)
       racc
-    pg (1.6.2)
-    pg (1.6.2-aarch64-linux)
-    pg (1.6.2-aarch64-linux-musl)
-    pg (1.6.2-arm64-darwin)
-    pg (1.6.2-x86_64-darwin)
+    pg (1.6.2-x64-mingw-ucrt)
     pg (1.6.2-x86_64-linux)
-    pg (1.6.2-x86_64-linux-musl)
     pp (0.6.3)
       prettyprint
     prettyprint (0.2.0)
@@ -338,18 +320,10 @@ GEM
     tailwindcss-rails (4.4.0)
       railties (>= 7.0.0)
       tailwindcss-ruby (~> 4.0)
-    tailwindcss-ruby (4.1.18)
-    tailwindcss-ruby (4.1.18-aarch64-linux-gnu)
-    tailwindcss-ruby (4.1.18-aarch64-linux-musl)
-    tailwindcss-ruby (4.1.18-arm64-darwin)
-    tailwindcss-ruby (4.1.18-x86_64-darwin)
+    tailwindcss-ruby (4.1.18-x64-mingw-ucrt)
     tailwindcss-ruby (4.1.18-x86_64-linux-gnu)
-    tailwindcss-ruby (4.1.18-x86_64-linux-musl)
     thor (1.4.0)
     thruster (0.1.17)
-    thruster (0.1.17-aarch64-linux)
-    thruster (0.1.17-arm64-darwin)
-    thruster (0.1.17-x86_64-darwin)
     thruster (0.1.17-x86_64-linux)
     timeout (0.6.0)
     tsort (0.2.0)
@@ -358,6 +332,8 @@ GEM
       railties (>= 7.1.0)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
+    tzinfo-data (1.2025.3)
+      tzinfo (>= 1.0.0)
     unicode-display_width (3.2.0)
       unicode-emoji (~> 4.1)
     unicode-emoji (4.2.0)
@@ -378,15 +354,8 @@ GEM
     zeitwerk (2.7.4)
 
 PLATFORMS
-  aarch64-linux
-  aarch64-linux-gnu
-  aarch64-linux-musl
-  arm-linux-gnu
-  arm-linux-musl
-  arm64-darwin
-  x86_64-darwin
-  x86_64-linux-gnu
-  x86_64-linux-musl
+  x64-mingw-ucrt
+  x86_64-linux
 
 DEPENDENCIES
   bcrypt (~> 3.1.7)
