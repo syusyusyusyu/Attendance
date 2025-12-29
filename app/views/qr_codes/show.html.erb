@@ -1,34 +1,52 @@
-<div class="space-y-6">
-  <div>
-    <h1 class="text-2xl font-semibold text-slate-900">出席用QRコード</h1>
-    <p class="text-sm text-slate-500">授業を選択してQRコードを生成します。</p>
-  </div>
-
-  <div class="bg-white border border-slate-200 rounded-2xl p-6">
-    <%= form_with url: generate_qr_path, method: :get, class: "flex flex-col md:flex-row md:items-end gap-4" do |f| %>
-      <div class="flex-1">
-        <%= f.label :class_id, "クラス", class: "block text-sm font-medium text-slate-700" %>
-        <%= f.select :class_id,
-          options_from_collection_for_select(@classes, :id, :name, @selected_class&.id),
-          { include_blank: "クラスを選択" },
-          class: "mt-1 w-full rounded-md border-slate-300 focus:border-emerald-500 focus:ring-emerald-500" %>
-      </div>
-      <%= f.submit "生成", class: "rounded-md bg-emerald-600 text-white px-6 py-2 hover:bg-emerald-500" %>
-    <% end %>
-  </div>
-
-  <% if @selected_class %>
-    <div class="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col md:flex-row gap-6 items-center">
-      <div class="bg-white border border-slate-200 rounded-2xl p-4">
-        <% qr = RQRCode::QRCode.new(@token) %>
-        <%= qr.as_svg(module_size: 6, fill: "white", color: "#0f172a").html_safe %>
-      </div>
-      <div class="space-y-2">
-        <div class="text-lg font-semibold text-slate-900"><%= @selected_class.name %></div>
-        <div class="text-sm text-slate-500"><%= @selected_class.room %> / <%= @selected_class.semester %> <%= @selected_class.year %></div>
-        <div class="text-sm text-slate-500">有効期限: <%= @expires_at.strftime("%H:%M") %></div>
-        <div class="text-xs text-slate-400">QRコードは5分で更新されます。</div>
-      </div>
+﻿<div class="max-w-2xl mx-auto">
+  <div class="card">
+    <div class="p-4 bg-google-grey border-b border-gray-200">
+      <h2 class="text-xl font-medium text-gray-800 flex items-center">
+        <svg class="mr-2 text-google-green" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="6" height="6" />
+          <rect x="15" y="3" width="6" height="6" />
+          <rect x="3" y="15" width="6" height="6" />
+          <path d="M15 15h6v6h-6z" />
+          <path d="M11 11h2v2h-2z" />
+        </svg>
+        出席用QRコード生成
+      </h2>
+      <p class="text-sm text-gray-500 mt-1">授業を選択してQRコードを生成します。</p>
     </div>
-  <% end %>
+
+    <div class="p-6 space-y-6">
+      <%= form_with url: generate_qr_path, method: :get, class: "grid grid-cols-1 md:grid-cols-3 gap-4 items-end" do |f| %>
+        <div class="md:col-span-2">
+          <%= f.label :class_id, "クラス", class: "block text-sm font-medium text-gray-700" %>
+          <%= f.select :class_id,
+            options_from_collection_for_select(@classes, :id, :name, @selected_class&.id),
+            { include_blank: "クラスを選択" },
+            class: "input mt-1" %>
+        </div>
+        <div>
+          <%= f.submit "生成", class: "btn btn-primary w-full" %>
+        </div>
+      <% end %>
+
+      <% if @selected_class %>
+        <div class="flex flex-col items-center text-center">
+          <div class="bg-white p-4 rounded-lg border border-gray-300 mb-4">
+            <% qr = RQRCode::QRCode.new(@token) %>
+            <%= qr.as_svg(module_size: 6, fill: "white", color: "#0f172a").html_safe %>
+          </div>
+
+          <div class="space-y-1">
+            <div class="text-lg font-semibold text-gray-900"><%= @selected_class.name %></div>
+            <div class="text-sm text-gray-600"><%= @selected_class.subject %> ・ <%= @selected_class.room %></div>
+            <div class="text-sm text-gray-500">有効期限: <%= @expires_at.strftime("%H:%M") %></div>
+            <div class="text-xs text-gray-400">QRコードは5分で無効になります。</div>
+          </div>
+        </div>
+      <% else %>
+        <div class="text-center text-sm text-gray-500">
+          クラスを選択するとQRコードが生成されます。
+        </div>
+      <% end %>
+    </div>
+  </div>
 </div>

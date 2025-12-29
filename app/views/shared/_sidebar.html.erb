@@ -1,0 +1,74 @@
+﻿<aside
+  data-sidebar-target="sidebar"
+  class="fixed inset-y-0 left-0 z-30 w-64 bg-white transform transition-transform duration-300 ease-in-out -translate-x-full lg:translate-x-0 lg:relative lg:inset-y-auto"
+>
+  <div class="bg-white border-r border-gray-200 h-full min-h-screen">
+    <div class="h-16 flex items-center justify-center border-b border-gray-200">
+      <h2 class="text-google-green font-medium text-lg">
+        <%= current_user.teacher? ? "教員メニュー" : "学生メニュー" %>
+      </h2>
+    </div>
+    <nav class="mt-4">
+      <% nav_items = if current_user.teacher?
+        [
+          { name: "ホーム", path: root_path, icon: "home" },
+          { name: "出席確認", path: attendance_path, icon: "clipboard" },
+          { name: "QRコード生成", path: generate_qr_path, icon: "qr" },
+          { name: "プロフィール", path: profile_path, icon: "user" }
+        ]
+      else
+        [
+          { name: "ホーム", path: root_path, icon: "home" },
+          { name: "QRコードスキャン", path: scan_path, icon: "qr" },
+          { name: "出席履歴", path: history_path, icon: "calendar" },
+          { name: "プロフィール", path: profile_path, icon: "user" }
+        ]
+      end %>
+
+      <ul>
+        <% nav_items.each do |item| %>
+          <% active = request.path == item[:path] %>
+          <li class="px-2 py-1">
+            <%= link_to item[:path], class: "flex items-center px-4 py-3 rounded-md transition-colors #{active ? 'bg-google-green bg-opacity-10 text-google-green' : 'text-gray-700 hover:bg-gray-100'}", data: { action: "click->sidebar#close" } do %>
+              <span class="mr-3">
+                <% case item[:icon]
+                when "home" %>
+                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 10.5L12 3l9 7.5" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M5 10v10h14V10" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                <% when "calendar" %>
+                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                    <line x1="8" y1="2" x2="8" y2="6" />
+                    <line x1="16" y1="2" x2="16" y2="6" />
+                    <line x1="3" y1="10" x2="21" y2="10" />
+                  </svg>
+                <% when "clipboard" %>
+                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 3h6a2 2 0 0 1 2 2v1H7V5a2 2 0 0 1 2-2z" />
+                    <rect x="5" y="6" width="14" height="15" rx="2" ry="2" />
+                  </svg>
+                <% when "qr" %>
+                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="6" height="6" />
+                    <rect x="15" y="3" width="6" height="6" />
+                    <rect x="3" y="15" width="6" height="6" />
+                    <path d="M15 15h6v6h-6z" />
+                    <path d="M11 11h2v2h-2z" />
+                  </svg>
+                <% when "user" %>
+                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21a8 8 0 1 0-16 0" stroke-linecap="round" stroke-linejoin="round" />
+                    <circle cx="12" cy="7" r="4" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                <% end %>
+              </span>
+              <span><%= item[:name] %></span>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    </nav>
+  </div>
+</aside>

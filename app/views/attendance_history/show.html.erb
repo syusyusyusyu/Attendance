@@ -1,38 +1,56 @@
-<div class="space-y-6">
-  <div>
-    <h1 class="text-2xl font-semibold text-slate-900">出席履歴</h1>
-    <p class="text-sm text-slate-500">日付を選択して出席状況を確認します。</p>
-  </div>
+﻿<% status_classes = {
+  "present" => "badge badge-success",
+  "late" => "badge badge-warning",
+  "absent" => "badge badge-error",
+  "excused" => "badge badge-info"
+} %>
 
-  <div class="bg-white border border-slate-200 rounded-2xl p-6">
-    <%= form_with url: history_path, method: :get, class: "flex flex-col md:flex-row md:items-end gap-4" do |f| %>
-      <div>
-        <%= f.label :date, "日付", class: "block text-sm font-medium text-slate-700" %>
-        <%= f.date_field :date, value: @date, class: "mt-1 rounded-md border-slate-300 focus:border-emerald-500 focus:ring-emerald-500" %>
-      </div>
-      <%= f.submit "表示", class: "rounded-md bg-emerald-600 text-white px-6 py-2 hover:bg-emerald-500" %>
-    <% end %>
-  </div>
+<div class="max-w-4xl mx-auto">
+  <div class="card">
+    <div class="p-4 bg-google-grey border-b border-gray-200">
+      <h2 class="text-xl font-medium text-gray-800 flex items-center">
+        <svg class="mr-2 text-google-green" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M12 7v5l3 3" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        出席履歴
+      </h2>
+      <p class="text-sm text-gray-500 mt-1">日付を選択して出席記録を確認できます。</p>
+    </div>
 
-  <% if @records.any? %>
-    <div class="bg-white border border-slate-200 rounded-2xl divide-y divide-slate-100">
-      <% @records.each do |record| %>
-        <div class="p-4 flex flex-col md:flex-row md:items-center md:justify-between">
-          <div>
-            <div class="font-semibold text-slate-900"><%= record.school_class.name %></div>
-            <div class="text-sm text-slate-500"><%= record.school_class.room %></div>
-          </div>
-          <div class="mt-2 md:mt-0 text-sm">
-            <span class="inline-flex items-center rounded-full px-3 py-1 <%= record.status == 'present' ? 'bg-emerald-100 text-emerald-800' : record.status == 'late' ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-800' %>">
-              <%= record.status_label || record.status %>
-            </span>
-          </div>
+    <div class="p-6 space-y-6">
+      <%= form_with url: history_path, method: :get, class: "grid grid-cols-1 sm:grid-cols-3 gap-4 items-end" do |f| %>
+        <div class="sm:col-span-2">
+          <%= f.label :date, "日付", class: "block text-sm font-medium text-gray-700" %>
+          <%= f.date_field :date, value: @date, class: "input mt-1" %>
+        </div>
+        <div>
+          <%= f.submit "表示", class: "btn btn-primary w-full" %>
+        </div>
+      <% end %>
+
+      <% if @records.any? %>
+        <div class="bg-white rounded-lg border border-gray-200 divide-y divide-gray-200">
+          <% @records.each do |record| %>
+            <div class="p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <div class="font-medium text-gray-900"><%= record.school_class.name %></div>
+                <div class="text-sm text-gray-500"><%= record.school_class.subject %> ・ <%= record.school_class.room %></div>
+                <% if record.timestamp %>
+                  <div class="text-xs text-gray-400 mt-1">記録: <%= record.timestamp.strftime("%H:%M") %></div>
+                <% end %>
+              </div>
+              <div>
+                <span class="<%= status_classes[record.status] %>"><%= record.status_label || record.status %></span>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="bg-gray-50 rounded-lg border border-gray-200 p-4 text-center text-gray-500">
+          この日の出席記録はありません。
         </div>
       <% end %>
     </div>
-  <% else %>
-    <div class="bg-white border border-slate-200 rounded-2xl p-6 text-slate-500">
-      この日の出席記録はありません。
-    </div>
-  <% end %>
+  </div>
 </div>

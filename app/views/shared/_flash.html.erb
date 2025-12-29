@@ -1,7 +1,35 @@
 <% flash.each do |type, message| %>
   <% next if message.blank? %>
-  <% style = type.to_sym == :notice ? "bg-emerald-50 border-emerald-200 text-emerald-900" : "bg-rose-50 border-rose-200 text-rose-900" %>
-  <div class="mb-4 rounded-lg border px-4 py-3 text-sm <%= style %>">
-    <%= message %>
+  <% alert_type = type.to_s == "notice" ? "success" : type.to_s == "alert" ? "error" : "info" %>
+  <% styles = {
+    "success" => "bg-green-50 border-green-200",
+    "error" => "bg-red-50 border-red-200",
+    "info" => "bg-blue-50 border-blue-200"
+  } %>
+  <div class="mb-4 rounded-md border p-4 <%= styles[alert_type] %>" role="alert">
+    <div class="flex">
+      <div class="flex-shrink-0">
+        <% if alert_type == "success" %>
+          <svg class="h-5 w-5 text-green-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        <% elsif alert_type == "error" %>
+          <svg class="h-5 w-5 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M15 9l-6 6M9 9l6 6" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        <% else %>
+          <svg class="h-5 w-5 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 11v5" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M12 7h.01" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        <% end %>
+      </div>
+      <div class="ml-3 text-sm text-gray-800">
+        <%= message %>
+      </div>
+    </div>
   </div>
 <% end %>
