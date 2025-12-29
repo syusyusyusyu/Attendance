@@ -1,0 +1,75 @@
+<div class="space-y-6">
+  <div>
+    <h1 class="text-2xl font-semibold text-slate-900">クラス出席状況</h1>
+    <p class="text-sm text-slate-500">クラスと日付を選択して出席状況を確認します。</p>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl p-6">
+    <%= form_with url: attendance_path, method: :get, class: "grid grid-cols-1 md:grid-cols-3 gap-4" do |f| %>
+      <div>
+        <%= f.label :class_id, "クラス", class: "block text-sm font-medium text-slate-700" %>
+        <%= f.select :class_id,
+          options_from_collection_for_select(@classes, :id, :name, @selected_class&.id),
+          { include_blank: "クラスを選択" },
+          class: "mt-1 w-full rounded-md border-slate-300 focus:border-emerald-500 focus:ring-emerald-500" %>
+      </div>
+      <div>
+        <%= f.label :date, "日付", class: "block text-sm font-medium text-slate-700" %>
+        <%= f.date_field :date, value: @date, class: "mt-1 w-full rounded-md border-slate-300 focus:border-emerald-500 focus:ring-emerald-500" %>
+      </div>
+      <div class="flex items-end">
+        <%= f.submit "表示", class: "w-full rounded-md bg-emerald-600 text-white py-2 hover:bg-emerald-500" %>
+      </div>
+    <% end %>
+  </div>
+
+  <% if @selected_class %>
+    <div class="bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="text-lg font-semibold text-slate-900"><%= @selected_class.name %></div>
+          <div class="text-sm text-slate-500"><%= @selected_class.room %></div>
+        </div>
+        <div class="text-sm text-slate-500"><%= @date.strftime("%Y-%m-%d") %></div>
+      </div>
+
+      <%= form_with url: attendance_path, method: :patch do |f| %>
+        <%= hidden_field_tag :class_id, @selected_class.id %>
+        <%= hidden_field_tag :date, @date %>
+
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-sm">
+            <thead>
+              <tr class="text-left text-slate-500">
+                <th class="py-2">氏名</th>
+                <th class="py-2">学籍番号</th>
+                <th class="py-2">出席状況</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <% @students.each do |student| %>
+                <% record = @records[student.id] %>
+                <tr>
+                  <td class="py-2 text-slate-900"><%= student.name %></td>
+                  <td class="py-2 text-slate-500"><%= student.student_id %></td>
+                  <td class="py-2">
+                    <%= select_tag "attendance[#{student.id}]",
+                      options_for_select(
+                        [["出席", "present"], ["遅刻", "late"], ["欠席", "absent"], ["公欠", "excused"]],
+                        record&.status || "absent"
+                      ),
+                      class: "rounded-md border-slate-300 focus:border-emerald-500 focus:ring-emerald-500" %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="flex justify-end">
+          <%= f.submit "更新", class: "rounded-md bg-emerald-600 text-white px-6 py-2 hover:bg-emerald-500" %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>

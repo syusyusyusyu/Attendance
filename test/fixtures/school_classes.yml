@@ -1,0 +1,25 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: MyString
+  teacher: one
+  room: MyString
+  subject: MyString
+  semester: MyString
+  year: 1
+  capacity: 1
+  description: MyText
+  schedule: 
+  is_active: false
+
+two:
+  name: MyString
+  teacher: two
+  room: MyString
+  subject: MyString
+  semester: MyString
+  year: 1
+  capacity: 1
+  description: MyText
+  schedule: 
+  is_active: false

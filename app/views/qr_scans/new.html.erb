@@ -1,0 +1,16 @@
+<div class="max-w-xl mx-auto space-y-6">
+  <div>
+    <h1 class="text-2xl font-semibold text-slate-900">QRコードスキャン</h1>
+    <p class="text-sm text-slate-500">QRコードの内容を貼り付けて出席を記録します。</p>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl p-6">
+    <%= form_with url: scan_path, method: :post, class: "space-y-4" do |f| %>
+      <div>
+        <%= f.label :token, "QRコードの内容", class: "block text-sm font-medium text-slate-700" %>
+        <%= f.text_area :token, rows: 4, class: "mt-1 w-full rounded-md border-slate-300 focus:border-emerald-500 focus:ring-emerald-500", required: true %>
+      </div>
+      <%= f.submit "出席を記録", class: "rounded-md bg-emerald-600 text-white px-6 py-2 hover:bg-emerald-500" %>
+    <% end %>
+  </div>
+</div>

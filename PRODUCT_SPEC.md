@@ -1,0 +1,170 @@
+学校の出席管理システム 仕様書
+
+## 1. 概要
+本システムは、教員と学生が出席情報を管理するためのWebアプリケーションである。
+Rails 8 + Hotwire + PostgreSQL 構成で実装し、Render.com にデプロイする。
+
+## 2. 目的
+- 授業単位での出席状況を簡単に記録、参照できること
+- 学生がQRトークン入力で迅速に出席登録できること
+- 教員が出席修正、確認を行えること
+
+## 3. 対象ユーザーと権限
+- 教員: 出席確認、QRコード生成、出席修正
+- 学生: QRスキャン(トークン入力)、出席履歴の確認
+- 管理者: 付加的な権限(今後拡張)
+
+## 4. 画面仕様
+### 4.1 ログイン
+- URL: /login
+- 入力: email, password
+- 成功時: ダッシュボードへ遷移
+- 失敗時: エラーメッセージ表示
+
+### 4.2 ダッシュボード
+- URL: /
+- 教員:
+  - 出席確認ページへの導線
+  - QRコード生成ページへの導線
+  - 担当クラス一覧
+- 学生:
+  - QRスキャンページへの導線
+  - 出席履歴ページへの導線
+  - 履修クラス一覧
+
+### 4.3 QRコード生成(教員)
+- URL: /generate-qr
+- クラス選択
+- 5分有効のトークン生成
+- QRコード表示
+- 有効期限表示
+
+### 4.4 QRスキャン(学生)
+- URL: /scan
+- 入力: QRトークン
+- 成功時: 出席登録
+- 失敗時: エラーメッセージ
+
+### 4.5 出席履歴(学生)
+- URL: /history
+- 日付選択
+- 日付ごとの出席記録一覧
+
+### 4.6 出席確認/修正(教員)
+- URL: /attendance
+- クラス選択、日付選択
+- 学生一覧と出席ステータス編集
+- 更新処理
+
+### 4.7 プロフィール
+- URL: /profile
+- 入力: 氏名、メール、学籍番号(学生のみ)、パスワード
+- 更新後: 完了メッセージ
+
+## 5. 機能仕様
+### 5.1 認証
+- セッションベース
+- has_secure_password(bcrypt)
+- emailは小文字に正規化
+
+### 5.2 QRトークン
+- RailsのMessageVerifierで署名
+- payload: class_id, teacher_id, exp
+- TTL: 5分
+- 期限切れ、改ざんは無効
+
+### 5.3 出席登録
+- 同一日付は上書き
+- status: present, late, absent, excused
+- verification_method: qrcode, manual, gps, beacon
+- 登録時にtimestamp付与
+
+### 5.4 出席修正
+- 教員のみ
+- modified_by, modified_at を記録
+
+## 6. データモデル
+### users
+- id (PK)
+- email (unique, not null)
+- name (not null)
+- role (student, teacher, admin)
+- student_id (unique, nullable)
+- profile_image (nullable)
+- settings (jsonb)
+- password_digest (not null)
+- last_login
+
+### school_classes
+- id (PK)
+- name
+- teacher_id (FK -> users)
+- room
+- subject
+- semester
+- year
+- capacity
+- description
+- schedule (jsonb)
+- is_active
+
+### enrollments
+- id (PK)
+- school_class_id (FK -> school_classes)
+- student_id (FK -> users)
+- enrolled_at
+- unique(school_class_id, student_id)
+
+### attendance_records
+- id (PK)
+- user_id (FK -> users)
+- school_class_id (FK -> school_classes)
+- date
+- status
+- timestamp
+- location (jsonb)
+- verification_method
+- modified_by_id (FK -> users)
+- modified_at
+- notes
+- unique(user_id, school_class_id, date)
+
+## 7. バリデーション
+- User: email, name, role 必須
+- User: email unique, student_id unique
+- SchoolClass: name, room, subject, semester, year, capacity 必須
+- Enrollment: unique(school_class_id, student_id)
+- AttendanceRecord: date, status, verification_method 必須
+
+## 8. 権限制御
+- 教員のみ: /attendance, /generate-qr
+- 学生のみ: /scan, /history
+- 全員: /profile, /
+
+## 9. 非機能要件
+- 日本語UI
+- タイムゾーン: Asia/Tokyo
+- PostgreSQL永続化
+- HTTPS強制(Render)
+
+## 10. 環境変数
+- DATABASE_URL
+- RAILS_MASTER_KEY
+- APP_HOST
+- RAILS_ENV
+- RAILS_SERVE_STATIC_FILES
+
+## 11. デプロイ手順(Render)
+- Build Command: bin/render-build.sh
+- Start Command: bundle exec puma -C config/puma.rb
+- DBはRenderのPostgreSQLを使用
+
+## 12. 運用と監視
+- ログ: STDOUT
+- /up でヘルスチェック
+- 障害時はRenderのログを確認
+
+## 13. 既知の制約と今後の拡張
+- QR読み取りは現在「トークン入力」で代替
+- クラス管理/履修登録UIは未実装
+- 管理者画面は未実装
