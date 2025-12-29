@@ -1,4 +1,4 @@
-class SessionsController < ApplicationController
+﻿class SessionsController < ApplicationController
   skip_before_action :require_login, only: [:new, :create]
 
   def new
@@ -13,7 +13,7 @@ class SessionsController < ApplicationController
       user.update!(last_login: Time.current)
       redirect_to root_path, notice: "ログインしました。"
     else
-      flash.now[:alert] = "メールアドレスまたはパスワードが正しくありません。"
+      flash.now[:alert] = "メールアドレスまたはパスワードが間違っています。"
       render :new, status: :unprocessable_entity
     end
   end

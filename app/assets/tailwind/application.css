@@ -1,12 +1,12 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
 
 :root {
-  --google-blue: #4285f4;
-  --google-red: #ea4335;
-  --google-yellow: #fbbc05;
-  --google-green: #34a853;
-  --google-grey: #f8f9fa;
-  --google-dark-grey: #5f6368;
+  --google-blue: #4285F4;
+  --google-red: #EA4335;
+  --google-yellow: #FBBC05;
+  --google-green: #34A853;
+  --google-grey: #F8F9FA;
+  --google-dark-grey: #5F6368;
 }
 
 @layer base {
@@ -40,12 +40,7 @@
   }
 
   .btn-primary {
-    @apply text-white;
-    background-color: var(--google-green);
-  }
-
-  .btn-primary:hover {
-    background-color: #2d964a;
+    @apply bg-[var(--google-green)] hover:bg-[#2d964a] text-white;
   }
 
   .btn-secondary {
@@ -53,12 +48,7 @@
   }
 
   .btn-blue {
-    @apply text-white;
-    background-color: var(--google-blue);
-  }
-
-  .btn-blue:hover {
-    background-color: #3367d6;
+    @apply bg-[var(--google-blue)] hover:bg-[#3367d6] text-white;
   }
 
   .card {
@@ -66,8 +56,7 @@
   }
 
   .input {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:border-transparent min-h-[44px];
-    --tw-ring-color: var(--google-green);
+    @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--google-green)] focus:border-transparent min-h-[44px];
   }
 
   .badge {
@@ -136,24 +125,16 @@
     border-color: var(--google-green);
   }
 
+  .border-google-blue {
+    border-color: var(--google-blue);
+  }
+
+  .border-google-red {
+    border-color: var(--google-red);
+  }
+
   .shadow-google {
     box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
-  }
-
-  .fade-in {
-    animation: fadeIn 0.3s ease-in-out;
-  }
-
-  .slide-up {
-    animation: slideUp 0.3s ease-in-out;
-  }
-
-  .safe-bottom {
-    padding-bottom: max(env(safe-area-inset-bottom), 1rem);
-  }
-
-  .safe-top {
-    padding-top: max(env(safe-area-inset-top), 1rem);
   }
 }
 
@@ -166,9 +147,17 @@ details summary {
 }
 
 @media (max-width: 640px) {
+  .table-container {
+    @apply -mx-4;
+  }
+
   .table-container table {
     @apply min-w-[640px];
   }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
 }
 
 @keyframes fadeIn {
@@ -180,6 +169,10 @@ details summary {
   }
 }
 
+.slide-up {
+  animation: slideUp 0.3s ease-in-out;
+}
+
 @keyframes slideUp {
   from {
     transform: translateY(10px);
@@ -188,5 +181,15 @@ details summary {
   to {
     transform: translateY(0);
     opacity: 1;
+  }
+}
+
+@supports(padding: max(0px)) {
+  .safe-bottom {
+    padding-bottom: max(env(safe-area-inset-bottom), 1rem);
+  }
+
+  .safe-top {
+    padding-top: max(env(safe-area-inset-top), 1rem);
   }
 }

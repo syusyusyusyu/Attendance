@@ -1,4 +1,4 @@
-class AttendanceToken
+﻿class AttendanceToken
   TOKEN_TTL = 5.minutes
 
   def self.generate(class_id:, teacher_id:, expires_at: nil)

@@ -1,4 +1,4 @@
-class QrScansController < ApplicationController
+﻿class QrScansController < ApplicationController
   before_action -> { require_role!("student") }
 
   def new
@@ -13,7 +13,7 @@ class QrScansController < ApplicationController
 
     school_class = current_user.enrolled_classes.find_by(id: result[:class_id])
     unless school_class
-      redirect_to scan_path, alert: "この授業に履修登録されていません。" and return
+      redirect_to scan_path, alert: "この授業には履修登録されていません。" and return
     end
 
     record = AttendanceRecord.find_or_initialize_by(
@@ -29,7 +29,7 @@ class QrScansController < ApplicationController
     if record.save
       redirect_to scan_path, notice: "出席を記録しました。"
     else
-      redirect_to scan_path, alert: "出席記録に失敗しました。"
+      redirect_to scan_path, alert: "出席登録に失敗しました。"
     end
   end
 end

@@ -11,29 +11,35 @@
         </svg>
         QRコードスキャン
       </h2>
-      <p class="text-sm text-gray-500 mt-1">カメラが使えない場合はQRコードの文字列を貼り付けてください。</p>
     </div>
 
-    <div class="p-6 space-y-6">
-      <div class="border-2 border-dashed border-[var(--google-green)] rounded-lg p-6 text-center">
-        <div class="mx-auto w-14 h-14 rounded-full bg-green-50 flex items-center justify-center mb-3">
-          <svg class="h-6 w-6 text-google-green" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M3 7h4V3" stroke-linecap="round" stroke-linejoin="round" />
-            <path d="M21 7h-4V3" stroke-linecap="round" stroke-linejoin="round" />
-            <path d="M3 17h4v4" stroke-linecap="round" stroke-linejoin="round" />
-            <path d="M21 17h-4v4" stroke-linecap="round" stroke-linejoin="round" />
-            <rect x="8" y="8" width="8" height="8" rx="1" />
-          </svg>
+    <div class="p-6">
+      <%= form_with url: scan_path, method: :post, class: "space-y-6" do |f| %>
+        <div class="relative overflow-hidden rounded-lg mx-auto max-w-sm border-4 border-google-green mb-4">
+          <div class="w-full h-56 bg-gray-100 flex items-center justify-center text-gray-400">
+            <svg class="h-10 w-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 7h4V3" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M21 7h-4V3" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M3 17h4v4" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M21 17h-4v4" stroke-linecap="round" stroke-linejoin="round" />
+              <rect x="8" y="8" width="8" height="8" rx="1" />
+            </svg>
+          </div>
+          <div class="absolute top-0 left-0 right-0 bottom-0 border-2 border-google-green border-opacity-50 animate-pulse"></div>
         </div>
-        <p class="text-sm text-gray-600">QRコードの内容を貼り付けて出席を記録します。</p>
-      </div>
 
-      <%= form_with url: scan_path, method: :post, class: "space-y-4" do |f| %>
-        <div>
-          <%= f.label :token, "QRコードの文字列", class: "block text-sm font-medium text-gray-700" %>
-          <%= f.text_area :token, rows: 4, class: "input mt-1", required: true %>
+        <div class="flex flex-col items-center space-y-4">
+          <p class="text-sm text-gray-600 text-center">
+            カメラをQRコードに向けてください。カメラが使えない場合は、下の入力欄にQRコード文字列を貼り付けてください。
+          </p>
+
+          <div class="w-full max-w-md space-y-2">
+            <%= f.label :token, "QRコードの文字列", class: "block text-sm font-medium text-gray-700" %>
+            <%= f.text_area :token, rows: 4, class: "input", required: true %>
+          </div>
+
+          <%= f.submit "QRコードをスキャン", class: "btn btn-primary w-full max-w-xs" %>
         </div>
-        <%= f.submit "出席を記録", class: "btn btn-primary w-full" %>
       <% end %>
     </div>
   </div>

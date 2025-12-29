@@ -11,17 +11,15 @@
     <nav class="mt-4">
       <% nav_items = if current_user.teacher?
         [
-          { name: "ホーム", path: root_path, icon: "home" },
+          { name: "ホーム", path: root_path, icon: "clock" },
           { name: "出席確認", path: attendance_path, icon: "clipboard" },
-          { name: "QRコード生成", path: generate_qr_path, icon: "qr" },
-          { name: "プロフィール", path: profile_path, icon: "user" }
+          { name: "QRコード生成", path: generate_qr_path, icon: "qr" }
         ]
       else
         [
-          { name: "ホーム", path: root_path, icon: "home" },
+          { name: "ホーム", path: root_path, icon: "clock" },
           { name: "QRコードスキャン", path: scan_path, icon: "qr" },
-          { name: "出席履歴", path: history_path, icon: "calendar" },
-          { name: "プロフィール", path: profile_path, icon: "user" }
+          { name: "出席履歴", path: history_path, icon: "calendar" }
         ]
       end %>
 
@@ -32,10 +30,10 @@
             <%= link_to item[:path], class: "flex items-center px-4 py-3 rounded-md transition-colors #{active ? 'bg-google-green bg-opacity-10 text-google-green' : 'text-gray-700 hover:bg-gray-100'}", data: { action: "click->sidebar#close" } do %>
               <span class="mr-3">
                 <% case item[:icon]
-                when "home" %>
+                when "clock" %>
                   <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M3 10.5L12 3l9 7.5" stroke-linecap="round" stroke-linejoin="round" />
-                    <path d="M5 10v10h14V10" stroke-linecap="round" stroke-linejoin="round" />
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M12 7v5l3 3" stroke-linecap="round" stroke-linejoin="round" />
                   </svg>
                 <% when "calendar" %>
                   <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -56,11 +54,6 @@
                     <rect x="3" y="15" width="6" height="6" />
                     <path d="M15 15h6v6h-6z" />
                     <path d="M11 11h2v2h-2z" />
-                  </svg>
-                <% when "user" %>
-                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M20 21a8 8 0 1 0-16 0" stroke-linecap="round" stroke-linejoin="round" />
-                    <circle cx="12" cy="7" r="4" stroke-linecap="round" stroke-linejoin="round" />
                   </svg>
                 <% end %>
               </span>

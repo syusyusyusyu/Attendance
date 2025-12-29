@@ -13,21 +13,33 @@
     <p class="opacity-90"><%= @user.teacher? ? "教員" : "学生" %>ダッシュボード</p>
   </div>
 
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
     <% if @user.teacher? %>
-      <%= link_to attendance_path, class: "bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition" do %>
+      <%= link_to root_path(anchor: "classes"), class: "bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 cursor-pointer transition hover:-translate-y-1 hover:shadow-md" do %>
+        <div class="mb-4 text-google-blue">
+          <svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="8" cy="8" r="3" />
+            <circle cx="17" cy="8" r="3" />
+            <path d="M2 20a6 6 0 0 1 12 0" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M13 20a6 6 0 0 1 9 0" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </div>
+        <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-1">クラス一覧</h3>
+        <p class="text-sm text-gray-500">担当クラスの情報を確認できます。</p>
+      <% end %>
+
+      <%= link_to attendance_path, class: "bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 cursor-pointer transition hover:-translate-y-1 hover:shadow-md" do %>
         <div class="mb-4 text-google-red">
           <svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="8" y="2" width="8" height="4" rx="1" />
-            <rect x="6" y="4" width="12" height="18" rx="2" />
-            <path d="M9 11h6M9 15h6" stroke-linecap="round" stroke-linejoin="round" />
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 7v5l3 3" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
         </div>
         <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-1">出席確認</h3>
         <p class="text-sm text-gray-500">クラスごとの出席状況を確認します。</p>
       <% end %>
 
-      <%= link_to generate_qr_path, class: "bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition" do %>
+      <%= link_to generate_qr_path, class: "bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 cursor-pointer transition hover:-translate-y-1 hover:shadow-md" do %>
         <div class="mb-4 text-google-green">
           <svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="3" width="6" height="6" />
@@ -40,19 +52,8 @@
         <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-1">QRコード生成</h3>
         <p class="text-sm text-gray-500">授業用のQRコードを生成します。</p>
       <% end %>
-
-      <%= link_to profile_path, class: "bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition" do %>
-        <div class="mb-4 text-google-blue">
-          <svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="7" r="4" />
-            <path d="M20 21a8 8 0 1 0-16 0" stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
-        </div>
-        <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-1">プロフィール</h3>
-        <p class="text-sm text-gray-500">アカウント情報を更新します。</p>
-      <% end %>
     <% else %>
-      <%= link_to scan_path, class: "bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition" do %>
+      <%= link_to scan_path, class: "bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 cursor-pointer transition hover:-translate-y-1 hover:shadow-md" do %>
         <div class="mb-4 text-google-green">
           <svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="3" width="6" height="6" />
@@ -62,11 +63,11 @@
             <path d="M11 11h2v2h-2z" />
           </svg>
         </div>
-        <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-1">QRコードをスキャン</h3>
-        <p class="text-sm text-gray-500">教室のQRコードを読み取って出席を記録します。</p>
+        <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-1">出席を記録</h3>
+        <p class="text-sm text-gray-500">QRコードをスキャンして出席を登録します。</p>
       <% end %>
 
-      <%= link_to history_path, class: "bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition" do %>
+      <%= link_to history_path, class: "bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 cursor-pointer transition hover:-translate-y-1 hover:shadow-md" do %>
         <div class="mb-4 text-google-blue">
           <svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="9" />
@@ -79,7 +80,7 @@
     <% end %>
   </div>
 
-  <div>
+  <div id="classes">
     <h2 class="text-lg sm:text-xl font-semibold mb-4"><%= @user.teacher? ? "担当クラス" : "履修クラス" %></h2>
 
     <% if @classes.any? %>
@@ -90,7 +91,9 @@
               <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
                   <h3 class="text-base sm:text-lg font-medium text-gray-900"><%= klass.name %></h3>
-                  <p class="text-sm text-gray-500"><%= klass.subject %> ・ <%= klass.room %> / <%= klass.semester %> <%= klass.year %></p>
+                  <p class="text-sm text-gray-500">
+                    <%= [klass.schedule_label, "教室: #{klass.room}"].compact.join(" | ") %>
+                  </p>
                 </div>
                 <% if @user.teacher? %>
                   <%= link_to "出席確認", attendance_path(class_id: klass.id), class: "btn btn-secondary text-sm w-full sm:w-auto" %>

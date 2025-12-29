@@ -1,4 +1,4 @@
-class ClassAttendancesController < ApplicationController
+﻿class ClassAttendancesController < ApplicationController
   before_action -> { require_role!("teacher") }
 
   def show

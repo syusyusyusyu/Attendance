@@ -9,15 +9,16 @@
         </svg>
       </div>
     </div>
-    <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">出席システム ログイン</h2>
+    <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">出席システムログイン</h2>
     <p class="mt-2 text-center text-sm text-gray-600">メールアドレスとパスワードを入力してください</p>
   </div>
 
   <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-    <div class="bg-white py-8 px-4 shadow-google sm:rounded-lg sm:px-10">
+    <div class="bg-white py-8 px-4 shadow-google sm:rounded-lg sm:px-10" data-controller="login">
       <%= render "shared/flash" %>
 
       <%= form_with url: login_path, method: :post, class: "space-y-6" do |f| %>
+        <%= hidden_field_tag :role, "student", data: { login_target: "roleInput" } %>
         <div>
           <%= f.label :email, "メールアドレス", class: "block text-sm font-medium text-gray-700" %>
           <div class="mt-1 relative rounded-md shadow-sm">
@@ -27,7 +28,7 @@
                 <path d="M3 7l9 6 9-6" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             </div>
-            <%= f.email_field :email, class: "input py-2 pl-10", required: true, autofocus: true, autocomplete: "email", placeholder: "student@example.com" %>
+            <%= f.email_field :email, class: "input py-2 pl-10", required: true, autofocus: true, autocomplete: "email", placeholder: "student@example.com", data: { login_target: "email" } %>
           </div>
         </div>
 
@@ -40,7 +41,51 @@
                 <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             </div>
-            <%= f.password_field :password, class: "input py-2 pl-10", required: true, autocomplete: "current-password" %>
+            <%= f.password_field :password, class: "input py-2 pl-10 pr-10", required: true, autocomplete: "current-password", data: { login_target: "password" } %>
+            <button
+              type="button"
+              class="absolute inset-y-0 right-0 pr-3 flex items-center"
+              data-action="login#togglePassword"
+            >
+              <svg class="h-5 w-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" data-login-target="eye">
+                <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7Z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+              <svg class="h-5 w-5 text-gray-400 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" data-login-target="eyeOff">
+                <path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-6 0-10-7-10-7a20.28 20.28 0 0 1 5.06-5.94" />
+                <path d="M9.88 9.88A3 3 0 0 0 12 15a3 3 0 0 0 2.12-.88" />
+                <path d="M1 1l22 22" />
+                <path d="M14.12 14.12 9.88 9.88" />
+                <path d="M9.88 9.88 7.5 7.5" />
+                <path d="M16.5 16.5 14.12 14.12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">アカウントタイプ</label>
+          <div class="mt-2 grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              class="w-full py-2 px-4 border rounded-md focus:outline-none transition-colors"
+              data-action="login#selectStudent"
+              data-login-target="roleStudent"
+              data-active-classes="bg-google-green bg-opacity-10 border-google-green text-google-green"
+              data-inactive-classes="border-gray-300 text-gray-700 hover:bg-gray-50"
+            >
+              学生
+            </button>
+            <button
+              type="button"
+              class="w-full py-2 px-4 border rounded-md focus:outline-none transition-colors"
+              data-action="login#selectTeacher"
+              data-login-target="roleTeacher"
+              data-active-classes="bg-google-blue bg-opacity-10 border-google-blue text-google-blue"
+              data-inactive-classes="border-gray-300 text-gray-700 hover:bg-gray-50"
+            >
+              教員
+            </button>
           </div>
         </div>
 
@@ -48,6 +93,40 @@
           <%= f.submit "ログイン", class: "w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-google-green hover:bg-[#2d964a] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--google-green)]" %>
         </div>
       <% end %>
+
+      <div class="mt-6">
+        <div class="relative">
+          <div class="absolute inset-0 flex items-center">
+            <div class="w-full border-t border-gray-300"></div>
+          </div>
+          <div class="relative flex justify-center text-sm">
+            <span class="px-2 bg-white text-gray-500">デモ用ログイン</span>
+          </div>
+        </div>
+
+        <div class="mt-4 grid grid-cols-1 gap-3">
+          <button
+            type="button"
+            class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+            data-action="login#fillDemo"
+            data-login-role-param="student"
+          >
+            学生でログイン
+          </button>
+          <button
+            type="button"
+            class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+            data-action="login#fillDemo"
+            data-login-role-param="teacher"
+          >
+            教員でログイン
+          </button>
+        </div>
+
+        <div class="mt-4 text-center">
+          <p class="text-xs text-gray-500">デモ用パスワード: password</p>
+        </div>
+      </div>
     </div>
   </div>
 </div>

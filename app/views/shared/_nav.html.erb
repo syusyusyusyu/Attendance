@@ -21,7 +21,7 @@
       </div>
 
       <div class="flex items-center">
-        <details class="relative">
+        <details class="ml-3 relative">
           <summary class="flex items-center max-w-xs bg-white rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--google-green)] cursor-pointer select-none">
             <span class="sr-only">ユーザーメニューを開く</span>
             <img class="h-8 w-8 rounded-full" src="<%= avatar_url %>" alt="" />
@@ -31,22 +31,24 @@
             </svg>
           </summary>
 
-          <div class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-google bg-white ring-1 ring-black ring-opacity-5">
-            <%= link_to profile_path, class: "flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" do %>
-              <svg class="mr-2 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M20 21a8 8 0 1 0-16 0" stroke-linecap="round" stroke-linejoin="round" />
-                <circle cx="12" cy="7" r="4" stroke-linecap="round" stroke-linejoin="round" />
-              </svg>
-              プロフィール
-            <% end %>
-            <%= link_to logout_path, data: { turbo_method: :delete }, class: "flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" do %>
-              <svg class="mr-2 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke-linecap="round" stroke-linejoin="round" />
-                <path d="M16 17l5-5-5-5" stroke-linecap="round" stroke-linejoin="round" />
-                <path d="M21 12H9" stroke-linecap="round" stroke-linejoin="round" />
-              </svg>
-              ログアウト
-            <% end %>
+          <div class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+            <div class="py-1">
+              <%= link_to profile_path, class: "flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" do %>
+                <svg class="mr-2 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 21a8 8 0 1 0-16 0" stroke-linecap="round" stroke-linejoin="round" />
+                  <circle cx="12" cy="7" r="4" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                プロフィール
+              <% end %>
+              <%= link_to logout_path, data: { turbo_method: :delete }, class: "flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" do %>
+                <svg class="mr-2 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M16 17l5-5-5-5" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M21 12H9" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                ログアウト
+              <% end %>
+            </div>
           </div>
         </details>
       </div>

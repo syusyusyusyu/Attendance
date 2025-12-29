@@ -1,11 +1,15 @@
-﻿<% status_classes = {
-  "present" => "badge badge-success",
-  "late" => "badge badge-warning",
-  "absent" => "badge badge-error",
-  "excused" => "badge badge-info"
+﻿<% day_names = %w[日 月 火 水 木 金 土] %>
+<% calendar_start = @month_start.beginning_of_week(:sunday) %>
+<% calendar_end = @month_end.end_of_week(:sunday) %>
+<% weeks = (calendar_start..calendar_end).to_a.each_slice(7).to_a %>
+<% status_classes = {
+  "present" => "bg-green-100 text-green-800",
+  "late" => "bg-yellow-100 text-yellow-800",
+  "absent" => "bg-red-100 text-red-800",
+  "excused" => "bg-blue-100 text-blue-800"
 } %>
 
-<div class="max-w-4xl mx-auto">
+<div class="max-w-5xl mx-auto">
   <div class="card">
     <div class="p-4 bg-google-grey border-b border-gray-200">
       <h2 class="text-xl font-medium text-gray-800 flex items-center">
@@ -15,42 +19,109 @@
         </svg>
         出席履歴
       </h2>
-      <p class="text-sm text-gray-500 mt-1">日付を選択して出席記録を確認できます。</p>
     </div>
 
-    <div class="p-6 space-y-6">
-      <%= form_with url: history_path, method: :get, class: "grid grid-cols-1 sm:grid-cols-3 gap-4 items-end" do |f| %>
-        <div class="sm:col-span-2">
-          <%= f.label :date, "日付", class: "block text-sm font-medium text-gray-700" %>
-          <%= f.date_field :date, value: @date, class: "input mt-1" %>
-        </div>
-        <div>
-          <%= f.submit "表示", class: "btn btn-primary w-full" %>
-        </div>
-      <% end %>
+    <div class="p-6">
+      <div class="flex flex-col md:flex-row space-y-6 md:space-y-0 md:space-x-6">
+        <div class="md:w-1/2">
+          <div class="border rounded-lg overflow-hidden">
+            <div class="flex items-center justify-between px-4 py-2 border-b border-gray-200 bg-white">
+              <%= link_to history_path(date: @prev_month), class: "p-2 rounded-md hover:bg-gray-100" do %>
+                <svg class="h-4 w-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              <% end %>
+              <div class="text-sm font-medium text-gray-700"><%= @date.strftime("%Y年%m月") %></div>
+              <%= link_to history_path(date: @next_month), class: "p-2 rounded-md hover:bg-gray-100" do %>
+                <svg class="h-4 w-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              <% end %>
+            </div>
 
-      <% if @records.any? %>
-        <div class="bg-white rounded-lg border border-gray-200 divide-y divide-gray-200">
-          <% @records.each do |record| %>
-            <div class="p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <div>
-                <div class="font-medium text-gray-900"><%= record.school_class.name %></div>
-                <div class="text-sm text-gray-500"><%= record.school_class.subject %> ・ <%= record.school_class.room %></div>
-                <% if record.timestamp %>
-                  <div class="text-xs text-gray-400 mt-1">記録: <%= record.timestamp.strftime("%H:%M") %></div>
+            <div class="grid grid-cols-7 gap-px bg-gray-200 text-xs text-gray-500">
+              <% day_names.each do |day| %>
+                <div class="bg-gray-50 py-2 text-center font-medium"><%= day %></div>
+              <% end %>
+
+              <% weeks.each do |week| %>
+                <% week.each do |day| %>
+                  <% in_month = day.month == @date.month %>
+                  <% status = @status_by_date[day] %>
+                  <% tile_classes = if day == @date
+                    "bg-google-green text-white"
+                  elsif !in_month
+                    "text-gray-300"
+                  elsif status_classes[status]
+                    status_classes[status]
+                  else
+                    "text-gray-700 hover:bg-gray-50"
+                  end %>
+                  <%= link_to history_path(date: day), class: "bg-white py-2 text-center text-sm #{tile_classes}" do %>
+                    <%= day.day %>
+                  <% end %>
                 <% end %>
-              </div>
-              <div>
-                <span class="<%= status_classes[record.status] %>"><%= record.status_label || record.status %></span>
-              </div>
+              <% end %>
+            </div>
+          </div>
+
+          <div class="flex flex-col space-y-2 mt-4">
+            <div class="flex items-center">
+              <div class="w-4 h-4 rounded bg-green-100"></div>
+              <span class="ml-2 text-sm text-gray-700">出席</span>
+            </div>
+            <div class="flex items-center">
+              <div class="w-4 h-4 rounded bg-yellow-100"></div>
+              <span class="ml-2 text-sm text-gray-700">遅刻</span>
+            </div>
+            <div class="flex items-center">
+              <div class="w-4 h-4 rounded bg-red-100"></div>
+              <span class="ml-2 text-sm text-gray-700">欠席</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="md:w-1/2">
+          <h3 class="text-lg font-medium text-gray-800 mb-4">
+            <%= @date.strftime("%Y年%m月%d日") %> (<%= day_names[@date.wday] %>) の出席状況
+          </h3>
+
+          <% if @records.any? %>
+            <div class="space-y-3">
+              <% @records.each do |record| %>
+                <div class="border rounded-md p-3 bg-gray-50">
+                  <div class="flex justify-between items-start mb-2">
+                    <div class="font-medium"><%= record.school_class.name %></div>
+                    <span class="badge flex items-center space-x-1 <%= status_classes[record.status] || "bg-gray-100 text-gray-800" %>">
+                      <span><%= record.status_label || record.status %></span>
+                    </span>
+                  </div>
+
+                  <% if record.timestamp %>
+                    <div class="text-sm text-gray-600 flex items-center">
+                      <svg class="h-4 w-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="9" />
+                        <path d="M12 7v5l3 3" stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                      <%= record.timestamp.strftime("%H:%M") %>
+                    </div>
+                  <% end %>
+
+                  <% if record.modified_by %>
+                    <div class="text-xs text-gray-500 mt-2 italic">
+                      最終更新: <%= record.modified_at&.strftime("%Y-%m-%d %H:%M") %>
+                    </div>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="p-4 bg-gray-50 rounded-md text-center text-gray-500">
+              この日の出席記録はありません。
             </div>
           <% end %>
         </div>
-      <% else %>
-        <div class="bg-gray-50 rounded-lg border border-gray-200 p-4 text-center text-gray-500">
-          この日の出席記録はありません。
-        </div>
-      <% end %>
+      </div>
     </div>
   </div>
 </div>
