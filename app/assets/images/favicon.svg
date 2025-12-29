@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="favicon">
+  <rect width="100%" height="100%" rx="256" ry="256" fill="#4CAF50" />
+  <g fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="36">
+    <!-- horizontal shaft -->
+    <path d="M152 256h128" />
+    <!-- arrow head -->
+    <path d="M240 216l56 40-56 40" />
+    <!-- right bracket-like stroke -->
+    <path d="M328 184v144" stroke-width="28" />
+  </g>
+</svg>
