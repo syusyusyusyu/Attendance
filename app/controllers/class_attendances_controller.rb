@@ -28,6 +28,7 @@ class ClassAttendancesController < ApplicationController
       )
       record.status = status
       record.verification_method ||= "manual"
+      record.timestamp ||= Time.current
       record.modified_by = current_user
       record.modified_at = Time.current
       record.save!
