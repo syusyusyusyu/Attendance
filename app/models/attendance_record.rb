@@ -1,16 +1,16 @@
-class AttendanceRecord < ApplicationRecord
+﻿class AttendanceRecord < ApplicationRecord
   belongs_to :user
   belongs_to :school_class
   belongs_to :modified_by, class_name: "User", optional: true
 
-  enum status: {
+  enum :status, {
     present: "present",
     absent: "absent",
     late: "late",
     excused: "excused"
   }, _prefix: true
 
-  enum verification_method: {
+  enum :verification_method, {
     qrcode: "qrcode",
     manual: "manual",
     gps: "gps",
