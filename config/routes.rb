@@ -22,6 +22,7 @@ Rails.application.routes.draw do
   get "/history", to: "attendance_history#show"
   get "/attendance", to: "class_attendances#show"
   patch "/attendance", to: "class_attendances#update"
+  get "/attendance/export", to: "class_attendances#export"
 
   resource :profile, only: [:show, :update]
 end

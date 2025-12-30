@@ -168,3 +168,12 @@ Rails 8 + Hotwire + PostgreSQL 構成で実装し、Render.com にデプロイ�
 - QR読み取りは現在「トークン入力」で代替
 - クラス管理/履修登録UIは未実装
 - 管理者画面は未実装
+
+## 14. 追加仕様: QR本格導入
+- QR生成時に `QrSession` を作成し、`attendance_date`/`issued_at`/`expires_at` を保存
+- トークンは `{class_id, teacher_id, session_id, date, exp}` を署名
+- スキャン時は `QrSession` の期限/失効/日付を検証し、`QrScanEvent` にログを保存
+- 同一トークンの重複スキャンは「すでに出席済み」として扱う
+- 教員ダッシュボードに本日の出席サマリー(出席率/内訳)を表示
+- 出席管理画面からCSVエクスポートを提供
+- 環境変数 `QR_TOKEN_SECRET` を本番で必須化(変更で既存トークン無効)

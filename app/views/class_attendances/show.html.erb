@@ -51,6 +51,12 @@
       <% end %>
 
       <% if @selected_class %>
+        <div class="flex justify-end">
+          <%= link_to "CSVダウンロード", attendance_export_path(class_id: @selected_class.id, date: @date), class: "btn btn-secondary" %>
+        </div>
+      <% end %>
+
+      <% if @selected_class %>
         <div data-controller="attendance" data-attendance-editing-value="false">
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
             <div>

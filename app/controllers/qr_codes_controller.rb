@@ -7,6 +7,11 @@ class QrCodesController < ApplicationController
 
     return unless @selected_class
 
+    QrSession
+      .where(school_class: @selected_class, attendance_date: Time.zone.today, revoked_at: nil)
+      .where("expires_at > ?", Time.current)
+      .update_all(revoked_at: Time.current)
+
     issued_at = Time.current
     @qr_session = QrSession.create!(
       school_class: @selected_class,
