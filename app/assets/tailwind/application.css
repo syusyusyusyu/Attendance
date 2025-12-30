@@ -86,6 +86,10 @@
   .responsive-image {
     @apply w-full h-auto object-cover;
   }
+
+  .qr-code svg {
+    @apply w-full h-auto;
+  }
 }
 
 @layer utilities {
