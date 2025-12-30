@@ -3,6 +3,7 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = [
     "search",
+    "statusFilter",
     "row",
     "statusSelect",
     "statusBadge",
@@ -30,12 +31,27 @@ export default class extends Controller {
 
   filter() {
     const term = this.searchTarget.value.trim().toLowerCase()
+    const statusValue = this.hasStatusFilterTarget ? this.statusFilterTarget.value : ""
 
     this.rowTargets.forEach((row) => {
       const name = (row.dataset.name || "").toLowerCase()
       const studentId = (row.dataset.studentId || "").toLowerCase()
-      const match = !term || name.includes(term) || studentId.includes(term)
-      row.classList.toggle("hidden", !match)
+      const rowStatus = row.dataset.status || ""
+      const requestStatus = row.dataset.request || ""
+      const matchTerm = !term || name.includes(term) || studentId.includes(term)
+      let matchStatus = true
+
+      if (statusValue) {
+        if (statusValue === "pending_request") {
+          matchStatus = requestStatus === "pending"
+        } else if (statusValue === "missing") {
+          matchStatus = rowStatus === "missing"
+        } else {
+          matchStatus = rowStatus === statusValue
+        }
+      }
+
+      row.classList.toggle("hidden", !(matchTerm && matchStatus))
     })
   }
 

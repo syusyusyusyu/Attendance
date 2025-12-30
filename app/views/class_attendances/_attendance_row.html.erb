@@ -2,19 +2,32 @@
   "present" => "出席",
   "late" => "遅刻",
   "absent" => "欠席",
-  "excused" => "公欠"
+  "excused" => "公欠",
+  "early_leave" => "早退",
+  "missing" => "未入力"
 } %>
 <% status_badges = {
   "present" => "badge badge-success",
   "late" => "badge badge-warning",
   "absent" => "badge badge-error",
-  "excused" => "badge badge-info"
+  "excused" => "badge badge-info",
+  "early_leave" => "badge badge-warning",
+  "missing" => "badge"
 } %>
-<% status = record&.status || "absent" %>
-<% label = record&.status_label || status_labels[status] %>
-<% badge_class = record&.status_badge_class || status_badges[status] %>
+<% display_status = record&.status || "missing" %>
+<% select_status = record&.status || "absent" %>
+<% label = record&.status_label || status_labels[display_status] %>
+<% badge_class = record&.status_badge_class || status_badges[display_status] %>
+<% pending_request = local_assigns[:request] %>
 
-<tr id="attendance_row_<%= student.id %>" data-attendance-target="row" data-name="<%= student.name %>" data-student-id="<%= student.student_id %>">
+<tr
+  id="attendance_row_<%= student.id %>"
+  data-attendance-target="row"
+  data-name="<%= student.name %>"
+  data-student-id="<%= student.student_id %>"
+  data-status="<%= display_status %>"
+  data-request="<%= pending_request&.status_pending? ? "pending" : "" %>"
+>
   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= student.student_id %></td>
   <td class="px-6 py-4 whitespace-nowrap">
     <div class="text-sm font-medium text-gray-900"><%= student.name %></div>
@@ -24,8 +37,24 @@
       <%= label %>
     </span>
     <%= select_tag "attendance[#{student.id}]",
-      options_for_select(status_labels.map { |key, label_value| [label_value, key] }, status),
+      options_for_select(status_labels.except("missing").map { |key, label_value| [label_value, key] }, select_status),
       class: "input max-w-[160px] hidden",
-      data: { attendance_target: "statusSelect", initial_value: status, action: "change->attendance#markChanged" } %>
+      data: { attendance_target: "statusSelect", initial_value: select_status, action: "change->attendance#markChanged" } %>
+  </td>
+  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+    <%= record&.checked_in_at&.strftime("%H:%M") || "-" %>
+  </td>
+  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+    <%= record&.checked_out_at&.strftime("%H:%M") || "-" %>
+  </td>
+  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+    <%= record&.duration_minutes || "-" %>
+  </td>
+  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+    <% if pending_request&.status_pending? %>
+      <span class="badge badge-warning">申請中 (<%= status_labels[pending_request.request_type] || pending_request.request_type %>)</span>
+    <% else %>
+      <span class="text-xs text-gray-400">-</span>
+    <% end %>
   </td>
 </tr>

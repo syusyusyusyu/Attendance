@@ -15,8 +15,9 @@ class DashboardController < ApplicationController
         present = status_counts[[class_id, "present"]].to_i
         late = status_counts[[class_id, "late"]].to_i
         excused = status_counts[[class_id, "excused"]].to_i
+        early_leave = status_counts[[class_id, "early_leave"]].to_i
         absent = status_counts[[class_id, "absent"]].to_i
-        recorded = present + late + excused + absent
+        recorded = present + late + excused + early_leave + absent
         missing = [total - recorded, 0].max
         rate =
           if total.zero?
@@ -30,6 +31,7 @@ class DashboardController < ApplicationController
           present: present,
           late: late,
           excused: excused,
+          early_leave: early_leave,
           absent: absent,
           missing: missing,
           rate: rate
@@ -38,7 +40,7 @@ class DashboardController < ApplicationController
 
       recent_range = 30.days.ago.to_date..today
       absents = AttendanceRecord
-                .where(school_class_id: class_ids, date: recent_range, status: "absent")
+                .where(school_class_id: class_ids, date: recent_range, status: ["absent", "early_leave"])
                 .group(:user_id)
                 .count
 
@@ -54,26 +56,37 @@ class DashboardController < ApplicationController
       total_by_class = records.group(:school_class_id).count
       present_by_class = records.where(status: "present").group(:school_class_id).count
       late_by_class = records.where(status: "late").group(:school_class_id).count
+      excused_by_class = records.where(status: "excused").group(:school_class_id).count
       absent_by_class = records.where(status: "absent").group(:school_class_id).count
+      early_leave_by_class = records.where(status: "early_leave").group(:school_class_id).count
 
       @student_summary = @classes.map do |klass|
         total = total_by_class[klass.id].to_i
         present = present_by_class[klass.id].to_i
         late = late_by_class[klass.id].to_i
+        excused = excused_by_class[klass.id].to_i
         absent = absent_by_class[klass.id].to_i
-        rate = total.zero? ? 0 : ((present + late) * 100.0 / total).round
+        early_leave = early_leave_by_class[klass.id].to_i
+        rate = total.zero? ? 0 : ((present + late + excused) * 100.0 / total).round
 
         {
           klass: klass,
           total: total,
           present: present,
           late: late,
+          excused: excused,
           absent: absent,
-          rate: rate
+          early_leave: early_leave,
+          rate: rate,
+          policy: klass.attendance_policy || AttendancePolicy.new(AttendancePolicy.default_attributes)
         }
       end
 
-      @student_warnings = @student_summary.select { |row| row[:absent] >= 3 || row[:rate] < 70 }
+      @student_warnings = @student_summary.select do |row|
+        policy = row[:policy]
+        absence_count = row[:absent] + row[:early_leave]
+        absence_count >= policy.warning_absent_count || row[:rate] < policy.warning_rate_percent
+      end
       @recent_notifications = current_user.notifications.order(created_at: :desc).limit(3)
     end
   end

@@ -30,6 +30,10 @@ Rails.application.routes.draw do
   get "/attendance/export", to: "class_attendances#export"
   post "/attendance/import", to: "class_attendances#import"
   patch "/attendance/policy", to: "class_attendances#update_policy"
+  patch "/attendance/finalize", to: "class_attendances#finalize", as: :attendance_finalize
+  patch "/attendance/unlock", to: "class_attendances#unlock", as: :attendance_unlock
+
+  resources :attendance_requests, only: [:index, :create, :update]
 
   resource :profile, only: [:show, :update]
 

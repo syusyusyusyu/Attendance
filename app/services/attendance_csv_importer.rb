@@ -5,6 +5,7 @@ class AttendanceCsvImporter
     @teacher = teacher
     @school_class = school_class
     @csv_text = csv_text
+    @sessions_cache = {}
   end
 
   def import
@@ -18,6 +19,9 @@ class AttendanceCsvImporter
       student_id = row["学生ID"] || row["student_id"] || row["StudentID"]
       status_value = row["出席状況"] || row["status"] || row["Status"]
       notes = row["備考"] || row["notes"] || row["Notes"]
+      check_in_value = row["入室時刻"] || row["check_in"] || row["checked_in_at"]
+      check_out_value = row["退室時刻"] || row["check_out"] || row["checked_out_at"]
+      duration_value = row["滞在分"] || row["duration_minutes"] || row["duration"]
 
       student_id = student_id.to_s.strip
 
@@ -54,12 +58,16 @@ class AttendanceCsvImporter
         school_class: @school_class,
         date: date
       )
+      record.class_session ||= session_for(date)
       was_new = record.new_record?
       previous_status = record.status
 
       record.status = status
       record.verification_method = "manual"
-      record.timestamp ||= Time.current
+      record.checked_in_at = parse_time(date, check_in_value) if check_in_value.present?
+      record.checked_out_at = parse_time(date, check_out_value) if check_out_value.present?
+      record.duration_minutes = parse_integer(duration_value) if duration_value.present?
+      record.timestamp ||= record.checked_in_at || Time.current
       record.notes = notes if notes.present?
       record.modified_by = @teacher
       record.modified_at = Time.current
@@ -114,13 +122,33 @@ class AttendanceCsvImporter
       "遅刻" => "late",
       "欠席" => "absent",
       "公欠" => "excused",
+      "早退" => "early_leave",
       "未入力" => :skip,
       "present" => "present",
       "late" => "late",
       "absent" => "absent",
-      "excused" => "excused"
+      "excused" => "excused",
+      "early_leave" => "early_leave"
     }[text]
 
     normalized
+  end
+
+  def session_for(date)
+    @sessions_cache[date] ||= ClassSessionResolver.new(school_class: @school_class, date: date)&.resolve&.dig(:session)
+  end
+
+  def parse_time(date, value)
+    return nil if value.blank?
+
+    Time.zone.parse("#{date} #{value}")
+  rescue ArgumentError
+    nil
+  end
+
+  def parse_integer(value)
+    Integer(value.to_s.strip, 10)
+  rescue ArgumentError, TypeError
+    nil
   end
 end

@@ -1,4 +1,4 @@
-﻿require "digest"
+require "digest"
 
 class QrScansController < ApplicationController
   before_action -> { require_role!("student") }
@@ -72,13 +72,105 @@ class QrScansController < ApplicationController
     end
 
     window = school_class.schedule_window(qr_session.attendance_date)
+    unless window
+      log_scan_event(status: "no_schedule", token: token, qr_session: qr_session)
+      redirect_to scan_path, alert: "授業予定がありません。" and return
+    end
 
     if window&.dig(:canceled)
       log_scan_event(status: "class_canceled", token: token, qr_session: qr_session)
       redirect_to scan_path, alert: "この授業は休講です。" and return
     end
 
-    policy_result = policy.evaluate(scan_time: scan_time, start_at: window&.fetch(:start_at, nil))
+    class_session = window[:class_session]
+    if class_session&.locked?
+      log_scan_event(status: "session_locked", token: token, qr_session: qr_session)
+      redirect_to scan_path, alert: "この授業の出席は確定済みです。" and return
+    end
+
+    record = AttendanceRecord.find_or_initialize_by(
+      user: current_user,
+      school_class: school_class,
+      date: qr_session.attendance_date
+    )
+    record.class_session ||= class_session if class_session
+    record.checked_in_at ||= record.timestamp if record.timestamp.present?
+    previous_status = record.status
+
+    if record.persisted?
+      if record.modified_by_id.present? || record.verification_method_manual? || record.verification_method_system?
+        log_scan_event(status: "manual_override", token: token, qr_session: qr_session, attendance_status: record.status)
+        redirect_to scan_path, alert: "教員が出席を確定済みです。" and return
+      end
+    end
+
+    if record.persisted? && record.verification_method_qrcode? && record.checked_in_at.present?
+      if record.checked_out_at.present?
+        log_scan_event(status: "checkout_duplicate", token: token, qr_session: qr_session, attendance_status: record.status)
+        redirect_to scan_path, notice: "すでに退室済みです。" and return
+      end
+
+      record.checked_out_at = scan_time
+      record.location = (record.location || {}).merge(
+        "ip" => request.remote_ip,
+        "user_agent" => request.user_agent,
+        "qr_session_id" => qr_session.id,
+        "checked_out_at" => scan_time.iso8601
+      )
+
+      if policy.early_leave?(
+        checked_in_at: record.checked_in_at,
+        checked_out_at: scan_time,
+        session_start_at: window[:start_at],
+        session_end_at: window[:end_at]
+      )
+        record.status = "early_leave"
+      end
+
+      begin
+        if record.save
+          log_scan_event(status: "checkout", token: token, qr_session: qr_session, attendance_status: record.status)
+
+          if previous_status.present? && previous_status != record.status
+            AttendanceChange.create!(
+              attendance_record: record,
+              user: current_user,
+              school_class: school_class,
+              date: qr_session.attendance_date,
+              previous_status: previous_status,
+              new_status: record.status,
+              reason: "QR退室",
+              source: "system",
+              ip: request.remote_ip,
+              user_agent: request.user_agent,
+              changed_at: Time.current
+            )
+          end
+
+          if record.status_early_leave?
+            Notification.create!(
+              user: current_user,
+              kind: "warning",
+              title: "早退として記録されました",
+              body: "#{school_class.name} (#{qr_session.attendance_date.strftime('%Y-%m-%d')}) が早退として登録されました。",
+              action_path: history_path(date: qr_session.attendance_date)
+            )
+          end
+
+          redirect_to scan_path, notice: "退室を記録しました。"
+        else
+          log_scan_event(status: "error", token: token, qr_session: qr_session)
+          redirect_to scan_path, alert: "退室登録に失敗しました。"
+        end
+      rescue ActiveRecord::RecordNotUnique
+        log_scan_event(status: "checkout_duplicate", token: token, qr_session: qr_session, attendance_status: record.status)
+        redirect_to scan_path, notice: "すでに退室済みです。"
+      end
+
+      return
+    end
+
+    policy_result = policy.evaluate(scan_time: scan_time, start_at: window[:start_at], mode: :checkin)
 
     unless policy_result[:allowed]
       log_scan_event(status: policy_result[:status], token: token, qr_session: qr_session)
@@ -87,33 +179,20 @@ class QrScansController < ApplicationController
 
     attendance_status = policy_result[:attendance_status] || "present"
 
-    record = AttendanceRecord.find_or_initialize_by(
-      user: current_user,
-      school_class: school_class,
-      date: qr_session.attendance_date
-    )
-    previous_status = record.status
-
-    if record.persisted?
-      if record.verification_method_qrcode?
-        log_scan_event(status: "duplicate", token: token, qr_session: qr_session, attendance_status: record.status)
-        redirect_to scan_path, notice: "すでに出席済みです。" and return
-      end
-
-      if record.modified_by_id.present?
-        log_scan_event(status: "manual_override", token: token, qr_session: qr_session, attendance_status: record.status)
-        redirect_to scan_path, alert: "教員が出席を確定済みです。" and return
-      end
+    if record.persisted? && record.verification_method_qrcode?
+      log_scan_event(status: "duplicate", token: token, qr_session: qr_session, attendance_status: record.status)
+      redirect_to scan_path, notice: "すでに出席済みです。" and return
     end
 
     record.status = attendance_status
     record.verification_method = "qrcode"
     record.timestamp = scan_time
+    record.checked_in_at ||= scan_time
     record.location = (record.location || {}).merge(
       "ip" => request.remote_ip,
       "user_agent" => request.user_agent,
       "qr_session_id" => qr_session.id,
-      "scanned_at" => scan_time.iso8601
+      "checked_in_at" => scan_time.iso8601
     )
 
     begin

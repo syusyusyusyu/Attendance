@@ -1,11 +1,15 @@
 <% status_labels = {
   "success" => "成功",
+  "checkout" => "退室",
+  "checkout_duplicate" => "退室済み",
   "duplicate" => "重複",
   "invalid" => "無効",
   "expired" => "期限切れ",
   "revoked" => "失効",
   "not_enrolled" => "未履修",
   "session_missing" => "セッション不明",
+  "no_schedule" => "予定なし",
+  "session_locked" => "確定済み",
   "wrong_date" => "日付不一致",
   "error" => "エラー",
   "early" => "開始前",
@@ -18,12 +22,16 @@
 } %>
 <% status_badges = {
   "success" => "badge badge-success",
+  "checkout" => "badge badge-info",
+  "checkout_duplicate" => "badge badge-info",
   "duplicate" => "badge badge-info",
   "invalid" => "badge badge-error",
   "expired" => "badge badge-error",
   "revoked" => "badge badge-error",
   "not_enrolled" => "badge badge-error",
   "session_missing" => "badge badge-error",
+  "no_schedule" => "badge badge-warning",
+  "session_locked" => "badge badge-warning",
   "wrong_date" => "badge badge-error",
   "error" => "badge badge-error",
   "early" => "badge badge-warning",
@@ -38,13 +46,15 @@
   "present" => "出席",
   "late" => "遅刻",
   "absent" => "欠席",
-  "excused" => "公欠"
+  "excused" => "公欠",
+  "early_leave" => "早退"
 } %>
 <% attendance_badges = {
   "present" => "badge badge-success",
   "late" => "badge badge-warning",
   "absent" => "badge badge-error",
-  "excused" => "badge badge-info"
+  "excused" => "badge badge-info",
+  "early_leave" => "badge badge-warning"
 } %>
 
 <div class="max-w-6xl mx-auto">

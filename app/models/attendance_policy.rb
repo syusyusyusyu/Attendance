@@ -5,7 +5,10 @@ class AttendancePolicy < ApplicationRecord
     late_after_minutes: 10,
     close_after_minutes: 90,
     allow_early_checkin: true,
-    max_scans_per_minute: 10
+    max_scans_per_minute: 10,
+    minimum_attendance_rate: 80,
+    warning_absent_count: 3,
+    warning_rate_percent: 70
   }.freeze
 
   belongs_to :school_class
@@ -14,6 +17,10 @@ class AttendancePolicy < ApplicationRecord
             numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validates :max_scans_per_minute,
             numericality: { only_integer: true, greater_than: 0 }
+  validates :minimum_attendance_rate, :warning_rate_percent,
+            numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }
+  validates :warning_absent_count,
+            numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validates :allow_early_checkin, inclusion: { in: [true, false] }
   validate :close_after_is_after_late
   validate :allowed_ip_ranges_format
@@ -22,8 +29,12 @@ class AttendancePolicy < ApplicationRecord
     DEFAULTS
   end
 
-  def evaluate(scan_time:, start_at:)
+  def evaluate(scan_time:, start_at:, mode: :checkin)
     return { allowed: true, attendance_status: "present" } if start_at.blank?
+
+    if mode.to_sym == :checkout
+      return { allowed: true }
+    end
 
     if !allow_early_checkin && scan_time < start_at
       return {
@@ -50,6 +61,24 @@ class AttendancePolicy < ApplicationRecord
       allowed: true,
       attendance_status: attendance_status
     }
+  end
+
+  def required_attendance_minutes(session_length_minutes)
+    return 0 if session_length_minutes.blank?
+    return 0 if minimum_attendance_rate.to_i <= 0
+
+    ((session_length_minutes.to_i * minimum_attendance_rate.to_i) / 100.0).ceil
+  end
+
+  def early_leave?(checked_in_at:, checked_out_at:, session_start_at:, session_end_at:)
+    return false if checked_in_at.blank? || checked_out_at.blank?
+    return false if session_start_at.blank? || session_end_at.blank?
+
+    session_minutes = ((session_end_at - session_start_at) / 60).to_i
+    required_minutes = required_attendance_minutes(session_minutes)
+    duration = ((checked_out_at - checked_in_at) / 60).to_i
+
+    duration < required_minutes
   end
 
   def allows_request?(ip:, user_agent:)

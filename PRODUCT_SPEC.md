@@ -38,12 +38,14 @@ Rails 8 + Hotwire + PostgreSQL 構成で実装し、Render.com にデプロイ�
 - 5分有効のトークン生成
 - QRコード表示
 - 有効期限表示
+- 自動ローテーションで一定間隔ごとに更新
 
 ### 4.4 QRスキャン(学生)
 - URL: /scan
 - 入力: QRトークン
 - 成功時: 出席登録
 - 失敗時: エラーメッセージ
+- 2回目のスキャンで退室(チェックアウト)を記録
 
 ### 4.5 出席履歴(学生)
 - URL: /history
@@ -55,6 +57,7 @@ Rails 8 + Hotwire + PostgreSQL 構成で実装し、Render.com にデプロイ�
 - クラス選択、日付選択
 - 学生一覧と出席ステータス編集
 - 更新処理
+- 授業回の出席確定/解除
 
 ### 4.7 QRスキャンログ(教員)
 - URL: /scan-logs
@@ -92,6 +95,11 @@ Rails 8 + Hotwire + PostgreSQL 構成で実装し、Render.com にデプロイ�
 - URL: /notifications
 - 出席更新/休講/遅刻などの通知を一覧表示
 
+### 4.15 出席申請
+- URL: /attendance_requests
+- 学生: 欠席/遅刻/公欠の申請、理由入力
+- 教員: 申請の承認/却下、コメント入力
+
 ## 5. 機能仕様
 ### 5.1 認証
 - セッションベース
@@ -100,23 +108,25 @@ Rails 8 + Hotwire + PostgreSQL 構成で実装し、Render.com にデプロイ�
 
 ### 5.2 QRトークン
 - RailsのMessageVerifierで署名
-- payload: class_id, teacher_id, exp
+- payload: class_id, teacher_id, session_id, date, exp
 - TTL: 5分
 - 期限切れ、改ざんは無効
 
 ### 5.3 出席登録
 - 同一日付は上書き
-- status: present, late, absent, excused
-- verification_method: qrcode, manual, gps, beacon
-- 登録時にtimestamp付与
-- 出席ポリシー(遅刻/締切/開始前許可)で自動判定
+- status: present, late, absent, excused, early_leave
+- verification_method: qrcode, manual, gps, beacon, system
+- 登録時にtimestamp/checked_in_at を付与
+- 退室スキャンでchecked_out_at/duration_minutesを更新
+- 出席ポリシー(遅刻/締切/開始前許可/最低出席率)で自動判定
 
 ### 5.4 出席修正
 - 教員のみ
 - modified_by, modified_at を記録
 
 ### 5.5 出席ポリシー
-- クラスごとに遅刻判定/締切/開始前許可を設定
+- クラスごとに遅刻判定/締切/開始前許可/最低出席率を設定
+- 警告欠席回数/警告出席率を設定
 - スキャン時にポリシーを参照して status を決定
 
 ### 5.6 名簿CSVインポート
@@ -129,6 +139,16 @@ Rails 8 + Hotwire + PostgreSQL 構成で実装し、Render.com にデプロイ�
 ### 5.8 変更ログ/通知
 - 手動/CSV/QRスキャンによる変更を記録
 - 学生へ通知を送信
+
+### 5.9 出席申請
+- 学生が欠席/遅刻/公欠の申請を送信
+- 教員が承認/却下を行い、承認時は出席記録に反映
+- 申請/処理は通知で共有
+
+### 5.10 授業回/出席確定
+- 授業回(ClassSession)を日付単位で生成
+- 締切経過後に欠席を自動確定して授業回をロック
+- 教員は授業回の確定/解除を操作可能
 
 ## 6. データモデル
 ### users
@@ -166,15 +186,43 @@ Rails 8 + Hotwire + PostgreSQL 構成で実装し、Render.com にデプロイ�
 - id (PK)
 - user_id (FK -> users)
 - school_class_id (FK -> school_classes)
+- class_session_id (FK -> class_sessions)
 - date
 - status
 - timestamp
+- checked_in_at
+- checked_out_at
+- duration_minutes
 - location (jsonb)
 - verification_method
 - modified_by_id (FK -> users)
 - modified_at
 - notes
 - unique(user_id, school_class_id, date)
+
+### attendance_requests
+- id (PK)
+- user_id (FK -> users)
+- school_class_id (FK -> school_classes)
+- class_session_id (FK -> class_sessions)
+- date
+- request_type (absent/late/excused)
+- status (pending/approved/rejected)
+- reason
+- submitted_at
+- processed_by_id (FK -> users)
+- processed_at
+- decision_reason
+
+### class_sessions
+- id (PK)
+- school_class_id (FK -> school_classes)
+- date
+- start_at
+- end_at
+- status (regular/makeup/canceled)
+- locked_at
+- note
 
 ### class_session_overrides
 - id (PK)
@@ -234,6 +282,12 @@ Rails 8 + Hotwire + PostgreSQL 構成で実装し、Render.com にデプロイ�
 - late_after_minutes
 - close_after_minutes
 - allow_early_checkin
+- allowed_ip_ranges
+- allowed_user_agent_keywords
+- max_scans_per_minute
+- minimum_attendance_rate
+- warning_absent_count
+- warning_rate_percent
 
 ## 7. バリデーション
 - User: email, name, role 必須
@@ -279,18 +333,21 @@ Rails 8 + Hotwire + PostgreSQL 構成で実装し、Render.com にデプロイ�
 - トークンは `{class_id, teacher_id, session_id, date, exp}` を署名
 - スキャン時は `QrSession` の期限/失効/日付を検証し、`QrScanEvent` にログを保存
 - 同一トークンの重複スキャンは「すでに出席済み」として扱う
+- QRコードは自動ローテーションで更新
+- 2回目のスキャンで退室(チェックアウト)を記録
 - 教員ダッシュボードに本日の出席サマリー(出席率/内訳)を表示
 - 出席管理画面からCSVエクスポートを提供
 - 環境変数 `QR_TOKEN_SECRET` を本番で必須化(変更で既存トークン無効)
 
 ## 15. 追加: カメラ対応ブラウザ/CSV
-- QRカメラスキャンはChromium系ブラウザ(Chrome/Edge/Opera/Samsung Internet)を推奨
+- QRカメラスキャンはChromium系ブラウザ(Chrome/Edge/Brave/Opera/Samsung Internet)を推奨
+- iOS Safari 16+ は対応端末では利用可能
 - 非対応端末は手入力フォールバック
 - CSVは期間指定(`start_date`/`end_date`)に対応
-- CSV項目にクラス名・QRセッションID・IP・UserAgent・備考を追加
+- CSV項目に授業回ID/入室時刻/退室時刻/滞在分/申請状況/申請種別/申請理由を追加
 
 ## 16. 追加: 出席ポリシー/監査ログ/CSVインポート
-- 出席ポリシーで遅刻判定/締切/開始前許可を設定
+- 出席ポリシーで遅刻判定/締切/開始前許可/最低出席率/警告閾値を設定
 - QRスキャンログを `/scan-logs` で確認可能
 - CSVインポートで出席状況を一括反映
 
@@ -301,3 +358,5 @@ Rails 8 + Hotwire + PostgreSQL 構成で実装し、Render.com にデプロイ�
 - レポート `/reports` で集計を可視化
 - 通知 `/notifications` を提供
 - QRスキャンで出席管理画面がリアルタイム更新
+- 出席申請の申請/承認フローを提供
+- 授業回の出席確定/解除と自動欠席確定を提供

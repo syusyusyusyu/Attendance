@@ -15,8 +15,10 @@
       statuses = records.map(&:status)
       if statuses.include?("absent")
         "absent"
-      elsif statuses.include?("late")
+      elsif statuses.include?("early_leave") || statuses.include?("late")
         "late"
+      elsif statuses.include?("excused")
+        "excused"
       else
         "present"
       end
@@ -26,6 +28,10 @@
                            .includes(:school_class)
                            .where(date: @date)
                            .order(:timestamp)
+
+    @requests_by_class = current_user.attendance_requests
+                                     .where(date: @date)
+                                     .index_by(&:school_class_id)
 
     record_ids = @records.map(&:id)
     @changes_by_record = AttendanceChange

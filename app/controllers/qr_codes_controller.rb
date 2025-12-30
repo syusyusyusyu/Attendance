@@ -5,7 +5,13 @@ class QrCodesController < ApplicationController
     @classes = current_user.taught_classes.order(:name)
     @selected_class = @classes.find_by(id: params[:class_id])
 
-    return unless @selected_class
+    unless @selected_class
+      respond_to do |format|
+        format.html
+        format.json { render json: { error: "class_id is required" }, status: :unprocessable_entity }
+      end
+      return
+    end
 
     QrSession
       .where(school_class: @selected_class, attendance_date: Time.zone.today, revoked_at: nil)
@@ -22,5 +28,23 @@ class QrCodesController < ApplicationController
     )
     @expires_at = @qr_session.expires_at
     @token = AttendanceToken.generate(qr_session: @qr_session)
+
+    respond_to do |format|
+      format.html
+      format.json do
+        render json: {
+          token: @token,
+          expires_at: @expires_at.to_i,
+          svg: qr_svg(@token)
+        }
+      end
+    end
+  end
+
+  private
+
+  def qr_svg(token)
+    qr = RQRCode::QRCode.new(token)
+    qr.as_svg(module_size: 6, fill: "ffffff", color: "0f172a", shape_rendering: "crispEdges")
   end
 end

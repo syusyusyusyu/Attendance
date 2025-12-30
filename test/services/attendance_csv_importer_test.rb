@@ -78,4 +78,25 @@ class AttendanceCsvImporterTest < ActiveSupport::TestCase
     assert_equal 1, result[:created]
     assert_equal "late", record.status
   end
+
+  test "imports check in and out times with early leave" do
+    csv_text = <<~CSV
+      日付,学生ID,出席状況,入室時刻,退室時刻,滞在分
+      2025-01-03,S12345,早退,09:00,09:30,30
+    CSV
+
+    result = AttendanceCsvImporter.new(
+      teacher: @teacher,
+      school_class: @class,
+      csv_text: csv_text
+    ).import
+
+    record = AttendanceRecord.find_by(user: @student_one, school_class: @class, date: Date.new(2025, 1, 3))
+
+    assert_equal 1, result[:created]
+    assert_equal "early_leave", record.status
+    assert_equal 30, record.duration_minutes
+    assert_equal Time.zone.parse("2025-01-03 09:00"), record.checked_in_at
+    assert_equal Time.zone.parse("2025-01-03 09:30"), record.checked_out_at
+  end
 end

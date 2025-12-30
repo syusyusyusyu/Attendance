@@ -18,7 +18,7 @@ class ReportsController < ApplicationController
     @class_stats = @classes.map do |klass|
       dates = records_by_class_date.keys.filter { |pair| pair[0] == klass.id }.map(&:last).uniq
       total_students = klass.students.size
-      totals = { present: 0, late: 0, excused: 0, absent: 0, missing: 0 }
+      totals = { present: 0, late: 0, excused: 0, early_leave: 0, absent: 0, missing: 0 }
 
       dates.each do |date|
         daily = records_by_class_date[[klass.id, date]] || []
@@ -26,6 +26,7 @@ class ReportsController < ApplicationController
         totals[:present] += counts["present"].to_i
         totals[:late] += counts["late"].to_i
         totals[:excused] += counts["excused"].to_i
+        totals[:early_leave] += counts["early_leave"].to_i
         totals[:absent] += counts["absent"].to_i
         totals[:missing] += [total_students - daily.size, 0].max
       end
@@ -55,11 +56,12 @@ class ReportsController < ApplicationController
         present: counts["present"].to_i,
         late: counts["late"].to_i,
         excused: counts["excused"].to_i,
+        early_leave: counts["early_leave"].to_i,
         absent: counts["absent"].to_i
       }
     end
 
-    @student_ranking = student_counts.sort_by { |row| -row[:absent] }.first(5)
+    @student_ranking = student_counts.sort_by { |row| -(row[:absent] + row[:early_leave]) }.first(5)
 
     date_range = (@start_date..@end_date).to_a
     @daily_summary = date_range.map do |date|
@@ -70,6 +72,7 @@ class ReportsController < ApplicationController
         present: counts["present"].to_i,
         late: counts["late"].to_i,
         excused: counts["excused"].to_i,
+        early_leave: counts["early_leave"].to_i,
         absent: counts["absent"].to_i
       }
     end

@@ -1,4 +1,4 @@
-﻿require "csv"
+require "csv"
 
 class ClassAttendancesController < ApplicationController
   before_action -> { require_role!("teacher") }
@@ -12,10 +12,27 @@ class ClassAttendancesController < ApplicationController
 
     @policy = @selected_class.attendance_policy || AttendancePolicy.new(AttendancePolicy.default_attributes)
     @session_window = @selected_class.schedule_window(@date)
+    @class_session = @session_window&.dig(:class_session)
+
+    if @class_session
+      AttendanceRecord
+        .where(school_class: @selected_class, date: @date, class_session_id: nil)
+        .update_all(class_session_id: @class_session.id)
+    end
+
     @students = @selected_class.students.order(:name)
     @records = AttendanceRecord
                .where(school_class: @selected_class, date: @date)
                .index_by(&:user_id)
+    @pending_requests = AttendanceRequest
+                        .where(school_class: @selected_class, date: @date, status: "pending")
+                        .index_by(&:user_id)
+
+    @finalize_available = false
+    if @class_session&.start_at.present? && !@class_session.locked?
+      close_at = @class_session.start_at + @policy.close_after_minutes.minutes
+      @finalize_available = Time.current >= close_at
+    end
   rescue ArgumentError
     redirect_to attendance_path, alert: "日付の形式が正しくありません。"
   end
@@ -24,6 +41,13 @@ class ClassAttendancesController < ApplicationController
     selected_class = current_user.taught_classes.find(params[:class_id])
     date = params[:date].present? ? Date.parse(params[:date]) : Date.current
     reason = params[:reason].to_s.strip
+
+    window = selected_class.schedule_window(date)
+    class_session = window&.dig(:class_session)
+
+    if class_session&.locked?
+      redirect_to attendance_path(class_id: selected_class.id, date: date), alert: "出席が確定済みのため修正できません。" and return
+    end
 
     changes = []
     (params[:attendance] || {}).each do |user_id, status|
@@ -54,6 +78,7 @@ class ClassAttendancesController < ApplicationController
       record.timestamp ||= Time.current
       record.modified_by = current_user
       record.modified_at = Time.current
+      record.class_session ||= class_session if class_session
       record.save!
 
       next if previous_status.nil? || previous_status == record.status
@@ -100,39 +125,61 @@ class ClassAttendancesController < ApplicationController
     records = AttendanceRecord
               .where(school_class: selected_class, date: start_date..end_date)
               .index_by { |record| [record.user_id, record.date] }
+    requests = AttendanceRequest
+               .where(school_class: selected_class, date: start_date..end_date)
+               .order(submitted_at: :desc)
+    requests_by_key = {}
+    requests.each do |request|
+      key = [request.user_id, request.date]
+      requests_by_key[key] ||= request
+    end
 
     dates = (start_date..end_date).to_a
 
     csv_data = CSV.generate(headers: true) do |csv|
       csv << [
         "日付",
+        "授業回ID",
         "クラス",
         "学生ID",
         "氏名",
         "出席状況",
-        "記録時刻",
+        "入室時刻",
+        "退室時刻",
+        "滞在分",
         "方法",
         "QRセッションID",
         "IP",
         "UserAgent",
-        "備考"
+        "備考",
+        "申請状況",
+        "申請種別",
+        "申請理由"
       ]
       students.each do |student|
         dates.each do |date|
           record = records[[student.id, date]]
           location = record&.location || {}
+          request = requests_by_key[[student.id, date]]
+          session_id = record&.class_session_id
           csv << [
             date.strftime("%Y-%m-%d"),
+            session_id,
             selected_class.name,
             student.student_id,
             student.name,
             record&.status_label || "未入力",
-            record&.timestamp&.strftime("%H:%M:%S"),
+            record&.checked_in_at&.strftime("%H:%M:%S"),
+            record&.checked_out_at&.strftime("%H:%M:%S"),
+            record&.duration_minutes,
             record&.verification_method,
             location["qr_session_id"],
             location["ip"],
             location["user_agent"],
-            record&.notes
+            record&.notes,
+            request&.status,
+            request&.request_type,
+            request&.reason
           ]
         end
       end
@@ -188,6 +235,46 @@ class ClassAttendancesController < ApplicationController
     redirect_to attendance_path, alert: "日付の形式が正しくありません。"
   end
 
+  def finalize
+    selected_class = current_user.taught_classes.find(params[:class_id])
+    date = params[:date].present? ? Date.parse(params[:date]) : Date.current
+    window = selected_class.schedule_window(date)
+    class_session = window&.dig(:class_session)
+
+    if class_session.blank?
+      redirect_to attendance_path(class_id: selected_class.id, date: date), alert: "授業回が見つかりません。" and return
+    end
+
+    if class_session.locked?
+      redirect_to attendance_path(class_id: selected_class.id, date: date), notice: "すでに確定済みです。" and return
+    end
+
+    AttendanceFinalizer.new(class_session: class_session).finalize!
+    redirect_to attendance_path(class_id: selected_class.id, date: date), notice: "出席を確定しました。"
+  rescue ArgumentError
+    redirect_to attendance_path, alert: "日付の形式が正しくありません。"
+  end
+
+  def unlock
+    selected_class = current_user.taught_classes.find(params[:class_id])
+    date = params[:date].present? ? Date.parse(params[:date]) : Date.current
+    window = selected_class.schedule_window(date)
+    class_session = window&.dig(:class_session)
+
+    if class_session.blank?
+      redirect_to attendance_path(class_id: selected_class.id, date: date), alert: "授業回が見つかりません。" and return
+    end
+
+    unless class_session.locked?
+      redirect_to attendance_path(class_id: selected_class.id, date: date), notice: "未確定のため解除不要です。" and return
+    end
+
+    class_session.update!(locked_at: nil)
+    redirect_to attendance_path(class_id: selected_class.id, date: date), notice: "出席確定を解除しました。"
+  rescue ArgumentError
+    redirect_to attendance_path, alert: "日付の形式が正しくありません。"
+  end
+
   private
 
   def parse_date_param(value)
@@ -203,7 +290,10 @@ class ClassAttendancesController < ApplicationController
       :allow_early_checkin,
       :allowed_ip_ranges,
       :allowed_user_agent_keywords,
-      :max_scans_per_minute
+      :max_scans_per_minute,
+      :minimum_attendance_rate,
+      :warning_absent_count,
+      :warning_rate_percent
     )
   end
 end

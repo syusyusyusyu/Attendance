@@ -116,7 +116,7 @@
                   <div class="h-2 rounded-full bg-google-green" style="width: <%= stats[:rate] %>%"></div>
                 </div>
                 <div class="mt-2 text-xs text-gray-600">
-                  出席 <%= stats[:present] %> / 遅刻 <%= stats[:late] %> / 公欠 <%= stats[:excused] %> / 欠席 <%= stats[:absent] %> / 未入力 <%= stats[:missing] %>
+                  出席 <%= stats[:present] %> / 遅刻 <%= stats[:late] %> / 公欠 <%= stats[:excused] %> / 早退 <%= stats[:early_leave] %> / 欠席 <%= stats[:absent] %> / 未入力 <%= stats[:missing] %>
                 </div>
               </div>
             </div>
@@ -130,7 +130,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
       <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg sm:text-xl font-semibold">欠席が多い学生</h2>
+          <h2 class="text-lg sm:text-xl font-semibold">欠席・早退が多い学生</h2>
           <%= link_to "出席変更ログ", attendance_logs_path, class: "text-sm text-google-green hover:underline" %>
         </div>
         <% if @attention_students.any? %>
@@ -141,7 +141,7 @@
                   <div class="text-sm font-medium text-gray-900"><%= row[:student].name %></div>
                   <div class="text-xs text-gray-500"><%= row[:student].student_id %></div>
                 </div>
-                <div class="text-sm text-gray-600">欠席 <%= row[:absences] %> 回</div>
+                <div class="text-sm text-gray-600">欠席/早退 <%= row[:absences] %> 回</div>
               </div>
             <% end %>
           </div>
@@ -187,7 +187,7 @@
                   <div class="h-2 rounded-full bg-google-green" style="width: <%= row[:rate] %>%"></div>
                 </div>
                 <div class="text-xs text-gray-500 mt-2">
-                  出席 <%= row[:present] %> / 遅刻 <%= row[:late] %> / 欠席 <%= row[:absent] %>
+                  出席 <%= row[:present] %> / 遅刻 <%= row[:late] %> / 公欠 <%= row[:excused] %> / 早退 <%= row[:early_leave] %> / 欠席 <%= row[:absent] %>
                 </div>
               </div>
             <% end %>
@@ -207,7 +207,7 @@
             <% @student_warnings.each do |row| %>
               <div class="border border-yellow-200 bg-yellow-50 rounded-lg p-3">
                 <div class="text-sm font-medium text-gray-900"><%= row[:klass].name %></div>
-                <div class="text-xs text-gray-600 mt-1">欠席 <%= row[:absent] %> 回 / 出席率 <%= row[:rate] %>%</div>
+                <div class="text-xs text-gray-600 mt-1">欠席/早退 <%= row[:absent] + row[:early_leave] %> 回 / 出席率 <%= row[:rate] %>%</div>
               </div>
             <% end %>
           </div>

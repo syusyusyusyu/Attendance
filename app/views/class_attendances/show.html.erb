@@ -60,6 +60,18 @@
               <%= f.label :max_scans_per_minute, "分間スキャン上限", class: "block text-sm font-medium text-gray-700 mb-2" %>
               <%= f.number_field :max_scans_per_minute, value: @policy.max_scans_per_minute, min: 1, class: "input" %>
             </div>
+            <div>
+              <%= f.label :minimum_attendance_rate, "最低出席率(%)", class: "block text-sm font-medium text-gray-700 mb-2" %>
+              <%= f.number_field :minimum_attendance_rate, value: @policy.minimum_attendance_rate, min: 0, max: 100, class: "input" %>
+            </div>
+            <div>
+              <%= f.label :warning_absent_count, "警告欠席回数", class: "block text-sm font-medium text-gray-700 mb-2" %>
+              <%= f.number_field :warning_absent_count, value: @policy.warning_absent_count, min: 0, class: "input" %>
+            </div>
+            <div>
+              <%= f.label :warning_rate_percent, "警告出席率(%)", class: "block text-sm font-medium text-gray-700 mb-2" %>
+              <%= f.number_field :warning_rate_percent, value: @policy.warning_rate_percent, min: 0, max: 100, class: "input" %>
+            </div>
             <div class="flex items-center space-x-2">
               <%= f.check_box :allow_early_checkin, { checked: @policy.allow_early_checkin }, true, false %>
               <%= f.label :allow_early_checkin, "開始前の出席登録を許可", class: "text-sm text-gray-700" %>
@@ -81,6 +93,12 @@
           </p>
           <p class="text-xs text-gray-500">
             IP/端末制限を設定すると条件に一致しないQRスキャンはブロックされます。
+          </p>
+          <p class="text-xs text-gray-500">
+            最低出席率は入室〜退室の滞在時間に基づき早退判定に利用されます。
+          </p>
+          <p class="text-xs text-gray-500">
+            警告欠席回数・警告出席率はダッシュボードの注意アラートに反映されます。
           </p>
         </div>
 
@@ -104,6 +122,30 @@
             <% end %>
           <% else %>
             <div class="text-sm text-gray-500">スケジュールが未設定です。</div>
+          <% end %>
+        </div>
+
+        <div class="border border-gray-200 rounded-lg p-4">
+          <h3 class="text-sm font-medium text-gray-700 mb-3">授業回ステータス</h3>
+          <% if @class_session %>
+            <div class="text-sm text-gray-700">授業回ID: <%= @class_session.id %></div>
+            <% if @class_session.locked? %>
+              <div class="mt-2 text-sm text-green-700">出席は確定済みです。</div>
+              <div class="mt-3">
+                <%= button_to "確定を解除", attendance_unlock_path(class_id: @selected_class.id, date: @date), method: :patch, class: "btn btn-secondary w-full" %>
+              </div>
+            <% else %>
+              <div class="mt-2 text-sm text-gray-600">出席は未確定です。</div>
+              <% if @finalize_available %>
+                <div class="mt-3">
+                  <%= button_to "出席を確定", attendance_finalize_path(class_id: @selected_class.id, date: @date), method: :patch, class: "btn btn-primary w-full" %>
+                </div>
+              <% else %>
+                <div class="mt-2 text-xs text-gray-500">授業終了後に確定できます。</div>
+              <% end %>
+            <% end %>
+          <% else %>
+            <div class="text-sm text-gray-500">授業回が未生成です。スケジュールを設定してください。</div>
           <% end %>
         </div>
 
@@ -165,20 +207,34 @@
           </div>
 
           <div class="mb-4">
-            <div class="relative">
-              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg class="h-4 w-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="11" cy="11" r="7" />
-                  <path d="M21 21l-4.3-4.3" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
+            <div class="flex flex-col sm:flex-row gap-2">
+              <div class="relative flex-1">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg class="h-4 w-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="7" />
+                    <path d="M21 21l-4.3-4.3" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </div>
+                <input
+                  type="text"
+                  class="input pl-10"
+                  placeholder="学生ID / 氏名で検索..."
+                  data-attendance-target="search"
+                  data-action="input->attendance#filter"
+                />
               </div>
-              <input
-                type="text"
-                class="input pl-10"
-                placeholder="学生ID / 氏名で検索..."
-                data-attendance-target="search"
-                data-action="input->attendance#filter"
-              />
+              <div class="sm:w-48">
+                <select class="input" data-attendance-target="statusFilter" data-action="change->attendance#filter">
+                  <option value="">すべて</option>
+                  <option value="missing">未入力</option>
+                  <option value="present">出席</option>
+                  <option value="late">遅刻</option>
+                  <option value="early_leave">早退</option>
+                  <option value="absent">欠席</option>
+                  <option value="excused">公欠</option>
+                  <option value="pending_request">申請中</option>
+                </select>
+              </div>
             </div>
           </div>
 
@@ -199,11 +255,15 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">学生ID</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">氏名</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">出席状況</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">入室</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">退室</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">滞在(分)</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">申請</th>
                   </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                   <% @students.each do |student| %>
-                    <%= render "attendance_row", student: student, record: @records[student.id] %>
+                    <%= render "attendance_row", student: student, record: @records[student.id], request: @pending_requests[student.id] %>
                   <% end %>
                 </tbody>
               </table>

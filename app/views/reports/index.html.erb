@@ -28,7 +28,7 @@
             </div>
             <div class="mt-2 text-xs text-gray-600">
               出席 <%= stat[:totals][:present] %> / 遅刻 <%= stat[:totals][:late] %> / 公欠 <%= stat[:totals][:excused] %> /
-              欠席 <%= stat[:totals][:absent] %> / 未入力 <%= stat[:totals][:missing] %>
+              早退 <%= stat[:totals][:early_leave] %> / 欠席 <%= stat[:totals][:absent] %> / 未入力 <%= stat[:totals][:missing] %>
             </div>
           </div>
         <% end %>
@@ -39,7 +39,7 @@
     </div>
 
     <div class="card p-6">
-      <h2 class="text-lg font-medium text-gray-900 mb-4">欠席が多い学生</h2>
+      <h2 class="text-lg font-medium text-gray-900 mb-4">欠席・早退が多い学生</h2>
       <div class="space-y-3">
         <% @student_ranking.each_with_index do |row, index| %>
           <div class="flex items-center justify-between border border-gray-200 rounded-lg p-3">
@@ -47,7 +47,7 @@
               <div class="text-sm font-medium text-gray-900"><%= "#{index + 1}. #{row[:user].name}" %></div>
               <div class="text-xs text-gray-500"><%= row[:user].student_id %></div>
             </div>
-            <div class="text-sm text-gray-600">欠席 <%= row[:absent] %> 回</div>
+            <div class="text-sm text-gray-600">欠席/早退 <%= row[:absent] + row[:early_leave] %> 回</div>
           </div>
         <% end %>
         <% if @student_ranking.empty? %>
@@ -61,7 +61,7 @@
     <h2 class="text-lg font-medium text-gray-900 mb-4">日別サマリー</h2>
     <div class="space-y-3">
       <% @daily_summary.each do |row| %>
-        <% total = row[:present] + row[:late] + row[:excused] + row[:absent] %>
+        <% total = row[:present] + row[:late] + row[:excused] + row[:early_leave] + row[:absent] %>
         <div>
           <div class="flex items-center justify-between text-xs text-gray-500">
             <span><%= row[:date].strftime("%Y-%m-%d") %></span>
@@ -72,11 +72,12 @@
               <div class="bg-google-green" style="width: <%= (row[:present] * 100.0 / total).round(2) %>%"></div>
               <div class="bg-yellow-400" style="width: <%= (row[:late] * 100.0 / total).round(2) %>%"></div>
               <div class="bg-blue-400" style="width: <%= (row[:excused] * 100.0 / total).round(2) %>%"></div>
+              <div class="bg-orange-400" style="width: <%= (row[:early_leave] * 100.0 / total).round(2) %>%"></div>
               <div class="bg-red-400" style="width: <%= (row[:absent] * 100.0 / total).round(2) %>%"></div>
             <% end %>
           </div>
           <div class="text-xs text-gray-500 mt-1">
-            出席 <%= row[:present] %> / 遅刻 <%= row[:late] %> / 公欠 <%= row[:excused] %> / 欠席 <%= row[:absent] %>
+            出席 <%= row[:present] %> / 遅刻 <%= row[:late] %> / 公欠 <%= row[:excused] %> / 早退 <%= row[:early_leave] %> / 欠席 <%= row[:absent] %>
           </div>
         </div>
       <% end %>

@@ -5,7 +5,16 @@
       <p class="text-sm text-gray-500 mt-1">授業を選択してQRコードを生成します。</p>
     </div>
 
-    <div class="p-6" data-controller="qr" <% if @selected_class %>data-qr-expires-at-value="<%= @expires_at.to_i %>" data-qr-filename-value="qrcode-<%= @selected_class.id %>.svg"<% end %>>
+    <div
+      class="p-6"
+      data-controller="qr"
+      <% if @selected_class %>
+        data-qr-expires-at-value="<%= @expires_at.to_i %>"
+        data-qr-filename-value="qrcode-<%= @selected_class.id %>.svg"
+        data-qr-refresh-url-value="<%= generate_qr_path(class_id: @selected_class.id, format: :json) %>"
+        data-qr-refresh-interval-value="60"
+      <% end %>
+    >
       <div class="mb-6">
         <%= form_with url: generate_qr_path, method: :get, class: "space-y-4" do |f| %>
           <div>
@@ -32,7 +41,7 @@
             <div class="text-sm text-gray-600"><%= @selected_class.room %></div>
           </div>
 
-          <div class="flex items-center mb-6">
+          <div class="flex items-center mb-2">
             <svg class="h-5 w-5 text-google-red mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="9" />
               <path d="M12 7v5l3 3" stroke-linecap="round" stroke-linejoin="round" />
@@ -41,6 +50,7 @@
               有効期限: <%= @expires_at.strftime("%H:%M") %> (残り <span data-qr-target="timeLeft"><%= ((@expires_at - Time.current).to_i.clamp(0, 300) / 60).to_s %>:<%= ((@expires_at - Time.current).to_i.clamp(0, 300) % 60).to_s.rjust(2, "0") %></span>)
             </span>
           </div>
+          <p class="text-xs text-gray-500 mb-6">QRコードは定期的に自動更新されます。</p>
 
           <div class="flex space-x-3">
             <%= link_to generate_qr_path(class_id: @selected_class.id), class: "btn btn-secondary" do %>

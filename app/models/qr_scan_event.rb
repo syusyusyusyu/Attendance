@@ -5,12 +5,16 @@ class QrScanEvent < ApplicationRecord
 
   enum :status, {
     success: "success",
+    checkout: "checkout",
+    checkout_duplicate: "checkout_duplicate",
     invalid: "invalid",
     expired: "expired",
     revoked: "revoked",
     not_enrolled: "not_enrolled",
     duplicate: "duplicate",
     session_missing: "session_missing",
+    no_schedule: "no_schedule",
+    session_locked: "session_locked",
     wrong_date: "wrong_date",
     error: "error",
     early: "early",

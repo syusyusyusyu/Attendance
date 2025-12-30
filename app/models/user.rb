@@ -18,6 +18,11 @@ class User < ApplicationRecord
            class_name: "AttendanceRecord",
            foreign_key: :modified_by_id,
            dependent: :nullify
+  has_many :attendance_requests, dependent: :destroy
+  has_many :processed_attendance_requests,
+           class_name: "AttendanceRequest",
+           foreign_key: :processed_by_id,
+           dependent: :nullify
   has_many :qr_sessions,
            foreign_key: :teacher_id,
            dependent: :destroy

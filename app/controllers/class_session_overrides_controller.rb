@@ -6,6 +6,7 @@ class ClassSessionOverridesController < ApplicationController
     override = school_class.class_session_overrides.new(override_params)
 
     if override.save
+      ClassSessionResolver.new(school_class: school_class, date: override.date).resolve
       notify_students(school_class, override)
       redirect_to school_class_path(school_class), notice: "特別日程を追加しました。"
     else
@@ -17,6 +18,9 @@ class ClassSessionOverridesController < ApplicationController
     school_class = current_user.taught_classes.find(params[:school_class_id])
     override = school_class.class_session_overrides.find(params[:id])
     override.destroy
+    unless ClassSessionResolver.new(school_class: school_class, date: override.date).resolve
+      school_class.class_sessions.where(date: override.date).delete_all
+    end
     redirect_to school_class_path(school_class), notice: "特別日程を削除しました。"
   end
 

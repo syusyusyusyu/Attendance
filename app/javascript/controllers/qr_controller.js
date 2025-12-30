@@ -2,18 +2,27 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static targets = ["code", "timeLeft"]
-  static values = { expiresAt: Number, filename: String }
+  static values = { expiresAt: Number, filename: String, refreshUrl: String, refreshInterval: Number }
 
   connect() {
-    if (!this.hasExpiresAtValue) return
+    if (this.hasExpiresAtValue) {
+      this.updateTimeLeft()
+      this.timer = setInterval(() => this.updateTimeLeft(), 1000)
+    }
 
-    this.updateTimeLeft()
-    this.timer = setInterval(() => this.updateTimeLeft(), 1000)
+    if (this.hasRefreshUrlValue) {
+      const interval = this.hasRefreshIntervalValue ? this.refreshIntervalValue : 60
+      this.refreshTimer = setInterval(() => this.refresh(), interval * 1000)
+    }
   }
 
   disconnect() {
     if (this.timer) {
       clearInterval(this.timer)
+    }
+
+    if (this.refreshTimer) {
+      clearInterval(this.refreshTimer)
     }
   }
 
@@ -25,6 +34,28 @@ export default class extends Controller {
     const minutes = Math.floor(remaining / 60)
     const seconds = remaining % 60
     this.timeLeftTarget.textContent = `${minutes}:${seconds.toString().padStart(2, "0")}`
+  }
+
+  async refresh() {
+    if (!this.hasRefreshUrlValue || !this.hasCodeTarget) return
+
+    try {
+      const response = await fetch(this.refreshUrlValue, {
+        headers: { Accept: "application/json" }
+      })
+      if (!response.ok) return
+
+      const data = await response.json()
+      if (data.svg) {
+        this.codeTarget.innerHTML = data.svg
+      }
+      if (data.expires_at) {
+        this.expiresAtValue = data.expires_at
+        this.updateTimeLeft()
+      }
+    } catch (_error) {
+      // ignore refresh errors
+    }
   }
 
   download() {

@@ -102,4 +102,25 @@ class AttendancePolicyTest < ActiveSupport::TestCase
 
     assert_not policy.valid?
   end
+
+  test "early_leave? uses minimum attendance rate" do
+    teacher = build_teacher
+    school_class = build_class(teacher)
+    policy = AttendancePolicy.create!(
+      school_class: school_class,
+      late_after_minutes: 10,
+      close_after_minutes: 90,
+      minimum_attendance_rate: 80
+    )
+    start_at = Time.zone.parse("2025-01-01 09:00")
+    end_at = start_at + 100.minutes
+
+    assert_equal 80, policy.required_attendance_minutes(100)
+    assert policy.early_leave?(
+      checked_in_at: start_at,
+      checked_out_at: start_at + 60.minutes,
+      session_start_at: start_at,
+      session_end_at: end_at
+    )
+  end
 end

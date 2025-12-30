@@ -33,25 +33,29 @@ cd /mnt/c/Users/cafec/OneDrive/Desktop/tables勉強用/school
 ## 追加: QR本格導入のポイント
 - カメラQRスキャン(BarcodeDetector)対応、非対応端末は手入力にフォールバック
 - QR発行はQrSessionとして保存し、再生成時に既存セッションを失効
+- QRコードは自動ローテーションで更新(60秒間隔)
 - スキャンログ(QrScanEvent)に成功/失敗/理由/端末情報を記録
 - 教員ダッシュボードに本日の出席率サマリーを表示
 - `/attendance` からCSVダウンロードが可能
 - 出席ポリシー(遅刻/締切/開始前許可)で自動判定
+- 入室/退室を記録し、滞在時間で早退判定
 
 ## 追加: 環境変数
 - `QR_TOKEN_SECRET` : QRトークン署名用の秘密鍵(変更すると既存トークンは無効)
 
 ## 追加: カメラ対応ブラウザ
-- Chromium系 (Chrome / Edge / Opera / Samsung Internet) でカメラQRスキャンが動作
-- Safari/iOSは未対応の可能性が高いため、手入力フォールバックを利用
+- Chromium系 (Chrome / Edge / Brave / Opera / Samsung Internet) でカメラQRスキャンが動作
+- iOS Safari 16+ は対応端末では利用可能
+- それ以外のブラウザ/アプリ内ブラウザは手入力フォールバックを利用
 
 ## 追加: CSVエクスポート仕様
 - 期間指定: `start_date` / `end_date` (同日なら1日分)
-- 追加項目: クラス名、QRセッションID、IP、UserAgent、備考
+- 追加項目: 授業回ID、入室時刻、退室時刻、滞在分、申請状況/種別/理由、QRセッションID、IP、UserAgent、備考
 
 ## 追加: CSVインポート仕様
 - 必須列: 日付 / 学生ID / 出席状況
-- 出席状況は `出席/遅刻/欠席/公欠` (英語ラベルも可)
+- 出席状況は `出席/遅刻/欠席/公欠/早退` (英語ラベルも可)
+- `入室時刻/退室時刻/滞在分` は任意
 - `未入力` はスキップ
 
 ## 追加: 監査ログ
@@ -64,3 +68,5 @@ cd /mnt/c/Users/cafec/OneDrive/Desktop/tables勉強用/school
 - 通知 `/notifications` で更新を確認
 - QRスキャンのIP/端末制限・分間スキャン上限
 - QRスキャン結果が出席管理画面にリアルタイム反映
+- 出席申請(欠席/遅刻/公欠)の申請・承認フロー
+- 出席確定/解除と自動欠席確定 (`bin/rails attendance:finalize`)

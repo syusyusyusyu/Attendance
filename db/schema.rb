@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_30_140300) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_31_090300) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -46,6 +46,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_30_140300) do
     t.text "allowed_ip_ranges"
     t.text "allowed_user_agent_keywords"
     t.integer "max_scans_per_minute", default: 10, null: false
+    t.integer "minimum_attendance_rate", default: 80, null: false
+    t.integer "warning_absent_count", default: 3, null: false
+    t.integer "warning_rate_percent", default: 70, null: false
     t.index ["school_class_id"], name: "index_attendance_policies_on_school_class_id", unique: true
   end
 
@@ -62,10 +65,38 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_30_140300) do
     t.text "notes"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "class_session_id"
+    t.datetime "checked_in_at"
+    t.datetime "checked_out_at"
+    t.integer "duration_minutes"
+    t.index ["class_session_id"], name: "index_attendance_records_on_class_session_id"
     t.index ["modified_by_id"], name: "index_attendance_records_on_modified_by_id"
     t.index ["school_class_id"], name: "index_attendance_records_on_school_class_id"
     t.index ["user_id", "school_class_id", "date"], name: "index_attendance_records_unique_day", unique: true
     t.index ["user_id"], name: "index_attendance_records_on_user_id"
+  end
+
+  create_table "attendance_requests", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "school_class_id", null: false
+    t.bigint "class_session_id"
+    t.date "date", null: false
+    t.string "request_type", null: false
+    t.string "status", default: "pending", null: false
+    t.text "reason"
+    t.datetime "submitted_at", null: false
+    t.bigint "processed_by_id"
+    t.datetime "processed_at"
+    t.text "decision_reason"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["class_session_id"], name: "index_attendance_requests_on_class_session_id"
+    t.index ["processed_by_id"], name: "index_attendance_requests_on_processed_by_id"
+    t.index ["school_class_id", "date"], name: "index_attendance_requests_on_school_class_id_and_date"
+    t.index ["school_class_id"], name: "index_attendance_requests_on_school_class_id"
+    t.index ["status"], name: "index_attendance_requests_on_status"
+    t.index ["user_id", "date"], name: "index_attendance_requests_on_user_id_and_date"
+    t.index ["user_id"], name: "index_attendance_requests_on_user_id"
   end
 
   create_table "class_session_overrides", force: :cascade do |t|
@@ -80,6 +111,22 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_30_140300) do
     t.index ["school_class_id", "date"], name: "index_class_session_overrides_on_school_class_id_and_date", unique: true
     t.index ["school_class_id"], name: "index_class_session_overrides_on_school_class_id"
     t.index ["status"], name: "index_class_session_overrides_on_status"
+  end
+
+  create_table "class_sessions", force: :cascade do |t|
+    t.bigint "school_class_id", null: false
+    t.date "date", null: false
+    t.datetime "start_at"
+    t.datetime "end_at"
+    t.string "status", default: "regular", null: false
+    t.datetime "locked_at"
+    t.text "note"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["date"], name: "index_class_sessions_on_date"
+    t.index ["school_class_id", "date"], name: "index_class_sessions_on_school_class_id_and_date", unique: true
+    t.index ["school_class_id"], name: "index_class_sessions_on_school_class_id"
+    t.index ["status"], name: "index_class_sessions_on_status"
   end
 
   create_table "enrollments", force: :cascade do |t|
@@ -176,10 +223,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_30_140300) do
   add_foreign_key "attendance_changes", "users"
   add_foreign_key "attendance_changes", "users", column: "modified_by_id"
   add_foreign_key "attendance_policies", "school_classes"
+  add_foreign_key "attendance_records", "class_sessions"
   add_foreign_key "attendance_records", "school_classes"
   add_foreign_key "attendance_records", "users"
   add_foreign_key "attendance_records", "users", column: "modified_by_id"
+  add_foreign_key "attendance_requests", "class_sessions"
+  add_foreign_key "attendance_requests", "school_classes"
+  add_foreign_key "attendance_requests", "users"
+  add_foreign_key "attendance_requests", "users", column: "processed_by_id"
   add_foreign_key "class_session_overrides", "school_classes"
+  add_foreign_key "class_sessions", "school_classes"
   add_foreign_key "enrollments", "school_classes"
   add_foreign_key "enrollments", "users", column: "student_id"
   add_foreign_key "notifications", "users"
