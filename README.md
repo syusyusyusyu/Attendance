@@ -56,3 +56,11 @@ cd /mnt/c/Users/cafec/OneDrive/Desktop/tables勉強用/school
 
 ## 追加: 監査ログ
 - `/scan-logs` でQRスキャンログを確認可能
+
+## 追加: 運用強化
+- クラス管理/名簿インポート/特別日程(休講・補講)
+- 出席修正理由の必須化 + 変更ログ `/attendance-logs`
+- レポート `/reports` で出席傾向を可視化
+- 通知 `/notifications` で更新を確認
+- QRスキャンのIP/端末制限・分間スキャン上限
+- QRスキャン結果が出席管理画面にリアルタイム反映

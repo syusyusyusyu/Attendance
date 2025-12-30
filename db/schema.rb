@@ -10,9 +10,31 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_30_133100) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_30_140300) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "attendance_changes", force: :cascade do |t|
+    t.bigint "attendance_record_id"
+    t.bigint "user_id"
+    t.bigint "school_class_id"
+    t.date "date", null: false
+    t.string "previous_status"
+    t.string "new_status", null: false
+    t.text "reason"
+    t.bigint "modified_by_id"
+    t.string "source", default: "manual", null: false
+    t.string "ip"
+    t.string "user_agent"
+    t.datetime "changed_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["attendance_record_id"], name: "index_attendance_changes_on_attendance_record_id"
+    t.index ["changed_at"], name: "index_attendance_changes_on_changed_at"
+    t.index ["modified_by_id"], name: "index_attendance_changes_on_modified_by_id"
+    t.index ["school_class_id"], name: "index_attendance_changes_on_school_class_id"
+    t.index ["user_id"], name: "index_attendance_changes_on_user_id"
+  end
 
   create_table "attendance_policies", force: :cascade do |t|
     t.bigint "school_class_id", null: false
@@ -21,6 +43,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_30_133100) do
     t.boolean "allow_early_checkin", default: true, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "allowed_ip_ranges"
+    t.text "allowed_user_agent_keywords"
+    t.integer "max_scans_per_minute", default: 10, null: false
     t.index ["school_class_id"], name: "index_attendance_policies_on_school_class_id", unique: true
   end
 
@@ -43,6 +68,20 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_30_133100) do
     t.index ["user_id"], name: "index_attendance_records_on_user_id"
   end
 
+  create_table "class_session_overrides", force: :cascade do |t|
+    t.bigint "school_class_id", null: false
+    t.date "date", null: false
+    t.string "start_time"
+    t.string "end_time"
+    t.string "status", default: "regular", null: false
+    t.text "note"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["school_class_id", "date"], name: "index_class_session_overrides_on_school_class_id_and_date", unique: true
+    t.index ["school_class_id"], name: "index_class_session_overrides_on_school_class_id"
+    t.index ["status"], name: "index_class_session_overrides_on_status"
+  end
+
   create_table "enrollments", force: :cascade do |t|
     t.bigint "school_class_id", null: false
     t.bigint "student_id", null: false
@@ -52,6 +91,18 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_30_133100) do
     t.index ["school_class_id", "student_id"], name: "index_enrollments_on_school_class_id_and_student_id", unique: true
     t.index ["school_class_id"], name: "index_enrollments_on_school_class_id"
     t.index ["student_id"], name: "index_enrollments_on_student_id"
+  end
+
+  create_table "notifications", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "kind", default: "info", null: false
+    t.string "title", null: false
+    t.text "body"
+    t.string "action_path"
+    t.datetime "read_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "read_at"], name: "index_notifications_on_user_id_and_read_at"
   end
 
   create_table "qr_scan_events", force: :cascade do |t|
@@ -120,12 +171,18 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_30_133100) do
     t.index ["student_id"], name: "index_users_on_student_id", unique: true
   end
 
+  add_foreign_key "attendance_changes", "attendance_records"
+  add_foreign_key "attendance_changes", "school_classes"
+  add_foreign_key "attendance_changes", "users"
+  add_foreign_key "attendance_changes", "users", column: "modified_by_id"
   add_foreign_key "attendance_policies", "school_classes"
   add_foreign_key "attendance_records", "school_classes"
   add_foreign_key "attendance_records", "users"
   add_foreign_key "attendance_records", "users", column: "modified_by_id"
+  add_foreign_key "class_session_overrides", "school_classes"
   add_foreign_key "enrollments", "school_classes"
   add_foreign_key "enrollments", "users", column: "student_id"
+  add_foreign_key "notifications", "users"
   add_foreign_key "qr_scan_events", "qr_sessions"
   add_foreign_key "qr_scan_events", "school_classes"
   add_foreign_key "qr_scan_events", "users"

@@ -89,4 +89,17 @@ class AttendancePolicyTest < ActiveSupport::TestCase
     assert_not policy.valid?
     assert_includes policy.errors[:close_after_minutes], "must be greater than or equal to late_after_minutes"
   end
+
+  test "invalid ip range is rejected" do
+    teacher = build_teacher
+    school_class = build_class(teacher)
+    policy = AttendancePolicy.new(
+      school_class: school_class,
+      late_after_minutes: 10,
+      close_after_minutes: 90,
+      allowed_ip_ranges: "invalid-ip"
+    )
+
+    assert_not policy.valid?
+  end
 end

@@ -112,6 +112,13 @@
                       最終更新: <%= record.modified_at&.strftime("%Y-%m-%d %H:%M") %>
                     </div>
                   <% end %>
+
+                  <% change = @changes_by_record[record.id] %>
+                  <% if change&.reason.present? %>
+                    <div class="text-xs text-gray-500 mt-2">
+                      更新理由: <%= change.reason %>
+                    </div>
+                  <% end %>
                 </div>
               <% end %>
             </div>

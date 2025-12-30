@@ -55,6 +55,7 @@ class AttendanceCsvImporter
         date: date
       )
       was_new = record.new_record?
+      previous_status = record.status
 
       record.status = status
       record.verification_method = "manual"
@@ -65,6 +66,29 @@ class AttendanceCsvImporter
 
       if record.save
         was_new ? result[:created] += 1 : result[:updated] += 1
+
+        if previous_status.present? && previous_status != record.status
+          AttendanceChange.create!(
+            attendance_record: record,
+            user: student,
+            school_class: @school_class,
+            date: date,
+            previous_status: previous_status,
+            new_status: record.status,
+            reason: notes.presence || "CSVインポート",
+            modified_by: @teacher,
+            source: "csv",
+            changed_at: Time.current
+          )
+
+          Notification.create!(
+            user: student,
+            kind: "info",
+            title: "出席状況が更新されました",
+            body: "#{@school_class.name} (#{date.strftime('%Y-%m-%d')}) の出席が更新されました。",
+            action_path: Rails.application.routes.url_helpers.history_path(date: date)
+          )
+        end
       else
         result[:errors] << "行#{line_no}: #{record.errors.full_messages.join("、")}"
       end

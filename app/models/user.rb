@@ -21,6 +21,10 @@ class User < ApplicationRecord
   has_many :qr_sessions,
            foreign_key: :teacher_id,
            dependent: :destroy
+  has_many :attendance_changes,
+           foreign_key: :modified_by_id,
+           dependent: :nullify
+  has_many :notifications, dependent: :destroy
 
   validates :email, :name, :role, presence: true
   validates :email, uniqueness: true

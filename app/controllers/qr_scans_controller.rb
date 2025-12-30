@@ -14,7 +14,7 @@ class QrScansController < ApplicationController
       redirect_to scan_path, alert: "QRコードが無効です。" and return
     end
 
-    if rate_limited?(token)
+    if rate_limited?(token, limit: AttendancePolicy::DEFAULTS[:max_scans_per_minute])
       log_scan_event(status: "rate_limited", token: token)
       redirect_to scan_path, alert: "スキャン回数が多すぎます。少し待ってから再試行してください。" and return
     end
@@ -55,7 +55,29 @@ class QrScansController < ApplicationController
 
     scan_time = Time.current
     policy = school_class.attendance_policy || school_class.create_attendance_policy(AttendancePolicy.default_attributes)
+
+    if rate_limited?(token, limit: policy.max_scans_per_minute)
+      log_scan_event(status: "rate_limited", token: token, qr_session: qr_session)
+      redirect_to scan_path, alert: "スキャン回数が多すぎます。少し待ってから再試行してください。" and return
+    end
+
+    if policy.allowed_ip_ranges_list.any? && !policy.ip_allowed?(request.remote_ip)
+      log_scan_event(status: "ip_blocked", token: token, qr_session: qr_session)
+      redirect_to scan_path, alert: "許可されていない端末/ネットワークからのアクセスです。" and return
+    end
+
+    if policy.allowed_user_agent_keywords_list.any? && !policy.user_agent_allowed?(request.user_agent)
+      log_scan_event(status: "device_blocked", token: token, qr_session: qr_session)
+      redirect_to scan_path, alert: "許可されていない端末からのアクセスです。" and return
+    end
+
     window = school_class.schedule_window(qr_session.attendance_date)
+
+    if window&.dig(:canceled)
+      log_scan_event(status: "class_canceled", token: token, qr_session: qr_session)
+      redirect_to scan_path, alert: "この授業は休講です。" and return
+    end
+
     policy_result = policy.evaluate(scan_time: scan_time, start_at: window&.fetch(:start_at, nil))
 
     unless policy_result[:allowed]
@@ -70,6 +92,7 @@ class QrScansController < ApplicationController
       school_class: school_class,
       date: qr_session.attendance_date
     )
+    previous_status = record.status
 
     if record.persisted?
       if record.verification_method_qrcode?
@@ -96,6 +119,33 @@ class QrScansController < ApplicationController
     begin
       if record.save
         log_scan_event(status: "success", token: token, qr_session: qr_session, attendance_status: record.status)
+
+        if previous_status.present? && previous_status != record.status
+          AttendanceChange.create!(
+            attendance_record: record,
+            user: current_user,
+            school_class: school_class,
+            date: qr_session.attendance_date,
+            previous_status: previous_status,
+            new_status: record.status,
+            reason: "QRスキャン",
+            source: "system",
+            ip: request.remote_ip,
+            user_agent: request.user_agent,
+            changed_at: Time.current
+          )
+        end
+
+        if record.status_late?
+          Notification.create!(
+            user: current_user,
+            kind: "warning",
+            title: "遅刻として記録されました",
+            body: "#{school_class.name} (#{qr_session.attendance_date.strftime('%Y-%m-%d')}) が遅刻として登録されました。",
+            action_path: history_path(date: qr_session.attendance_date)
+          )
+        end
+
         redirect_to scan_path, notice: "出席を記録しました。"
       else
         log_scan_event(status: "error", token: token, qr_session: qr_session)
@@ -123,11 +173,11 @@ class QrScansController < ApplicationController
     )
   end
 
-  def rate_limited?(token)
+  def rate_limited?(token, limit:)
     return false if token.blank?
 
     key = "qr_scan:#{current_user.id}:#{Time.current.strftime('%Y%m%d%H%M')}"
     count = Rails.cache.increment(key, 1, expires_in: 60)
-    count.present? && count > 10
+    count.present? && count > limit
   end
 end

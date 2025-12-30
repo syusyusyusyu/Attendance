@@ -15,7 +15,7 @@
 
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
     <% if @user.teacher? %>
-      <%= link_to root_path(anchor: "classes"), class: "bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 cursor-pointer transition hover:-translate-y-1 hover:shadow-md" do %>
+      <%= link_to school_classes_path, class: "bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 cursor-pointer transition hover:-translate-y-1 hover:shadow-md" do %>
         <div class="mb-4 text-google-blue">
           <svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="8" cy="8" r="3" />
@@ -24,8 +24,8 @@
             <path d="M13 20a6 6 0 0 1 9 0" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
         </div>
-        <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-1">クラス一覧</h3>
-        <p class="text-sm text-gray-500">担当クラスの情報を確認できます。</p>
+        <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-1">クラス管理</h3>
+        <p class="text-sm text-gray-500">クラスの作成・名簿管理を行います。</p>
       <% end %>
 
       <%= link_to attendance_path, class: "bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 cursor-pointer transition hover:-translate-y-1 hover:shadow-md" do %>
@@ -51,6 +51,17 @@
         </div>
         <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-1">QRコード生成</h3>
         <p class="text-sm text-gray-500">授業用のQRコードを生成します。</p>
+      <% end %>
+
+      <%= link_to reports_path, class: "bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 cursor-pointer transition hover:-translate-y-1 hover:shadow-md" do %>
+        <div class="mb-4 text-google-yellow">
+          <svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 3v18h18" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M7 14l3-3 3 3 5-6" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </div>
+        <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-1">レポート</h3>
+        <p class="text-sm text-gray-500">出席傾向を分析します。</p>
       <% end %>
     <% else %>
       <%= link_to scan_path, class: "bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 cursor-pointer transition hover:-translate-y-1 hover:shadow-md" do %>
@@ -114,6 +125,96 @@
       <% else %>
         <div class="text-sm text-gray-500">担当クラスがありません。</div>
       <% end %>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg sm:text-xl font-semibold">欠席が多い学生</h2>
+          <%= link_to "出席変更ログ", attendance_logs_path, class: "text-sm text-google-green hover:underline" %>
+        </div>
+        <% if @attention_students.any? %>
+          <div class="space-y-3">
+            <% @attention_students.each do |row| %>
+              <div class="flex items-center justify-between border border-gray-200 rounded-lg p-3">
+                <div>
+                  <div class="text-sm font-medium text-gray-900"><%= row[:student].name %></div>
+                  <div class="text-xs text-gray-500"><%= row[:student].student_id %></div>
+                </div>
+                <div class="text-sm text-gray-600">欠席 <%= row[:absences] %> 回</div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="text-sm text-gray-500">要注意の学生はいません。</div>
+        <% end %>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg sm:text-xl font-semibold">最新の通知</h2>
+          <%= link_to "通知一覧", notifications_path, class: "text-sm text-google-green hover:underline" %>
+        </div>
+        <% if @recent_notifications.any? %>
+          <div class="space-y-3">
+            <% @recent_notifications.each do |notification| %>
+              <div class="border border-gray-200 rounded-lg p-3">
+                <div class="text-sm font-medium text-gray-900"><%= notification.title %></div>
+                <div class="text-xs text-gray-500 mt-1"><%= notification.created_at.strftime("%Y-%m-%d %H:%M") %></div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="text-sm text-gray-500">通知はありません。</div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <% if @user.student? %>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+        <h2 class="text-lg sm:text-xl font-semibold mb-4">最近30日の出席傾向</h2>
+        <% if @student_summary.any? %>
+          <div class="space-y-3">
+            <% @student_summary.each do |row| %>
+              <div class="border border-gray-200 rounded-lg p-3">
+                <div class="flex items-center justify-between">
+                  <div class="text-sm font-medium text-gray-900"><%= row[:klass].name %></div>
+                  <div class="text-xs text-gray-500"><%= row[:rate] %>%</div>
+                </div>
+                <div class="mt-2 h-2 rounded-full bg-gray-200">
+                  <div class="h-2 rounded-full bg-google-green" style="width: <%= row[:rate] %>%"></div>
+                </div>
+                <div class="text-xs text-gray-500 mt-2">
+                  出席 <%= row[:present] %> / 遅刻 <%= row[:late] %> / 欠席 <%= row[:absent] %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="text-sm text-gray-500">履修中のクラスがありません。</div>
+        <% end %>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg sm:text-xl font-semibold">注意アラート</h2>
+          <%= link_to "通知一覧", notifications_path, class: "text-sm text-google-green hover:underline" %>
+        </div>
+        <% if @student_warnings.any? %>
+          <div class="space-y-3">
+            <% @student_warnings.each do |row| %>
+              <div class="border border-yellow-200 bg-yellow-50 rounded-lg p-3">
+                <div class="text-sm font-medium text-gray-900"><%= row[:klass].name %></div>
+                <div class="text-xs text-gray-600 mt-1">欠席 <%= row[:absent] %> 回 / 出席率 <%= row[:rate] %>%</div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="text-sm text-gray-500">注意が必要なクラスはありません。</div>
+        <% end %>
+      </div>
     </div>
   <% end %>
 

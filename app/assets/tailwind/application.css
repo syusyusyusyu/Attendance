@@ -105,6 +105,10 @@
     color: var(--google-red);
   }
 
+  .text-google-yellow {
+    color: var(--google-yellow);
+  }
+
   .text-google-dark-grey {
     color: var(--google-dark-grey);
   }
@@ -119,6 +123,10 @@
 
   .bg-google-red {
     background-color: var(--google-red);
+  }
+
+  .bg-google-yellow {
+    background-color: var(--google-yellow);
   }
 
   .bg-google-grey {

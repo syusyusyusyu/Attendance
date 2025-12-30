@@ -16,7 +16,10 @@ class QrScanEvent < ApplicationRecord
     early: "early",
     outside_window: "outside_window",
     rate_limited: "rate_limited",
-    manual_override: "manual_override"
+    manual_override: "manual_override",
+    ip_blocked: "ip_blocked",
+    device_blocked: "device_blocked",
+    class_canceled: "class_canceled"
   }, prefix: true
 
   validates :status, :token_digest, :scanned_at, presence: true

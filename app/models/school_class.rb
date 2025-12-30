@@ -6,6 +6,8 @@ class SchoolClass < ApplicationRecord
   has_many :attendance_records, dependent: :destroy
   has_many :qr_sessions, dependent: :destroy
   has_one :attendance_policy, dependent: :destroy
+  has_many :class_session_overrides, dependent: :destroy
+  has_many :attendance_changes, dependent: :nullify
 
   validates :name, :room, :subject, :semester, :year, :capacity, presence: true
 
@@ -23,8 +25,14 @@ class SchoolClass < ApplicationRecord
 
   def schedule_window(date)
     data = schedule || {}
-    start_time = data["start_time"] || data[:start_time]
-    end_time = data["end_time"] || data[:end_time]
+    override = class_session_overrides.find_by(date: date)
+
+    if override&.status_canceled?
+      return { canceled: true, override: override }
+    end
+
+    start_time = override&.start_time || data["start_time"] || data[:start_time]
+    end_time = override&.end_time || data["end_time"] || data[:end_time]
 
     return nil if start_time.blank? || end_time.blank?
 
@@ -35,6 +43,11 @@ class SchoolClass < ApplicationRecord
 
     end_at += 1.day if end_at <= start_at
 
-    { start_at: start_at, end_at: end_at }
+    {
+      start_at: start_at,
+      end_at: end_at,
+      override: override,
+      status: override&.status
+    }
   end
 end

@@ -3,6 +3,7 @@
   allow_browser versions: :modern
 
   before_action :require_login
+  before_action :set_unread_notifications_count
   helper_method :current_user
 
   private
@@ -23,5 +24,11 @@
     return if current_user&.role == role
 
     redirect_to root_path, alert: "アクセス権限がありません。"
+  end
+
+  def set_unread_notifications_count
+    return unless current_user
+
+    @unread_notifications_count = current_user.notifications.unread.count
   end
 end

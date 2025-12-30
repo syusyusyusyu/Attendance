@@ -19,6 +19,10 @@ Rails.application.routes.draw do
   post "/scan", to: "qr_scans#create"
   get "/generate-qr", to: "qr_codes#show"
   get "/scan-logs", to: "qr_scan_events#index"
+  get "/attendance-logs", to: "attendance_changes#index", as: :attendance_logs
+  get "/reports", to: "reports#index"
+  get "/notifications", to: "notifications#index"
+  patch "/notifications/mark-all", to: "notifications#mark_all"
 
   get "/history", to: "attendance_history#show"
   get "/attendance", to: "class_attendances#show"
@@ -28,4 +32,10 @@ Rails.application.routes.draw do
   patch "/attendance/policy", to: "class_attendances#update_policy"
 
   resource :profile, only: [:show, :update]
+
+  resources :school_classes do
+    post :roster_import, on: :member
+    resources :enrollments, only: [:create, :destroy]
+    resources :class_session_overrides, only: [:create, :destroy]
+  end
 end

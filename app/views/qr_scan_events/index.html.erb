@@ -11,7 +11,10 @@
   "early" => "開始前",
   "outside_window" => "時間外",
   "rate_limited" => "レート制限",
-  "manual_override" => "手動確定"
+  "manual_override" => "手動確定",
+  "ip_blocked" => "IP制限",
+  "device_blocked" => "端末制限",
+  "class_canceled" => "休講"
 } %>
 <% status_badges = {
   "success" => "badge badge-success",
@@ -26,7 +29,10 @@
   "early" => "badge badge-warning",
   "outside_window" => "badge badge-error",
   "rate_limited" => "badge badge-warning",
-  "manual_override" => "badge badge-info"
+  "manual_override" => "badge badge-info",
+  "ip_blocked" => "badge badge-error",
+  "device_blocked" => "badge badge-error",
+  "class_canceled" => "badge badge-warning"
 } %>
 <% attendance_labels = {
   "present" => "出席",
@@ -75,8 +81,9 @@
             { include_blank: "すべて" },
             class: "input" %>
         </div>
-        <div class="md:col-span-4">
-          <%= f.submit "絞り込む", class: "btn btn-primary w-full" %>
+        <div class="md:col-span-4 flex flex-col sm:flex-row gap-2">
+          <%= f.submit "絞り込む", class: "btn btn-primary w-full sm:w-auto" %>
+          <%= link_to "CSV出力", scan_logs_path(format: :csv, class_id: @selected_class&.id, date: @date, status: @status, attendance_status: @attendance_status), class: "btn btn-secondary w-full sm:w-auto" %>
         </div>
       <% end %>
 

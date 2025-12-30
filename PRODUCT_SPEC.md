@@ -74,6 +74,24 @@ Rails 8 + Hotwire + PostgreSQL 構成で実装し、Render.com にデプロイ�
 - 入力: 氏名、メール、学籍番号(学生のみ)、パスワード
 - 更新後: 完了メッセージ
 
+### 4.11 クラス管理(教員)
+- URL: /school_classes
+- クラス作成/編集/無効化
+- 名簿CSVインポート/履修追加・削除
+- 特別日程(休講/補講)を登録
+
+### 4.12 出席変更ログ(教員)
+- URL: /attendance-logs
+- 変更理由・変更者・種別(手動/CSV/自動)を確認
+
+### 4.13 レポート(教員)
+- URL: /reports
+- 期間指定でクラス別・学生別の出席傾向を集計
+
+### 4.14 通知
+- URL: /notifications
+- 出席更新/休講/遅刻などの通知を一覧表示
+
 ## 5. 機能仕様
 ### 5.1 認証
 - セッションベース
@@ -100,6 +118,17 @@ Rails 8 + Hotwire + PostgreSQL 構成で実装し、Render.com にデプロイ�
 ### 5.5 出席ポリシー
 - クラスごとに遅刻判定/締切/開始前許可を設定
 - スキャン時にポリシーを参照して status を決定
+
+### 5.6 名簿CSVインポート
+- 学生ID/氏名/メールで学生を作成・更新し履修登録
+
+### 5.7 特別日程(休講/補講)
+- 日付単位でスケジュールを上書き
+- 休講時はQRスキャンを無効化
+
+### 5.8 変更ログ/通知
+- 手動/CSV/QRスキャンによる変更を記録
+- 学生へ通知を送信
 
 ## 6. データモデル
 ### users
@@ -146,6 +175,37 @@ Rails 8 + Hotwire + PostgreSQL 構成で実装し、Render.com にデプロイ�
 - modified_at
 - notes
 - unique(user_id, school_class_id, date)
+
+### class_session_overrides
+- id (PK)
+- school_class_id (FK -> school_classes)
+- date
+- start_time
+- end_time
+- status (regular/makeup/canceled)
+- note
+
+### attendance_changes
+- id (PK)
+- attendance_record_id (FK -> attendance_records)
+- user_id (FK -> users)
+- school_class_id (FK -> school_classes)
+- date
+- previous_status
+- new_status
+- reason
+- modified_by_id (FK -> users)
+- source (manual/csv/system)
+- changed_at
+
+### notifications
+- id (PK)
+- user_id (FK -> users)
+- kind (info/warning/success)
+- title
+- body
+- action_path
+- read_at
 
 ### qr_sessions
 - id (PK)
@@ -211,8 +271,7 @@ Rails 8 + Hotwire + PostgreSQL 構成で実装し、Render.com にデプロイ�
 - 障害時はRenderのログを確認
 
 ## 13. 既知の制約と今後の拡張
-- QR読み取りは現在「トークン入力」で代替
-- クラス管理/履修登録UIは未実装
+- QR読み取りはカメラと手入力を併用
 - 管理者画面は未実装
 
 ## 14. 追加仕様: QR本格導入
@@ -234,3 +293,11 @@ Rails 8 + Hotwire + PostgreSQL 構成で実装し、Render.com にデプロイ�
 - 出席ポリシーで遅刻判定/締切/開始前許可を設定
 - QRスキャンログを `/scan-logs` で確認可能
 - CSVインポートで出席状況を一括反映
+
+## 17. 追加: クラス管理/通知/リアルタイム
+- クラス作成・名簿インポート・履修追加/削除を提供
+- 休講/補講の特別日程を登録できる
+- 出席変更ログ `/attendance-logs` を提供
+- レポート `/reports` で集計を可視化
+- 通知 `/notifications` を提供
+- QRスキャンで出席管理画面がリアルタイム更新

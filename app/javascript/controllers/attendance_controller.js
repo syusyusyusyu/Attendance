@@ -8,7 +8,8 @@ export default class extends Controller {
     "statusBadge",
     "editButton",
     "saveButton",
-    "cancelButton"
+    "cancelButton",
+    "reasonBlock"
   ]
   static values = { editing: Boolean }
 
@@ -57,6 +58,9 @@ export default class extends Controller {
     if (this.hasCancelButtonTarget) {
       this.cancelButtonTarget.classList.toggle("hidden", !editing)
     }
+    if (this.hasReasonBlockTarget) {
+      this.reasonBlockTarget.classList.toggle("hidden", !editing)
+    }
   }
 
   resetSelects() {
@@ -65,5 +69,17 @@ export default class extends Controller {
         field.value = field.dataset.initialValue
       }
     })
+    this.rowTargets.forEach((row) => {
+      row.classList.remove("bg-yellow-50")
+    })
+  }
+
+  markChanged(event) {
+    const field = event.target
+    const row = field.closest("tr")
+    if (!row) return
+
+    const changed = field.value !== field.dataset.initialValue
+    row.classList.toggle("bg-yellow-50", changed)
   }
 }

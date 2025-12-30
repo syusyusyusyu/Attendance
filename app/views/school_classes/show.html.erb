@@ -1,0 +1,156 @@
+<div class="max-w-6xl mx-auto space-y-6">
+  <div class="card p-6">
+    <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-semibold text-gray-900"><%= @school_class.name %></h1>
+        <p class="text-sm text-gray-500 mt-1"><%= @school_class.schedule_label || "スケジュール未設定" %></p>
+        <div class="mt-2 text-sm text-gray-600 space-y-1">
+          <div>教室: <%= @school_class.room %></div>
+          <div>科目: <%= @school_class.subject %> / <%= @school_class.semester %> / <%= @school_class.year %></div>
+          <div>定員: <%= @school_class.capacity %></div>
+        </div>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <%= link_to "編集", edit_school_class_path(@school_class), class: "btn btn-secondary text-sm" %>
+        <%= link_to "出席管理", attendance_path(class_id: @school_class.id), class: "btn btn-secondary text-sm" %>
+        <%= link_to "QR生成", generate_qr_path(class_id: @school_class.id), class: "btn btn-primary text-sm" %>
+      </div>
+    </div>
+    <% if @school_class.description.present? %>
+      <p class="text-sm text-gray-600 mt-4"><%= @school_class.description %></p>
+    <% end %>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="card p-6 space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-medium text-gray-900">履修者</h2>
+        <span class="text-xs text-gray-500"><%= @enrollments.count %>名</span>
+      </div>
+
+      <%= form_with url: school_class_enrollments_path(@school_class), method: :post, class: "flex flex-col sm:flex-row gap-2" do %>
+        <input type="text" name="keyword" class="input flex-1" placeholder="学生ID または メール" />
+        <button type="submit" class="btn btn-secondary">追加</button>
+      <% end %>
+
+      <div class="border border-gray-200 rounded-lg p-4">
+        <h3 class="text-sm font-medium text-gray-700 mb-2">CSV名簿インポート</h3>
+        <%= form_with url: roster_import_school_class_path(@school_class), method: :post, multipart: true, class: "flex flex-col sm:flex-row gap-2 items-end" do |f| %>
+          <div class="flex-1">
+            <%= f.file_field :csv_file, accept: ".csv", class: "input" %>
+          </div>
+          <%= f.submit "インポート", class: "btn btn-secondary" %>
+        <% end %>
+        <p class="text-xs text-gray-500 mt-2">必須列: 学生ID / 氏名 / メール。パスワード列は任意です。</p>
+      </div>
+
+      <div class="table-container">
+        <table class="min-w-full divide-y divide-gray-200 text-sm">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">学生ID</th>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">氏名</th>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">メール</th>
+              <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% if @enrollments.any? %>
+              <% @enrollments.each do |enrollment| %>
+                <tr>
+                  <td class="px-4 py-2 text-sm text-gray-500"><%= enrollment.student.student_id %></td>
+                  <td class="px-4 py-2 text-sm text-gray-900"><%= enrollment.student.name %></td>
+                  <td class="px-4 py-2 text-sm text-gray-500"><%= enrollment.student.email %></td>
+                  <td class="px-4 py-2 text-right">
+                    <%= link_to "削除",
+                      school_class_enrollment_path(@school_class, enrollment),
+                      data: { turbo_method: :delete, turbo_confirm: "履修登録を削除しますか？" },
+                      class: "text-sm text-red-500 hover:text-red-700" %>
+                  </td>
+                </tr>
+              <% end %>
+            <% else %>
+              <tr>
+                <td colspan="4" class="px-4 py-6 text-center text-sm text-gray-500">履修者がいません。</td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card p-6 space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-medium text-gray-900">特別日程</h2>
+        <span class="text-xs text-gray-500">休講/補講の設定</span>
+      </div>
+
+      <%= form_with model: [@school_class, @override], class: "grid grid-cols-1 md:grid-cols-2 gap-4 items-end" do |f| %>
+        <div>
+          <%= f.label :date, "日付", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= f.date_field :date, class: "input", required: true %>
+        </div>
+        <div>
+          <%= f.label :status, "種別", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= f.select :status, [["通常", "regular"], ["補講", "makeup"], ["休講", "canceled"]], {}, class: "input" %>
+        </div>
+        <div>
+          <%= f.label :start_time, "開始時刻", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= f.time_field :start_time, class: "input" %>
+        </div>
+        <div>
+          <%= f.label :end_time, "終了時刻", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= f.time_field :end_time, class: "input" %>
+        </div>
+        <div class="md:col-span-2">
+          <%= f.label :note, "メモ", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= f.text_field :note, class: "input" %>
+        </div>
+        <div class="md:col-span-2">
+          <%= f.submit "追加", class: "btn btn-secondary w-full" %>
+        </div>
+      <% end %>
+
+      <div class="table-container">
+        <table class="min-w-full divide-y divide-gray-200 text-sm">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">日付</th>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">種別</th>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">時間</th>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">メモ</th>
+              <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% if @overrides.any? %>
+              <% @overrides.each do |override| %>
+                <tr>
+                  <td class="px-4 py-2 text-sm text-gray-500"><%= override.date.strftime("%Y-%m-%d") %></td>
+                  <td class="px-4 py-2 text-sm text-gray-700">
+                    <% label = { "regular" => "通常", "makeup" => "補講", "canceled" => "休講" }[override.status] %>
+                    <span class="badge <%= override.status_canceled? ? "badge-error" : override.status_makeup? ? "badge-info" : "badge-success" %>"><%= label %></span>
+                  </td>
+                  <td class="px-4 py-2 text-sm text-gray-500">
+                    <%= override.start_time.present? ? "#{override.start_time}-#{override.end_time}" : "-" %>
+                  </td>
+                  <td class="px-4 py-2 text-sm text-gray-500"><%= override.note.presence || "-" %></td>
+                  <td class="px-4 py-2 text-right">
+                    <%= link_to "削除",
+                      school_class_class_session_override_path(@school_class, override),
+                      data: { turbo_method: :delete, turbo_confirm: "特別日程を削除しますか？" },
+                      class: "text-sm text-red-500 hover:text-red-700" %>
+                  </td>
+                </tr>
+              <% end %>
+            <% else %>
+              <tr>
+                <td colspan="5" class="px-4 py-6 text-center text-sm text-gray-500">特別日程はありません。</td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

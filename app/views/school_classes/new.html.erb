@@ -1,0 +1,16 @@
+<div class="max-w-4xl mx-auto">
+  <div class="card">
+    <div class="p-4 bg-google-grey border-b border-gray-200">
+      <h1 class="text-xl font-medium text-gray-800">新規クラス作成</h1>
+      <p class="text-sm text-gray-500 mt-1">授業情報を入力してください。</p>
+    </div>
+    <div class="p-6">
+      <%= form_with model: @school_class, class: "space-y-6" do |f| %>
+        <%= render "form", f: f %>
+        <div class="flex justify-end">
+          <%= f.submit "作成", class: "btn btn-primary" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

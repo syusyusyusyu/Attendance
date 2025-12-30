@@ -1,0 +1,37 @@
+<div class="max-w-6xl mx-auto space-y-6">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-semibold text-gray-900">クラス管理</h1>
+      <p class="text-sm text-gray-500 mt-1">担当クラスの情報を作成・更新します。</p>
+    </div>
+    <%= link_to "新規クラス", new_school_class_path, class: "btn btn-primary w-full sm:w-auto" %>
+  </div>
+
+  <% if @classes.any? %>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <% @classes.each do |klass| %>
+        <div class="card p-4">
+          <div class="flex items-start justify-between">
+            <div>
+              <h2 class="text-lg font-medium text-gray-900"><%= klass.name %></h2>
+              <p class="text-sm text-gray-500"><%= klass.schedule_label || "スケジュール未設定" %></p>
+              <p class="text-xs text-gray-400 mt-1">教室: <%= klass.room %> / <%= klass.subject %></p>
+            </div>
+            <span class="text-xs px-2 py-1 rounded-full <%= klass.is_active ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600" %>">
+              <%= klass.is_active ? "運用中" : "停止中" %>
+            </span>
+          </div>
+          <div class="mt-4 flex flex-wrap gap-2">
+            <%= link_to "詳細", school_class_path(klass), class: "btn btn-secondary text-sm" %>
+            <%= link_to "編集", edit_school_class_path(klass), class: "btn btn-secondary text-sm" %>
+            <%= link_to "出席管理", attendance_path(class_id: klass.id), class: "btn btn-secondary text-sm" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="card p-6 text-center text-gray-500">
+      まだクラスがありません。新規クラスを作成してください。
+    </div>
+  <% end %>
+</div>

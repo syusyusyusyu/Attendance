@@ -11,6 +11,7 @@ class ClassAttendancesController < ApplicationController
     return unless @selected_class
 
     @policy = @selected_class.attendance_policy || AttendancePolicy.new(AttendancePolicy.default_attributes)
+    @session_window = @selected_class.schedule_window(@date)
     @students = @selected_class.students.order(:name)
     @records = AttendanceRecord
                .where(school_class: @selected_class, date: @date)
@@ -22,6 +23,24 @@ class ClassAttendancesController < ApplicationController
   def update
     selected_class = current_user.taught_classes.find(params[:class_id])
     date = params[:date].present? ? Date.parse(params[:date]) : Date.current
+    reason = params[:reason].to_s.strip
+
+    changes = []
+    (params[:attendance] || {}).each do |user_id, status|
+      record = AttendanceRecord.find_by(
+        user_id: user_id,
+        school_class: selected_class,
+        date: date
+      )
+      next unless record&.persisted?
+
+      previous_status = record.status
+      changes << [user_id, previous_status, status] if previous_status != status
+    end
+
+    if changes.any? && reason.blank?
+      redirect_to attendance_path(class_id: selected_class.id, date: date), alert: "修正理由を入力してください。" and return
+    end
 
     (params[:attendance] || {}).each do |user_id, status|
       record = AttendanceRecord.find_or_initialize_by(
@@ -29,12 +48,38 @@ class ClassAttendancesController < ApplicationController
         school_class: selected_class,
         date: date
       )
+      previous_status = record.status
       record.status = status
-      record.verification_method ||= "manual"
+      record.verification_method = "manual"
       record.timestamp ||= Time.current
       record.modified_by = current_user
       record.modified_at = Time.current
       record.save!
+
+      next if previous_status.nil? || previous_status == record.status
+
+      AttendanceChange.create!(
+        attendance_record: record,
+        user: record.user,
+        school_class: selected_class,
+        date: date,
+        previous_status: previous_status,
+        new_status: record.status,
+        reason: reason,
+        modified_by: current_user,
+        source: "manual",
+        ip: request.remote_ip,
+        user_agent: request.user_agent,
+        changed_at: Time.current
+      )
+
+      Notification.create!(
+        user: record.user,
+        kind: "info",
+        title: "出席状況が更新されました",
+        body: "#{selected_class.name} (#{date.strftime('%Y-%m-%d')}) の出席が更新されました。",
+        action_path: history_path(date: date)
+      )
     end
 
     redirect_to attendance_path(class_id: selected_class.id, date: date), notice: "出席を更新しました。"
@@ -152,6 +197,13 @@ class ClassAttendancesController < ApplicationController
   end
 
   def policy_params
-    params.require(:attendance_policy).permit(:late_after_minutes, :close_after_minutes, :allow_early_checkin)
+    params.require(:attendance_policy).permit(
+      :late_after_minutes,
+      :close_after_minutes,
+      :allow_early_checkin,
+      :allowed_ip_ranges,
+      :allowed_user_agent_keywords,
+      :max_scans_per_minute
+    )
   end
 end

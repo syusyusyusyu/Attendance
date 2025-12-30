@@ -35,8 +35,46 @@ class DashboardController < ApplicationController
           rate: rate
         }
       end
+
+      recent_range = 30.days.ago.to_date..today
+      absents = AttendanceRecord
+                .where(school_class_id: class_ids, date: recent_range, status: "absent")
+                .group(:user_id)
+                .count
+
+      @attention_students = User.where(id: absents.keys).map do |student|
+        { student: student, absences: absents[student.id].to_i }
+      end.sort_by { |row| -row[:absences] }.first(5)
+
+      @recent_notifications = current_user.notifications.order(created_at: :desc).limit(3)
     else
       @classes = @user.enrolled_classes.order(:name)
+      recent_range = 30.days.ago.to_date..today
+      records = @user.attendance_records.where(date: recent_range)
+      total_by_class = records.group(:school_class_id).count
+      present_by_class = records.where(status: "present").group(:school_class_id).count
+      late_by_class = records.where(status: "late").group(:school_class_id).count
+      absent_by_class = records.where(status: "absent").group(:school_class_id).count
+
+      @student_summary = @classes.map do |klass|
+        total = total_by_class[klass.id].to_i
+        present = present_by_class[klass.id].to_i
+        late = late_by_class[klass.id].to_i
+        absent = absent_by_class[klass.id].to_i
+        rate = total.zero? ? 0 : ((present + late) * 100.0 / total).round
+
+        {
+          klass: klass,
+          total: total,
+          present: present,
+          late: late,
+          absent: absent,
+          rate: rate
+        }
+      end
+
+      @student_warnings = @student_summary.select { |row| row[:absent] >= 3 || row[:rate] < 70 }
+      @recent_notifications = current_user.notifications.order(created_at: :desc).limit(3)
     end
   end
 end

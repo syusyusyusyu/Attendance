@@ -12,21 +12,30 @@
       <% nav_items = if current_user.teacher?
         [
           { name: "ホーム", path: root_path, icon: "clock" },
+          { name: "クラス管理", path: school_classes_path, icon: "class" },
           { name: "出席確認", path: attendance_path, icon: "clipboard" },
+          { name: "出席変更ログ", path: attendance_logs_path, icon: "history" },
           { name: "スキャンログ", path: scan_logs_path, icon: "list" },
+          { name: "レポート", path: reports_path, icon: "report" },
+          { name: "通知", path: notifications_path, icon: "bell" },
           { name: "QRコード生成", path: generate_qr_path, icon: "qr" }
         ]
       else
         [
           { name: "ホーム", path: root_path, icon: "clock" },
           { name: "QRコードスキャン", path: scan_path, icon: "qr" },
-          { name: "出席履歴", path: history_path, icon: "calendar" }
+          { name: "出席履歴", path: history_path, icon: "calendar" },
+          { name: "通知", path: notifications_path, icon: "bell" }
         ]
       end %>
 
       <ul>
         <% nav_items.each do |item| %>
-          <% active = request.path == item[:path] %>
+          <% active = if item[:path] == root_path
+            request.path == item[:path]
+          else
+            request.path == item[:path] || request.path.start_with?("#{item[:path]}/")
+          end %>
           <li class="px-2 py-1">
             <%= link_to item[:path], class: "flex items-center px-4 py-3 rounded-md transition-colors #{active ? 'bg-google-green text-white' : 'text-gray-700 hover:bg-gray-100'}", data: { action: "click->sidebar#close" } do %>
               <span class="mr-3 <%= active ? 'text-white' : '' %>">
@@ -64,6 +73,29 @@
                     <circle cx="4" cy="6" r="1" />
                     <circle cx="4" cy="12" r="1" />
                     <circle cx="4" cy="18" r="1" />
+                  </svg>
+                <% when "class" %>
+                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 6h16" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M4 10h16" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M4 14h10" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M4 18h6" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                <% when "report" %>
+                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 3v18h18" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M7 14l3-3 3 3 5-6" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                <% when "history" %>
+                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 3v6h6" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M3.75 9A9 9 0 1 0 12 3" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M12 7v5l3 3" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                <% when "bell" %>
+                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke-linecap="round" stroke-linejoin="round" />
                   </svg>
                 <% end %>
               </span>

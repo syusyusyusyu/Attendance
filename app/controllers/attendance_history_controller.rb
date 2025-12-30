@@ -26,6 +26,13 @@
                            .includes(:school_class)
                            .where(date: @date)
                            .order(:timestamp)
+
+    record_ids = @records.map(&:id)
+    @changes_by_record = AttendanceChange
+                         .where(attendance_record_id: record_ids)
+                         .order(changed_at: :desc)
+                         .group_by(&:attendance_record_id)
+                         .transform_values { |items| items.first }
   rescue ArgumentError
     redirect_to history_path, alert: "日付の形式が正しくありません。"
   end

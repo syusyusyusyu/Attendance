@@ -1,0 +1,31 @@
+<% status_labels = {
+  "present" => "出席",
+  "late" => "遅刻",
+  "absent" => "欠席",
+  "excused" => "公欠"
+} %>
+<% status_badges = {
+  "present" => "badge badge-success",
+  "late" => "badge badge-warning",
+  "absent" => "badge badge-error",
+  "excused" => "badge badge-info"
+} %>
+<% status = record&.status || "absent" %>
+<% label = record&.status_label || status_labels[status] %>
+<% badge_class = record&.status_badge_class || status_badges[status] %>
+
+<tr id="attendance_row_<%= student.id %>" data-attendance-target="row" data-name="<%= student.name %>" data-student-id="<%= student.student_id %>">
+  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= student.student_id %></td>
+  <td class="px-6 py-4 whitespace-nowrap">
+    <div class="text-sm font-medium text-gray-900"><%= student.name %></div>
+  </td>
+  <td class="px-6 py-4 whitespace-nowrap">
+    <span class="<%= badge_class %>" data-attendance-target="statusBadge">
+      <%= label %>
+    </span>
+    <%= select_tag "attendance[#{student.id}]",
+      options_for_select(status_labels.map { |key, label_value| [label_value, key] }, status),
+      class: "input max-w-[160px] hidden",
+      data: { attendance_target: "statusSelect", initial_value: status, action: "change->attendance#markChanged" } %>
+  </td>
+</tr>
