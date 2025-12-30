@@ -7,11 +7,15 @@ class QrCodesController < ApplicationController
 
     return unless @selected_class
 
-    @expires_at = Time.current + AttendanceToken::TOKEN_TTL
-    @token = AttendanceToken.generate(
-      class_id: @selected_class.id,
-      teacher_id: current_user.id,
-      expires_at: @expires_at
+    issued_at = Time.current
+    @qr_session = QrSession.create!(
+      school_class: @selected_class,
+      teacher: current_user,
+      attendance_date: Time.zone.today,
+      issued_at: issued_at,
+      expires_at: issued_at + AttendanceToken::TOKEN_TTL
     )
+    @expires_at = @qr_session.expires_at
+    @token = AttendanceToken.generate(qr_session: @qr_session)
   end
 end
