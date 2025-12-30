@@ -1,8 +1,8 @@
 ﻿<aside
   data-sidebar-target="sidebar"
-  class="fixed inset-y-0 left-0 z-30 w-64 bg-white transform transition-transform duration-300 ease-in-out -translate-x-full lg:translate-x-0 lg:relative lg:inset-y-auto"
+  class="fixed top-16 bottom-0 left-0 z-30 w-64 bg-white transform transition-transform duration-300 ease-in-out -translate-x-full lg:translate-x-0 lg:relative lg:inset-y-auto"
 >
-  <div class="bg-white border-r border-gray-200 h-full min-h-screen">
+  <div class="bg-white border-r border-gray-200 h-full min-h-full">
     <div class="h-16 flex items-center justify-center border-b border-gray-200">
       <h2 class="text-google-green font-medium text-lg">
         <%= current_user.teacher? ? "教員メニュー" : "学生メニュー" %>
@@ -27,8 +27,8 @@
         <% nav_items.each do |item| %>
           <% active = request.path == item[:path] %>
           <li class="px-2 py-1">
-            <%= link_to item[:path], class: "flex items-center px-4 py-3 rounded-md transition-colors #{active ? 'bg-google-green bg-opacity-10 text-google-green' : 'text-gray-700 hover:bg-gray-100'}", data: { action: "click->sidebar#close" } do %>
-              <span class="mr-3">
+            <%= link_to item[:path], class: "flex items-center px-4 py-3 rounded-md transition-colors #{active ? 'bg-google-green text-white' : 'text-gray-700 hover:bg-gray-100'}", data: { action: "click->sidebar#close" } do %>
+              <span class="mr-3 <%= active ? 'text-white' : '' %>">
                 <% case item[:icon]
                 when "clock" %>
                   <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -57,7 +57,7 @@
                   </svg>
                 <% end %>
               </span>
-              <span><%= item[:name] %></span>
+              <span class="<%= active ? 'text-white' : '' %>"><%= item[:name] %></span>
             <% end %>
           </li>
         <% end %>
