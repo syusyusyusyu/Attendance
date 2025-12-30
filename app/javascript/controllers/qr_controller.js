@@ -36,7 +36,7 @@ export default class extends Controller {
     const serializer = new XMLSerializer()
     let source = serializer.serializeToString(svg)
 
-    if (!source.match(/^<svg[^>]+xmlns=\"http:\\/\\/www\\.w3\\.org\\/2000\\/svg\"/)) {
+    if (!source.includes("xmlns=\"http://www.w3.org/2000/svg\"")) {
       source = source.replace("<svg", '<svg xmlns="http://www.w3.org/2000/svg"')
     }
 
