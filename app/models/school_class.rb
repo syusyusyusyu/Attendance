@@ -5,6 +5,7 @@ class SchoolClass < ApplicationRecord
   has_many :students, through: :enrollments, source: :student
   has_many :attendance_records, dependent: :destroy
   has_many :qr_sessions, dependent: :destroy
+  has_one :attendance_policy, dependent: :destroy
 
   validates :name, :room, :subject, :semester, :year, :capacity, presence: true
 
@@ -18,5 +19,22 @@ class SchoolClass < ApplicationRecord
 
     day_names = %w[日 月 火 水 木 金 土]
     "#{day_names[day_index.to_i]} #{start_time}-#{end_time}"
+  end
+
+  def schedule_window(date)
+    data = schedule || {}
+    start_time = data["start_time"] || data[:start_time]
+    end_time = data["end_time"] || data[:end_time]
+
+    return nil if start_time.blank? || end_time.blank?
+
+    start_at = Time.zone.parse("#{date} #{start_time}")
+    end_at = Time.zone.parse("#{date} #{end_time}")
+
+    return nil if start_at.blank? || end_at.blank?
+
+    end_at += 1.day if end_at <= start_at
+
+    { start_at: start_at, end_at: end_at }
   end
 end

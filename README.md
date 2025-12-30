@@ -36,6 +36,7 @@ cd /mnt/c/Users/cafec/OneDrive/Desktop/tables勉強用/school
 - スキャンログ(QrScanEvent)に成功/失敗/理由/端末情報を記録
 - 教員ダッシュボードに本日の出席率サマリーを表示
 - `/attendance` からCSVダウンロードが可能
+- 出席ポリシー(遅刻/締切/開始前許可)で自動判定
 
 ## 追加: 環境変数
 - `QR_TOKEN_SECRET` : QRトークン署名用の秘密鍵(変更すると既存トークンは無効)
@@ -47,3 +48,11 @@ cd /mnt/c/Users/cafec/OneDrive/Desktop/tables勉強用/school
 ## 追加: CSVエクスポート仕様
 - 期間指定: `start_date` / `end_date` (同日なら1日分)
 - 追加項目: クラス名、QRセッションID、IP、UserAgent、備考
+
+## 追加: CSVインポート仕様
+- 必須列: 日付 / 学生ID / 出席状況
+- 出席状況は `出席/遅刻/欠席/公欠` (英語ラベルも可)
+- `未入力` はスキップ
+
+## 追加: 監査ログ
+- `/scan-logs` でQRスキャンログを確認可能

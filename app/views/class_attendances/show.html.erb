@@ -52,6 +52,35 @@
 
       <% if @selected_class %>
         <div class="border border-gray-200 rounded-lg p-4">
+          <h3 class="text-sm font-medium text-gray-700 mb-3">出席ポリシー</h3>
+          <p class="text-xs text-gray-500 mb-4">
+            授業時間: <%= @selected_class.schedule_label || "未設定" %>
+          </p>
+          <%= form_with url: attendance_policy_path, method: :patch, scope: :attendance_policy, class: "grid grid-cols-1 md:grid-cols-3 gap-4 items-end" do |f| %>
+            <%= hidden_field_tag :class_id, @selected_class.id %>
+            <%= hidden_field_tag :date, @date %>
+            <div>
+              <%= f.label :late_after_minutes, "遅刻判定(分)", class: "block text-sm font-medium text-gray-700 mb-2" %>
+              <%= f.number_field :late_after_minutes, value: @policy.late_after_minutes, min: 0, class: "input" %>
+            </div>
+            <div>
+              <%= f.label :close_after_minutes, "締切(分)", class: "block text-sm font-medium text-gray-700 mb-2" %>
+              <%= f.number_field :close_after_minutes, value: @policy.close_after_minutes, min: 0, class: "input" %>
+            </div>
+            <div class="flex items-center space-x-2">
+              <%= f.check_box :allow_early_checkin, { checked: @policy.allow_early_checkin }, true, false %>
+              <%= f.label :allow_early_checkin, "開始前の出席登録を許可", class: "text-sm text-gray-700" %>
+            </div>
+            <div class="md:col-span-3">
+              <%= f.submit "ポリシー更新", class: "btn btn-secondary w-full" %>
+            </div>
+          <% end %>
+          <p class="text-xs text-gray-500 mt-2">
+            遅刻は授業開始+遅刻判定分、締切は授業開始+締切分で判定します。
+          </p>
+        </div>
+
+        <div class="border border-gray-200 rounded-lg p-4">
           <h3 class="text-sm font-medium text-gray-700 mb-3">CSVエクスポート</h3>
           <%= form_with url: attendance_export_path, method: :get, class: "grid grid-cols-1 md:grid-cols-3 gap-4 items-end" do |f| %>
             <%= hidden_field_tag :class_id, @selected_class.id %>
@@ -68,6 +97,24 @@
             </div>
           <% end %>
           <p class="text-xs text-gray-500 mt-2">開始日と終了日を同じ日にすると、1日分のみ出力します。</p>
+        </div>
+
+        <div class="border border-gray-200 rounded-lg p-4">
+          <h3 class="text-sm font-medium text-gray-700 mb-3">CSVインポート</h3>
+          <%= form_with url: attendance_import_path, method: :post, multipart: true, class: "grid grid-cols-1 md:grid-cols-3 gap-4 items-end" do |f| %>
+            <%= hidden_field_tag :class_id, @selected_class.id %>
+            <%= hidden_field_tag :date, @date %>
+            <div class="md:col-span-2">
+              <%= f.label :csv_file, "CSVファイル", class: "block text-sm font-medium text-gray-700 mb-2" %>
+              <%= f.file_field :csv_file, accept: ".csv", class: "input" %>
+            </div>
+            <div>
+              <%= f.submit "CSVインポート", class: "btn btn-secondary w-full" %>
+            </div>
+          <% end %>
+          <p class="text-xs text-gray-500 mt-2">
+            必須列: 日付 / 学生ID / 出席状況(出席・遅刻・欠席・公欠)。備考は任意です。
+          </p>
         </div>
       <% end %>
 

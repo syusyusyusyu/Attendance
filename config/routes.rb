@@ -18,11 +18,14 @@ Rails.application.routes.draw do
   get "/scan", to: "qr_scans#new"
   post "/scan", to: "qr_scans#create"
   get "/generate-qr", to: "qr_codes#show"
+  get "/scan-logs", to: "qr_scan_events#index"
 
   get "/history", to: "attendance_history#show"
   get "/attendance", to: "class_attendances#show"
   patch "/attendance", to: "class_attendances#update"
   get "/attendance/export", to: "class_attendances#export"
+  post "/attendance/import", to: "class_attendances#import"
+  patch "/attendance/policy", to: "class_attendances#update_policy"
 
   resource :profile, only: [:show, :update]
 end

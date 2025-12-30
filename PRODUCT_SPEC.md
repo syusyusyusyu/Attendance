@@ -56,7 +56,20 @@ Rails 8 + Hotwire + PostgreSQL 構成で実装し、Render.com にデプロイ�
 - 学生一覧と出席ステータス編集
 - 更新処理
 
-### 4.7 プロフィール
+### 4.7 QRスキャンログ(教員)
+- URL: /scan-logs
+- クラス/日付/結果/出席判定でフィルタ
+- スキャン結果/出席判定/IP/端末情報を確認
+
+### 4.8 出席ポリシー設定(教員)
+- URL: /attendance 内
+- 遅刻判定(分)/締切(分)/開始前許可を設定
+
+### 4.9 CSVインポート(教員)
+- URL: /attendance
+- CSVから出席状況を一括反映
+
+### 4.10 プロフィール
 - URL: /profile
 - 入力: 氏名、メール、学籍番号(学生のみ)、パスワード
 - 更新後: 完了メッセージ
@@ -78,10 +91,15 @@ Rails 8 + Hotwire + PostgreSQL 構成で実装し、Render.com にデプロイ�
 - status: present, late, absent, excused
 - verification_method: qrcode, manual, gps, beacon
 - 登録時にtimestamp付与
+- 出席ポリシー(遅刻/締切/開始前許可)で自動判定
 
 ### 5.4 出席修正
 - 教員のみ
 - modified_by, modified_at を記録
+
+### 5.5 出席ポリシー
+- クラスごとに遅刻判定/締切/開始前許可を設定
+- スキャン時にポリシーを参照して status を決定
 
 ## 6. データモデル
 ### users
@@ -128,6 +146,34 @@ Rails 8 + Hotwire + PostgreSQL 構成で実装し、Render.com にデプロイ�
 - modified_at
 - notes
 - unique(user_id, school_class_id, date)
+
+### qr_sessions
+- id (PK)
+- school_class_id (FK -> school_classes)
+- teacher_id (FK -> users)
+- attendance_date
+- issued_at
+- expires_at
+- revoked_at
+
+### qr_scan_events
+- id (PK)
+- qr_session_id (FK -> qr_sessions)
+- user_id (FK -> users)
+- school_class_id (FK -> school_classes)
+- status
+- attendance_status
+- token_digest
+- ip
+- user_agent
+- scanned_at
+
+### attendance_policies
+- id (PK)
+- school_class_id (FK -> school_classes)
+- late_after_minutes
+- close_after_minutes
+- allow_early_checkin
 
 ## 7. バリデーション
 - User: email, name, role 必須
@@ -183,3 +229,8 @@ Rails 8 + Hotwire + PostgreSQL 構成で実装し、Render.com にデプロイ�
 - 非対応端末は手入力フォールバック
 - CSVは期間指定(`start_date`/`end_date`)に対応
 - CSV項目にクラス名・QRセッションID・IP・UserAgent・備考を追加
+
+## 16. 追加: 出席ポリシー/監査ログ/CSVインポート
+- 出席ポリシーで遅刻判定/締切/開始前許可を設定
+- QRスキャンログを `/scan-logs` で確認可能
+- CSVインポートで出席状況を一括反映

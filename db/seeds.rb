@@ -31,3 +31,5 @@ class_one = SchoolClass.find_or_create_by!(name: "数学I", teacher: teacher) do
 end
 
 Enrollment.find_or_create_by!(school_class: class_one, student: student)
+
+AttendancePolicy.find_or_create_by!(school_class: class_one)

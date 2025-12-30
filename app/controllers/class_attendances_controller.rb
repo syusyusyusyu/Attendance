@@ -10,6 +10,7 @@ class ClassAttendancesController < ApplicationController
 
     return unless @selected_class
 
+    @policy = @selected_class.attendance_policy || AttendancePolicy.new(AttendancePolicy.default_attributes)
     @students = @selected_class.students.order(:name)
     @records = AttendanceRecord
                .where(school_class: @selected_class, date: @date)
@@ -98,11 +99,59 @@ class ClassAttendancesController < ApplicationController
     redirect_to attendance_path, alert: "日付の形式が正しくありません。"
   end
 
+  def import
+    selected_class = current_user.taught_classes.find(params[:class_id])
+    date = params[:date].present? ? Date.parse(params[:date]) : Date.current
+    file = params[:csv_file]
+
+    if file.blank?
+      redirect_to attendance_path(class_id: selected_class.id, date: date), alert: "CSVファイルを選択してください。" and return
+    end
+
+    result = AttendanceCsvImporter.new(
+      teacher: current_user,
+      school_class: selected_class,
+      csv_text: file.read
+    ).import
+
+    message = "インポート完了: 新規#{result[:created]}件 / 更新#{result[:updated]}件"
+    message += " / スキップ#{result[:skipped]}件" if result[:skipped].positive?
+
+    if result[:errors].any?
+      errors = result[:errors].first(3).join(" ")
+      message = "#{message} (エラー: #{errors})"
+      redirect_to attendance_path(class_id: selected_class.id, date: date), alert: message
+    else
+      redirect_to attendance_path(class_id: selected_class.id, date: date), notice: message
+    end
+  rescue ArgumentError
+    redirect_to attendance_path, alert: "日付の形式が正しくありません。"
+  end
+
+  def update_policy
+    selected_class = current_user.taught_classes.find(params[:class_id])
+    date = params[:date].present? ? Date.parse(params[:date]) : Date.current
+
+    policy = selected_class.attendance_policy || selected_class.create_attendance_policy(AttendancePolicy.default_attributes)
+
+    if policy.update(policy_params)
+      redirect_to attendance_path(class_id: selected_class.id, date: date), notice: "出席ポリシーを更新しました。"
+    else
+      redirect_to attendance_path(class_id: selected_class.id, date: date), alert: policy.errors.full_messages.join("、")
+    end
+  rescue ArgumentError
+    redirect_to attendance_path, alert: "日付の形式が正しくありません。"
+  end
+
   private
 
   def parse_date_param(value)
     return nil if value.blank?
 
     Date.parse(value)
+  end
+
+  def policy_params
+    params.require(:attendance_policy).permit(:late_after_minutes, :close_after_minutes, :allow_early_checkin)
   end
 end

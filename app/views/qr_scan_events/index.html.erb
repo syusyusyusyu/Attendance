@@ -1,0 +1,146 @@
+<% status_labels = {
+  "success" => "成功",
+  "duplicate" => "重複",
+  "invalid" => "無効",
+  "expired" => "期限切れ",
+  "revoked" => "失効",
+  "not_enrolled" => "未履修",
+  "session_missing" => "セッション不明",
+  "wrong_date" => "日付不一致",
+  "error" => "エラー",
+  "early" => "開始前",
+  "outside_window" => "時間外",
+  "rate_limited" => "レート制限",
+  "manual_override" => "手動確定"
+} %>
+<% status_badges = {
+  "success" => "badge badge-success",
+  "duplicate" => "badge badge-info",
+  "invalid" => "badge badge-error",
+  "expired" => "badge badge-error",
+  "revoked" => "badge badge-error",
+  "not_enrolled" => "badge badge-error",
+  "session_missing" => "badge badge-error",
+  "wrong_date" => "badge badge-error",
+  "error" => "badge badge-error",
+  "early" => "badge badge-warning",
+  "outside_window" => "badge badge-error",
+  "rate_limited" => "badge badge-warning",
+  "manual_override" => "badge badge-info"
+} %>
+<% attendance_labels = {
+  "present" => "出席",
+  "late" => "遅刻",
+  "absent" => "欠席",
+  "excused" => "公欠"
+} %>
+<% attendance_badges = {
+  "present" => "badge badge-success",
+  "late" => "badge badge-warning",
+  "absent" => "badge badge-error",
+  "excused" => "badge badge-info"
+} %>
+
+<div class="max-w-6xl mx-auto">
+  <div class="card">
+    <div class="p-4 bg-google-grey border-b border-gray-200">
+      <h2 class="text-xl font-medium text-gray-800">QRスキャンログ</h2>
+      <p class="text-sm text-gray-500 mt-1">直近200件まで表示します。</p>
+    </div>
+
+    <div class="p-6 space-y-6">
+      <%= form_with url: scan_logs_path, method: :get, class: "grid grid-cols-1 md:grid-cols-4 gap-4 items-end" do |f| %>
+        <div>
+          <%= f.label :class_id, "クラス", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= f.select :class_id,
+            options_for_select(@classes.map { |klass| ["#{klass.name} (#{klass.room})", klass.id] }, @selected_class&.id),
+            { include_blank: "すべて" },
+            class: "input" %>
+        </div>
+        <div>
+          <%= f.label :date, "日付", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= f.date_field :date, value: @date, class: "input" %>
+        </div>
+        <div>
+          <%= f.label :status, "結果", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= f.select :status,
+            options_for_select(status_labels.map { |key, label| [label, key] }, @status),
+            { include_blank: "すべて" },
+            class: "input" %>
+        </div>
+        <div>
+          <%= f.label :attendance_status, "出席判定", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= f.select :attendance_status,
+            options_for_select(attendance_labels.map { |key, label| [label, key] }, @attendance_status),
+            { include_blank: "すべて" },
+            class: "input" %>
+        </div>
+        <div class="md:col-span-4">
+          <%= f.submit "絞り込む", class: "btn btn-primary w-full" %>
+        </div>
+      <% end %>
+
+      <div class="table-container">
+        <table class="min-w-full divide-y divide-gray-200 text-sm">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">時刻</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">クラス</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">学生</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">結果</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">出席判定</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">IP</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">端末</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% if @scan_events.any? %>
+              <% @scan_events.each do |event| %>
+                <tr>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <div><%= event.scanned_at&.strftime("%Y-%m-%d") %></div>
+                    <div class="text-xs text-gray-400"><%= event.scanned_at&.strftime("%H:%M:%S") %></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                    <div><%= event.school_class&.name || "-" %></div>
+                    <% if event.qr_session_id %>
+                      <div class="text-xs text-gray-400">session #<%= event.qr_session_id %></div>
+                    <% end %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                    <div><%= event.user&.name || "-" %></div>
+                    <div class="text-xs text-gray-400"><%= event.user&.student_id || "-" %></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="<%= status_badges[event.status] || "badge" %>">
+                      <%= status_labels[event.status] || event.status %>
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <% if event.attendance_status.present? %>
+                      <span class="<%= attendance_badges[event.attendance_status] || "badge" %>">
+                        <%= attendance_labels[event.attendance_status] || event.attendance_status %>
+                      </span>
+                    <% else %>
+                      <span class="text-xs text-gray-400">-</span>
+                    <% end %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= event.ip || "-" %></td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <%= truncate(event.user_agent.to_s, length: 28) %>
+                  </td>
+                </tr>
+              <% end %>
+            <% else %>
+              <tr>
+                <td colspan="7" class="px-6 py-6 text-center text-sm text-gray-500">
+                  該当するスキャンログがありません。
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

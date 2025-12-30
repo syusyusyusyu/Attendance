@@ -12,7 +12,11 @@ class QrScanEvent < ApplicationRecord
     duplicate: "duplicate",
     session_missing: "session_missing",
     wrong_date: "wrong_date",
-    error: "error"
+    error: "error",
+    early: "early",
+    outside_window: "outside_window",
+    rate_limited: "rate_limited",
+    manual_override: "manual_override"
   }, prefix: true
 
   validates :status, :token_digest, :scanned_at, presence: true

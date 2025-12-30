@@ -14,6 +14,11 @@ class QrScansController < ApplicationController
       redirect_to scan_path, alert: "QRコードが無効です。" and return
     end
 
+    if rate_limited?(token)
+      log_scan_event(status: "rate_limited", token: token)
+      redirect_to scan_path, alert: "スキャン回数が多すぎます。少し待ってから再試行してください。" and return
+    end
+
     result = AttendanceToken.verify(token)
 
     unless result[:ok]
@@ -48,44 +53,63 @@ class QrScansController < ApplicationController
       redirect_to scan_path, alert: "この授業には履修登録されていません。" and return
     end
 
+    scan_time = Time.current
+    policy = school_class.attendance_policy || school_class.create_attendance_policy(AttendancePolicy.default_attributes)
+    window = school_class.schedule_window(qr_session.attendance_date)
+    policy_result = policy.evaluate(scan_time: scan_time, start_at: window&.fetch(:start_at, nil))
+
+    unless policy_result[:allowed]
+      log_scan_event(status: policy_result[:status], token: token, qr_session: qr_session)
+      redirect_to scan_path, alert: policy_result[:message] and return
+    end
+
+    attendance_status = policy_result[:attendance_status] || "present"
+
     record = AttendanceRecord.find_or_initialize_by(
       user: current_user,
       school_class: school_class,
       date: qr_session.attendance_date
     )
 
-    if record.persisted? && record.status_present?
-      log_scan_event(status: "duplicate", token: token, qr_session: qr_session)
-      redirect_to scan_path, notice: "すでに出席済みです。" and return
+    if record.persisted?
+      if record.verification_method_qrcode?
+        log_scan_event(status: "duplicate", token: token, qr_session: qr_session, attendance_status: record.status)
+        redirect_to scan_path, notice: "すでに出席済みです。" and return
+      end
+
+      if record.modified_by_id.present?
+        log_scan_event(status: "manual_override", token: token, qr_session: qr_session, attendance_status: record.status)
+        redirect_to scan_path, alert: "教員が出席を確定済みです。" and return
+      end
     end
 
-    record.status = "present"
+    record.status = attendance_status
     record.verification_method = "qrcode"
-    record.timestamp = Time.current
+    record.timestamp = scan_time
     record.location = (record.location || {}).merge(
       "ip" => request.remote_ip,
       "user_agent" => request.user_agent,
       "qr_session_id" => qr_session.id,
-      "scanned_at" => Time.current.iso8601
+      "scanned_at" => scan_time.iso8601
     )
 
     begin
       if record.save
-        log_scan_event(status: "success", token: token, qr_session: qr_session)
+        log_scan_event(status: "success", token: token, qr_session: qr_session, attendance_status: record.status)
         redirect_to scan_path, notice: "出席を記録しました。"
       else
         log_scan_event(status: "error", token: token, qr_session: qr_session)
         redirect_to scan_path, alert: "出席登録に失敗しました。"
       end
     rescue ActiveRecord::RecordNotUnique
-      log_scan_event(status: "duplicate", token: token, qr_session: qr_session)
+      log_scan_event(status: "duplicate", token: token, qr_session: qr_session, attendance_status: record.status)
       redirect_to scan_path, notice: "すでに出席済みです。"
     end
   end
 
   private
 
-  def log_scan_event(status:, token:, qr_session: nil, school_class_id: nil)
+  def log_scan_event(status:, token:, qr_session: nil, school_class_id: nil, attendance_status: nil)
     QrScanEvent.create(
       status: status,
       token_digest: Digest::SHA256.hexdigest(token.to_s),
@@ -94,7 +118,16 @@ class QrScansController < ApplicationController
       school_class_id: school_class_id || qr_session&.school_class_id,
       ip: request.remote_ip,
       user_agent: request.user_agent,
-      scanned_at: Time.current
+      scanned_at: Time.current,
+      attendance_status: attendance_status
     )
+  end
+
+  def rate_limited?(token)
+    return false if token.blank?
+
+    key = "qr_scan:#{current_user.id}:#{Time.current.strftime('%Y%m%d%H%M')}"
+    count = Rails.cache.increment(key, 1, expires_in: 60)
+    count.present? && count > 10
   end
 end

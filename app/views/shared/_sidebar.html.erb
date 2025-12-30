@@ -13,6 +13,7 @@
         [
           { name: "ホーム", path: root_path, icon: "clock" },
           { name: "出席確認", path: attendance_path, icon: "clipboard" },
+          { name: "スキャンログ", path: scan_logs_path, icon: "list" },
           { name: "QRコード生成", path: generate_qr_path, icon: "qr" }
         ]
       else
@@ -54,6 +55,15 @@
                     <rect x="3" y="15" width="6" height="6" />
                     <path d="M15 15h6v6h-6z" />
                     <path d="M11 11h2v2h-2z" />
+                  </svg>
+                <% when "list" %>
+                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="8" y1="6" x2="21" y2="6" />
+                    <line x1="8" y1="12" x2="21" y2="12" />
+                    <line x1="8" y1="18" x2="21" y2="18" />
+                    <circle cx="4" cy="6" r="1" />
+                    <circle cx="4" cy="12" r="1" />
+                    <circle cx="4" cy="18" r="1" />
                   </svg>
                 <% end %>
               </span>
