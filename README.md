@@ -39,3 +39,11 @@ cd /mnt/c/Users/cafec/OneDrive/Desktop/tables勉強用/school
 
 ## 追加: 環境変数
 - `QR_TOKEN_SECRET` : QRトークン署名用の秘密鍵(変更すると既存トークンは無効)
+
+## 追加: カメラ対応ブラウザ
+- Chromium系 (Chrome / Edge / Opera / Samsung Internet) でカメラQRスキャンが動作
+- Safari/iOSは未対応の可能性が高いため、手入力フォールバックを利用
+
+## 追加: CSVエクスポート仕様
+- 期間指定: `start_date` / `end_date` (同日なら1日分)
+- 追加項目: クラス名、QRセッションID、IP、UserAgent、備考

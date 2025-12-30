@@ -177,3 +177,9 @@ Rails 8 + Hotwire + PostgreSQL 構成で実装し、Render.com にデプロイ�
 - 教員ダッシュボードに本日の出席サマリー(出席率/内訳)を表示
 - 出席管理画面からCSVエクスポートを提供
 - 環境変数 `QR_TOKEN_SECRET` を本番で必須化(変更で既存トークン無効)
+
+## 15. 追加: カメラ対応ブラウザ/CSV
+- QRカメラスキャンはChromium系ブラウザ(Chrome/Edge/Opera/Samsung Internet)を推奨
+- 非対応端末は手入力フォールバック
+- CSVは期間指定(`start_date`/`end_date`)に対応
+- CSV項目にクラス名・QRセッションID・IP・UserAgent・備考を追加

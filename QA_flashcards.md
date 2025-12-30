@@ -253,3 +253,12 @@
 
 43. Q: 出席データを配布する方法は？
     A: 出席管理画面からCSVをダウンロードする。
+
+44. Q: カメラQRスキャン対応ブラウザは？
+    A: Chromium系(Chrome/Edge/Opera/Samsung Internet)を推奨。Safari/iOSは手入力フォールバック。
+
+45. Q: CSVの期間指定はどうする？
+    A: `start_date`/`end_date` を指定する。1日だけなら同日指定。
+
+46. Q: CSVに追加された項目は？
+    A: クラス名、QRセッションID、IP、UserAgent、備考。

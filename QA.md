@@ -145,3 +145,12 @@ A: 既に出席済みの場合は「すでに出席済み」として扱い、�
 
 ### Q: 出席データを配布したい場合は？
 A: 出席管理画面からCSVをダウンロードできます(Excel対応のBOM付き)。
+
+### Q: カメラQRスキャン対応ブラウザは？
+A: Chromium系(Chrome/Edge/Opera/Samsung Internet)を推奨。Safari/iOSは未対応の可能性が高いので手入力を利用。
+
+### Q: CSVは期間指定できる？
+A: `start_date`/`end_date` を指定して期間出力できる。1日だけなら同日指定。
+
+### Q: CSVに追加された項目は？
+A: クラス名、QRセッションID、IP、UserAgent、備考。
