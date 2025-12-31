@@ -11,12 +11,12 @@ class QrScansController < ApplicationController
 
     if token.blank?
       log_scan_event(status: "invalid", token: token)
-      redirect_to scan_path, alert: "QRコードが無効です。" and return
+      redirect_to scan_path, alert: "QRコードが読み取れませんでした。明るい場所で再度スキャンするか、手入力をご利用ください。" and return
     end
 
     if rate_limited?(token, limit: AttendancePolicy::DEFAULTS[:max_scans_per_minute])
       log_scan_event(status: "rate_limited", token: token)
-      redirect_to scan_path, alert: "スキャン回数が多すぎます。少し待ってから再試行してください。" and return
+      redirect_to scan_path, alert: "短時間に連続スキャンされています。30秒ほど待って再試行してください。" and return
     end
 
     result = AttendanceToken.verify(token)
@@ -29,28 +29,28 @@ class QrScansController < ApplicationController
     qr_session = QrSession.find_by(id: result[:session_id])
     unless qr_session
       log_scan_event(status: "session_missing", token: token, school_class_id: result[:class_id])
-      redirect_to scan_path, alert: "QRコードが無効です。" and return
+      redirect_to scan_path, alert: "このQRコードは無効です。教員に新しいQRの表示を依頼してください。" and return
     end
 
     if qr_session.revoked?
       log_scan_event(status: "revoked", token: token, qr_session: qr_session)
-      redirect_to scan_path, alert: "このQRコードは無効になりました。" and return
+      redirect_to scan_path, alert: "このQRコードは更新済みです。新しいQRを読み取ってください。" and return
     end
 
     if qr_session.expires_at <= Time.current
       log_scan_event(status: "expired", token: token, qr_session: qr_session)
-      redirect_to scan_path, alert: "QRコードの有効期限が切れています。" and return
+      redirect_to scan_path, alert: "QRコードの有効期限が切れています。教員に再表示を依頼してください。" and return
     end
 
     if result[:attendance_date] != qr_session.attendance_date
       log_scan_event(status: "wrong_date", token: token, qr_session: qr_session)
-      redirect_to scan_path, alert: "QRコードが無効です。" and return
+      redirect_to scan_path, alert: "このQRは本日分の授業ではありません。" and return
     end
 
     school_class = current_user.enrolled_classes.find_by(id: qr_session.school_class_id)
     unless school_class
       log_scan_event(status: "not_enrolled", token: token, qr_session: qr_session)
-      redirect_to scan_path, alert: "この授業には履修登録されていません。" and return
+      redirect_to scan_path, alert: "履修登録がないため出席登録できません。教員に確認してください。" and return
     end
 
     scan_time = Time.current
@@ -58,34 +58,34 @@ class QrScansController < ApplicationController
 
     if rate_limited?(token, limit: policy.max_scans_per_minute)
       log_scan_event(status: "rate_limited", token: token, qr_session: qr_session)
-      redirect_to scan_path, alert: "スキャン回数が多すぎます。少し待ってから再試行してください。" and return
+      redirect_to scan_path, alert: "短時間に連続スキャンされています。30秒ほど待って再試行してください。" and return
     end
 
     if policy.allowed_ip_ranges_list.any? && !policy.ip_allowed?(request.remote_ip)
       log_scan_event(status: "ip_blocked", token: token, qr_session: qr_session)
-      redirect_to scan_path, alert: "許可されていない端末/ネットワークからのアクセスです。" and return
+      redirect_to scan_path, alert: "許可されていないネットワークからのアクセスです。教室内で再試行してください。" and return
     end
 
     if policy.allowed_user_agent_keywords_list.any? && !policy.user_agent_allowed?(request.user_agent)
       log_scan_event(status: "device_blocked", token: token, qr_session: qr_session)
-      redirect_to scan_path, alert: "許可されていない端末からのアクセスです。" and return
+      redirect_to scan_path, alert: "許可されていない端末からのアクセスです。別の端末で再試行してください。" and return
     end
 
     window = school_class.schedule_window(qr_session.attendance_date)
     unless window
       log_scan_event(status: "no_schedule", token: token, qr_session: qr_session)
-      redirect_to scan_path, alert: "授業予定がありません。" and return
+      redirect_to scan_path, alert: "本日の授業予定がありません。" and return
     end
 
     if window&.dig(:canceled)
       log_scan_event(status: "class_canceled", token: token, qr_session: qr_session)
-      redirect_to scan_path, alert: "この授業は休講です。" and return
+      redirect_to scan_path, alert: "本日の授業は休講です。" and return
     end
 
     class_session = window[:class_session]
     if class_session&.locked?
       log_scan_event(status: "session_locked", token: token, qr_session: qr_session)
-      redirect_to scan_path, alert: "この授業の出席は確定済みです。" and return
+      redirect_to scan_path, alert: "この授業は出席確定済みのため登録できません。" and return
     end
 
     record = AttendanceRecord.find_or_initialize_by(
@@ -100,7 +100,7 @@ class QrScansController < ApplicationController
     if record.persisted?
       if record.modified_by_id.present? || record.verification_method_manual? || record.verification_method_system?
         log_scan_event(status: "manual_override", token: token, qr_session: qr_session, attendance_status: record.status)
-        redirect_to scan_path, alert: "教員が出席を確定済みです。" and return
+        redirect_to scan_path, alert: "教員が出席を確定済みのためスキャンできません。" and return
       end
     end
 

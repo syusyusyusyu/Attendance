@@ -1,6 +1,6 @@
 ﻿<aside
   data-sidebar-target="sidebar"
-  class="fixed top-16 bottom-0 left-0 z-30 w-64 bg-white transform transition-transform duration-300 ease-in-out -translate-x-full lg:translate-x-0 lg:relative lg:inset-y-auto"
+  class="fixed top-[var(--app-header-height)] bottom-0 left-0 z-30 w-64 bg-white transform transition-transform duration-300 ease-in-out -translate-x-full lg:translate-x-0 overflow-y-auto"
 >
   <div class="bg-white border-r border-gray-200 h-full min-h-full">
     <div class="h-16 flex items-center justify-center border-b border-gray-200">
@@ -10,7 +10,7 @@
     </div>
     <nav class="mt-4">
       <% nav_items = if current_user.staff?
-        [
+        items = [
           { name: "ホーム", path: root_path, icon: "clock" },
           { name: "クラス管理", path: school_classes_path, icon: "class" },
           { name: "出席確認", path: attendance_path, icon: "clipboard" },
@@ -21,6 +21,10 @@
           { name: "通知", path: notifications_path, icon: "bell" },
           { name: "QRコード生成", path: generate_qr_path, icon: "qr" }
         ]
+        if current_user.admin?
+          items.unshift({ name: "管理者ダッシュボード", path: admin_path, icon: "shield" })
+        end
+        items
       else
         [
           { name: "ホーム", path: root_path, icon: "clock" },
@@ -98,6 +102,10 @@
                   <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" stroke-linecap="round" stroke-linejoin="round" />
                     <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                <% when "shield" %>
+                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 3l8 4v6c0 5-3.5 7.5-8 9-4.5-1.5-8-4-8-9V7l8-4z" stroke-linecap="round" stroke-linejoin="round" />
                   </svg>
                 <% end %>
               </span>

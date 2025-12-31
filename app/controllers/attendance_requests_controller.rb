@@ -103,6 +103,42 @@ class AttendanceRequestsController < ApplicationController
     redirect_to attendance_requests_path, notice: "申請を更新しました。"
   end
 
+  def bulk_update
+    require_role!(%w[teacher admin])
+
+    request_ids = Array(params[:request_ids]).map(&:to_i).uniq
+    status = params[:status].to_s
+    decision_reason = params[:decision_reason]
+
+    if request_ids.empty?
+      redirect_to attendance_requests_path, alert: "申請が選択されていません。" and return
+    end
+
+    unless %w[approved rejected].include?(status)
+      redirect_to attendance_requests_path, alert: "ステータスが不正です。" and return
+    end
+
+    class_ids = current_user.manageable_classes.pluck(:id)
+    requests = AttendanceRequest
+               .includes(:user, :school_class, :class_session)
+               .where(id: request_ids, status: "pending", school_class_id: class_ids)
+
+    if requests.empty?
+      redirect_to attendance_requests_path, alert: "対象の申請がありません。" and return
+    end
+
+    processed = 0
+    AttendanceRequest.transaction do
+      requests.each do |request|
+        process_request!(request, status: status, decision_reason: decision_reason)
+        processed += 1
+      end
+    end
+
+    redirect_to attendance_requests_path(class_id: params[:class_id], status: params[:filter_status]),
+                notice: "申請を一括更新しました。(#{processed}件)"
+  end
+
   private
 
   def load_request
@@ -143,6 +179,25 @@ class AttendanceRequestsController < ApplicationController
       ip: request.remote_ip,
       user_agent: request.user_agent,
       changed_at: Time.current
+    )
+  end
+
+  def process_request!(request, status:, decision_reason:)
+    request.update!(
+      status: status,
+      processed_by: current_user,
+      processed_at: Time.current,
+      decision_reason: decision_reason
+    )
+
+    apply_request_to_attendance!(request) if request.status_approved?
+
+    Notification.create!(
+      user: request.user,
+      kind: request.status_approved? ? "info" : "warning",
+      title: "出席申請が#{request.status_approved? ? "承認" : "却下"}されました",
+      body: "#{request.school_class.name} (#{request.date.strftime('%Y-%m-%d')}) の申請結果をご確認ください。",
+      action_path: attendance_requests_path
     )
   end
 end

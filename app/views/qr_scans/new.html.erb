@@ -13,11 +13,13 @@
       </h2>
     </div>
 
-    <div class="p-6">
-      <%= form_with url: scan_path,
-        method: :post,
-        class: "space-y-6",
-        data: { controller: "qr-scan", qr_scan_submit_on_scan_value: true, qr_scan_target: "form" } do |f| %>
+    <div class="p-6 space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2">
+          <%= form_with url: scan_path,
+            method: :post,
+            class: "space-y-6",
+            data: { controller: "qr-scan", qr_scan_submit_on_scan_value: true, qr_scan_target: "form" } do |f| %>
         <div class="relative overflow-hidden rounded-lg mx-auto max-w-sm border-4 border-google-green mb-4">
           <video
             class="w-full h-56 bg-gray-900 object-cover"
@@ -65,7 +67,39 @@
           対応ブラウザ例: Chrome / Edge / Brave / Opera (Chromium系)、iOS Safari 16以降。
           アプリ内ブラウザや古い端末では手入力になる場合があります。
         </p>
-      <% end %>
+          <% end %>
+        </div>
+
+        <div class="space-y-4">
+          <div class="border border-gray-200 rounded-lg p-4">
+            <h3 class="text-sm font-medium text-gray-900 mb-2">スキャン手順</h3>
+            <ol class="list-decimal list-inside text-sm text-gray-600 space-y-1">
+              <li>「カメラを開始」を押す</li>
+              <li>QRを枠内に合わせる</li>
+              <li>読み取り後は自動送信</li>
+            </ol>
+          </div>
+
+          <div class="border border-gray-200 rounded-lg p-4">
+            <h3 class="text-sm font-medium text-gray-900 mb-2">よくある原因</h3>
+            <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
+              <li>カメラ権限が許可されていない</li>
+              <li>QRが古い(更新済み/期限切れ)</li>
+              <li>授業が休講または確定済み</li>
+              <li>履修登録がない</li>
+            </ul>
+          </div>
+
+          <div class="border border-gray-200 rounded-lg p-4">
+            <h3 class="text-sm font-medium text-gray-900 mb-2">対応ブラウザ</h3>
+            <p class="text-sm text-gray-600">
+              Chromium系(Chrome/Edge/Brave/Opera/Samsung Internet)推奨。
+              iOS Safari 16以降はフォールバック対応です。
+            </p>
+            <p class="text-xs text-gray-500 mt-2">カメラが使えない場合は手入力をご利用ください。</p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

@@ -7,6 +7,7 @@
   --google-green: #34A853;
   --google-grey: #F8F9FA;
   --google-dark-grey: #5F6368;
+  --app-header-height: 4rem;
 }
 
 @layer base {
@@ -16,7 +17,7 @@
   }
 
   body {
-    @apply bg-gray-50 text-gray-900;
+    @apply bg-gray-50 text-gray-900 text-[15px] sm:text-base leading-relaxed;
   }
 
   h1,
@@ -25,7 +26,7 @@
   h4,
   h5,
   h6 {
-    @apply font-medium;
+    @apply font-medium text-gray-900 tracking-tight;
   }
 
   button,

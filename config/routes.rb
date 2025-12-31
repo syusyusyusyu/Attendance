@@ -23,8 +23,10 @@ Rails.application.routes.draw do
   get "/reports", to: "reports#index"
   get "/notifications", to: "notifications#index"
   patch "/notifications/mark-all", to: "notifications#mark_all"
+  get "/admin", to: "admin_dashboard#index"
 
   get "/history", to: "attendance_history#show"
+  get "/history/export", to: "attendance_history#export", as: :attendance_history_export
   get "/attendance", to: "class_attendances#show"
   patch "/attendance", to: "class_attendances#update"
   get "/attendance/export", to: "class_attendances#export"
@@ -33,7 +35,9 @@ Rails.application.routes.draw do
   patch "/attendance/finalize", to: "class_attendances#finalize", as: :attendance_finalize
   patch "/attendance/unlock", to: "class_attendances#unlock", as: :attendance_unlock
 
-  resources :attendance_requests, only: [:index, :create, :update]
+  resources :attendance_requests, only: [:index, :create, :update] do
+    patch :bulk_update, on: :collection
+  end
 
   resource :profile, only: [:show, :update]
 

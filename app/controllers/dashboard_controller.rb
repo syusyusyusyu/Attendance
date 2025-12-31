@@ -1,6 +1,7 @@
 class DashboardController < ApplicationController
   def show
     @user = current_user
+    @show_onboarding = session.delete(:show_onboarding)
     today = Time.zone.today
     if @user.staff?
       @classes = @user.manageable_classes.order(:name)

@@ -1,0 +1,198 @@
+<% role_labels = { "student" => "学生", "teacher" => "教員", "admin" => "管理者" } %>
+<% total_users = @users.size %>
+
+<div class="max-w-6xl mx-auto space-y-6">
+  <div class="card p-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-semibold text-gray-900">管理者ダッシュボード</h1>
+        <p class="text-sm text-gray-500 mt-1">ユーザー/権限/監査の全体像をまとめて確認します。</p>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <%= link_to "出席変更ログ", attendance_logs_path, class: "btn btn-secondary text-sm" %>
+        <%= link_to "スキャンログ", scan_logs_path, class: "btn btn-secondary text-sm" %>
+        <%= link_to "レポート", reports_path, class: "btn btn-secondary text-sm" %>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="card p-4">
+      <div class="text-xs text-gray-500">総ユーザー数</div>
+      <div class="text-2xl font-semibold text-gray-900 mt-1"><%= total_users %></div>
+      <div class="text-xs text-gray-500 mt-2">
+        学生 <%= @role_counts.fetch("student", 0) %> / 教員 <%= @role_counts.fetch("teacher", 0) %> / 管理者 <%= @role_counts.fetch("admin", 0) %>
+      </div>
+    </div>
+    <div class="card p-4">
+      <div class="text-xs text-gray-500">未処理の出席申請</div>
+      <div class="text-2xl font-semibold text-gray-900 mt-1"><%= @pending_requests.size %></div>
+      <div class="text-xs text-gray-500 mt-2">直近10件を下に表示</div>
+    </div>
+    <div class="card p-4">
+      <div class="text-xs text-gray-500">直近7日 監査サマリー</div>
+      <div class="mt-2 space-y-1 text-sm text-gray-700">
+        <div>変更ログ: <%= @change_source_counts.values.sum %> 件</div>
+        <div>スキャンログ: <%= @scan_status_counts.values.sum %> 件</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card p-6">
+    <h2 class="text-lg font-medium text-gray-900 mb-4">未処理の出席申請</h2>
+    <div class="table-container">
+      <table class="min-w-full divide-y divide-gray-200 text-sm">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">日付</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">クラス</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">学生</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">種別</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% if @pending_requests.any? %>
+            <% @pending_requests.each do |request| %>
+              <tr>
+                <td class="px-4 py-2 text-sm text-gray-500"><%= request.date.strftime("%Y-%m-%d") %></td>
+                <td class="px-4 py-2 text-sm text-gray-700"><%= request.school_class.name %></td>
+                <td class="px-4 py-2 text-sm text-gray-700">
+                  <div><%= request.user.name %></div>
+                  <div class="text-xs text-gray-400"><%= request.user.student_id %></div>
+                </td>
+                <td class="px-4 py-2 text-sm text-gray-700"><%= request.request_type %></td>
+              </tr>
+            <% end %>
+          <% else %>
+            <tr>
+              <td colspan="4" class="px-4 py-6 text-center text-sm text-gray-500">未処理の申請はありません。</td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card p-6" data-controller="filter" data-filter-storage-key-value="admin-users">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+      <div>
+        <h2 class="text-lg font-medium text-gray-900">ユーザー一覧</h2>
+        <p class="text-xs text-gray-500 mt-1">検索・ロールフィルタを保持します。</p>
+      </div>
+      <div class="flex flex-col sm:flex-row gap-2">
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="h-4 w-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="7" />
+              <path d="M21 21l-4.3-4.3" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </div>
+          <input
+            type="text"
+            class="input pl-10"
+            placeholder="氏名/メール/学籍番号で検索"
+            data-filter-target="input"
+            data-action="input->filter#filter"
+          />
+        </div>
+        <select class="input sm:w-40" data-filter-target="select" data-action="change->filter#filter">
+          <option value="">全ロール</option>
+          <option value="student">学生</option>
+          <option value="teacher">教員</option>
+          <option value="admin">管理者</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="min-w-full divide-y divide-gray-200 text-sm">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">氏名</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">メール</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">学籍番号</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ロール</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">最終ログイン</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @users.each do |user| %>
+            <tr data-filter-target="row" data-role="<%= user.role %>">
+              <td class="px-4 py-2 text-sm text-gray-700"><%= user.name %></td>
+              <td class="px-4 py-2 text-sm text-gray-500"><%= user.email %></td>
+              <td class="px-4 py-2 text-sm text-gray-500"><%= user.student_id || "-" %></td>
+              <td class="px-4 py-2 text-sm text-gray-700"><%= role_labels[user.role] || user.role %></td>
+              <td class="px-4 py-2 text-sm text-gray-500"><%= user.last_login&.strftime("%Y-%m-%d %H:%M") || "-" %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="card p-6">
+      <h2 class="text-lg font-medium text-gray-900 mb-4">最近の出席変更ログ</h2>
+      <div class="table-container">
+        <table class="min-w-full divide-y divide-gray-200 text-sm">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">日付</th>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">学生</th>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">変更</th>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">理由</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% if @recent_changes.any? %>
+              <% @recent_changes.each do |change| %>
+                <tr>
+                  <td class="px-4 py-2 text-sm text-gray-500"><%= change.changed_at&.strftime("%m/%d %H:%M") %></td>
+                  <td class="px-4 py-2 text-sm text-gray-700"><%= change.user&.name || "-" %></td>
+                  <td class="px-4 py-2 text-sm text-gray-700"><%= "#{change.previous_status || '-'} → #{change.new_status}" %></td>
+                  <td class="px-4 py-2 text-sm text-gray-500"><%= change.reason.presence || "-" %></td>
+                </tr>
+              <% end %>
+            <% else %>
+              <tr>
+                <td colspan="4" class="px-4 py-6 text-center text-sm text-gray-500">ログがありません。</td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card p-6">
+      <h2 class="text-lg font-medium text-gray-900 mb-4">最近のQRスキャン</h2>
+      <div class="table-container">
+        <table class="min-w-full divide-y divide-gray-200 text-sm">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">時刻</th>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">学生</th>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状態</th>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">クラス</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% if @recent_scans.any? %>
+              <% @recent_scans.each do |scan| %>
+                <tr>
+                  <td class="px-4 py-2 text-sm text-gray-500"><%= scan.scanned_at&.strftime("%m/%d %H:%M") %></td>
+                  <td class="px-4 py-2 text-sm text-gray-700"><%= scan.user&.name || "-" %></td>
+                  <td class="px-4 py-2 text-sm text-gray-700"><%= scan.status %></td>
+                  <td class="px-4 py-2 text-sm text-gray-500"><%= scan.school_class&.name || "-" %></td>
+                </tr>
+              <% end %>
+            <% else %>
+              <tr>
+                <td colspan="4" class="px-4 py-6 text-center text-sm text-gray-500">ログがありません。</td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

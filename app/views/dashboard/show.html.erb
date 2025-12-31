@@ -21,6 +21,32 @@ end %>
     <p class="opacity-90"><%= role_label %>ダッシュボード</p>
   </div>
 
+  <% if @user.student? && @show_onboarding %>
+    <div class="bg-white rounded-lg shadow-sm border border-green-200 p-4 sm:p-6">
+      <h2 class="text-lg font-semibold text-gray-900 mb-2">初回ガイド</h2>
+      <ol class="list-decimal list-inside text-sm text-gray-600 space-y-1">
+        <li>「出席登録」からQRをスキャン</li>
+        <li>同じQRをもう一度スキャンすると退室が記録されます</li>
+        <li>欠席/遅刻の時は「出席申請」から理由を送信</li>
+      </ol>
+      <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-600">
+        <div class="border border-gray-200 rounded-lg p-3">
+          <h3 class="text-sm font-medium text-gray-900 mb-2">FAQ</h3>
+          <ul class="list-disc list-inside space-y-1 text-xs">
+            <li>カメラが起動しない場合は手入力を利用</li>
+            <li>表示されるQRは1分ごとに更新</li>
+            <li>遅刻・欠席は申請が必要</li>
+          </ul>
+        </div>
+        <div class="border border-gray-200 rounded-lg p-3">
+          <h3 class="text-sm font-medium text-gray-900 mb-2">動画チュートリアル</h3>
+          <p class="text-xs text-gray-500">1分でわかる操作動画を準備中です。</p>
+          <p class="text-xs text-gray-500 mt-2">公開後はこのカードから視聴できます。</p>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
     <% if @user.staff? %>
       <%= link_to school_classes_path, class: "bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 cursor-pointer transition hover:-translate-y-1 hover:shadow-md" do %>
@@ -95,6 +121,29 @@ end %>
         </div>
         <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-1">出席履歴</h3>
         <p class="text-sm text-gray-500">これまでの出席状況を確認します。</p>
+      <% end %>
+
+      <%= link_to attendance_requests_path, class: "bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 cursor-pointer transition hover:-translate-y-1 hover:shadow-md" do %>
+        <div class="mb-4 text-google-red">
+          <svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 3v18" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M5 8h14" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M5 16h14" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </div>
+        <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-1">出席申請</h3>
+        <p class="text-sm text-gray-500">欠席/遅刻/公欠を申請します。</p>
+      <% end %>
+
+      <%= link_to notifications_path, class: "bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 cursor-pointer transition hover:-translate-y-1 hover:shadow-md" do %>
+        <div class="mb-4 text-google-yellow">
+          <svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </div>
+        <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-1">通知</h3>
+        <p class="text-sm text-gray-500">承認結果や更新を確認します。</p>
       <% end %>
     <% end %>
   </div>
@@ -272,6 +321,11 @@ end %>
                 </div>
                 <% if @user.staff? %>
                   <%= link_to "出席確認", attendance_path(class_id: klass.id), class: "btn btn-secondary text-sm w-full sm:w-auto" %>
+                <% else %>
+                  <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                    <%= link_to "出席登録", scan_path, class: "btn btn-primary text-sm w-full sm:w-auto" %>
+                    <%= link_to "履歴", history_path, class: "btn btn-secondary text-sm w-full sm:w-auto" %>
+                  </div>
                 <% end %>
               </div>
             </li>

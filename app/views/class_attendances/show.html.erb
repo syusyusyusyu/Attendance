@@ -137,7 +137,11 @@
               <div class="mt-2 text-sm text-green-700">出席は確定済みです。</div>
               <% if current_user.admin? %>
                 <div class="mt-3">
-                  <%= button_to "確定を解除", attendance_unlock_path(class_id: @selected_class.id, date: @date), method: :patch, class: "btn btn-secondary w-full" %>
+                  <%= button_to "確定を解除",
+                    attendance_unlock_path(class_id: @selected_class.id, date: @date),
+                    method: :patch,
+                    data: { turbo_confirm: "出席確定を解除します。よろしいですか？" },
+                    class: "btn btn-secondary w-full" %>
                 </div>
               <% else %>
                 <div class="mt-2 text-xs text-gray-500">確定解除は管理者のみ実行できます。</div>
@@ -146,7 +150,11 @@
               <div class="mt-2 text-sm text-gray-600">出席は未確定です。</div>
               <% if @finalize_available %>
                 <div class="mt-3">
-                  <%= button_to "出席を確定", attendance_finalize_path(class_id: @selected_class.id, date: @date), method: :patch, class: "btn btn-primary w-full" %>
+                  <%= button_to "出席を確定",
+                    attendance_finalize_path(class_id: @selected_class.id, date: @date),
+                    method: :patch,
+                    data: { turbo_confirm: "出席を確定します。よろしいですか？" },
+                    class: "btn btn-primary w-full" %>
                 </div>
               <% else %>
                 <div class="mt-2 text-xs text-gray-500">授業終了後に確定できます。</div>
@@ -186,7 +194,9 @@
               <%= f.file_field :csv_file, accept: ".csv", class: "input" %>
             </div>
             <div>
-              <%= f.submit "CSVインポート", class: "btn btn-secondary w-full" %>
+            <%= f.submit "CSVインポート",
+              class: "btn btn-secondary w-full",
+              data: { turbo_confirm: "CSVを反映します。よろしいですか？" } %>
             </div>
           <% end %>
           <p class="text-xs text-gray-500 mt-2">

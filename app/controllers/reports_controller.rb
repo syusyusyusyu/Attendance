@@ -150,14 +150,65 @@ class ReportsController < ApplicationController
     pdf.text "#{report[:school_class].name} / #{report[:start_date].strftime('%Y-%m-%d')} - #{report[:end_date].strftime('%Y-%m-%d')}"
     pdf.move_down 6
     pdf.text "対象授業回数: #{report[:sessions_count]}", size: 10
+
+    students = report[:students]
+    avg_rate =
+      if students.any?
+        (students.sum { |row| row[:rate].to_f } / students.size).round(1)
+      else
+        0
+      end
+
+    totals = students.each_with_object(Hash.new(0)) do |row, memo|
+      memo[:present] += row[:present].to_i
+      memo[:late] += row[:late].to_i
+      memo[:excused] += row[:excused].to_i
+      memo[:early_leave] += row[:early_leave].to_i
+      memo[:absent] += row[:absent].to_i
+      memo[:missing] += row[:missing].to_i
+    end
+
+    pdf.text "対象学生数: #{students.size} / 平均出席率: #{avg_rate}%", size: 10
     pdf.move_down 10
 
-    headers = ["学生ID", "氏名", "出席率", "出席", "遅刻", "公欠", "早退", "欠席", "未入力", "判定"]
-    pdf.text headers.join(" | "), size: 9, style: :bold
-    pdf.move_down 4
+    status_labels = {
+      present: "出席",
+      late: "遅刻",
+      excused: "公欠",
+      early_leave: "早退",
+      absent: "欠席",
+      missing: "未入力"
+    }
+    status_colors = {
+      present: "34A853",
+      late: "FBBF24",
+      excused: "60A5FA",
+      early_leave: "FB923C",
+      absent: "F87171",
+      missing: "9CA3AF"
+    }
 
-    report[:students].each do |row|
-      pdf.text [
+    pdf.text "集計グラフ", size: 11, style: :bold
+    pdf.move_down 6
+    max_value = totals.values.max.to_i
+    bar_width = 240
+    bar_height = 10
+
+    status_labels.each do |key, label|
+      value = totals[key].to_i
+      width = max_value.zero? ? 0 : (value.to_f / max_value) * bar_width
+      y = pdf.cursor
+      pdf.fill_color status_colors[key]
+      pdf.fill_rectangle [pdf.bounds.left, y], width, bar_height
+      pdf.fill_color "000000"
+      pdf.text_box "#{label} #{value}", at: [pdf.bounds.left + bar_width + 8, y - 1], size: 9, width: 120, height: bar_height
+      pdf.move_down bar_height + 6
+    end
+
+    pdf.move_down 6
+    headers = ["学生ID", "氏名", "出席率", "出席", "遅刻", "公欠", "早退", "欠席", "未入力", "判定"]
+    rows = students.map do |row|
+      [
         row[:student].student_id,
         row[:student].name,
         "#{row[:rate]}%",
@@ -168,8 +219,27 @@ class ReportsController < ApplicationController
         row[:absent],
         row[:missing],
         row[:alert_label]
-      ].join(" | "), size: 9
+      ]
     end
+
+    column_sizes = [10, 12, 6, 5, 5, 5, 5, 5, 6, 6]
+    format_row = lambda do |row|
+      row.zip(column_sizes).map do |value, size|
+        value.to_s.ljust(size)[0, size]
+      end.join(" ")
+    end
+
+    pdf.move_down 4
+    pdf.font("Courier") do
+      pdf.font_size 8
+      pdf.text format_row.call(headers)
+      pdf.stroke_horizontal_rule
+      pdf.move_down 4
+      rows.each do |row|
+        pdf.text format_row.call(row)
+      end
+    end
+
     pdf.render
   end
 

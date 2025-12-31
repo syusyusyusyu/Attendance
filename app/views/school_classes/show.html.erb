@@ -22,7 +22,7 @@
   </div>
 
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <div class="card p-6 space-y-4">
+    <div class="card p-6 space-y-4" data-controller="filter" data-filter-storage-key-value="roster-<%= @school_class.id %>">
       <div class="flex items-center justify-between">
         <h2 class="text-lg font-medium text-gray-900">履修者</h2>
         <span class="text-xs text-gray-500"><%= @enrollments.count %>名</span>
@@ -44,6 +44,22 @@
         <p class="text-xs text-gray-500 mt-2">必須列: 学生ID / 氏名 / メール。パスワード列は任意です。</p>
       </div>
 
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <svg class="h-4 w-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="7" />
+            <path d="M21 21l-4.3-4.3" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </div>
+        <input
+          type="text"
+          class="input pl-10"
+          placeholder="学生ID / 氏名 / メールで検索"
+          data-filter-target="input"
+          data-action="input->filter#filter"
+        />
+      </div>
+
       <div class="table-container">
         <table class="min-w-full divide-y divide-gray-200 text-sm">
           <thead class="bg-gray-50">
@@ -57,7 +73,7 @@
           <tbody class="bg-white divide-y divide-gray-200">
             <% if @enrollments.any? %>
               <% @enrollments.each do |enrollment| %>
-                <tr>
+                <tr data-filter-target="row">
                   <td class="px-4 py-2 text-sm text-gray-500"><%= enrollment.student.student_id %></td>
                   <td class="px-4 py-2 text-sm text-gray-900"><%= enrollment.student.name %></td>
                   <td class="px-4 py-2 text-sm text-gray-500"><%= enrollment.student.email %></td>
