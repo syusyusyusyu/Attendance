@@ -148,7 +148,7 @@ A: 授業回を確定すると未登録は欠席となります。定期実行�
 A: 出席管理画面からCSVをダウンロードできます(Excel対応のBOM付き)。
 
 ### Q: カメラQRスキャン対応ブラウザは？
-A: Chromium系(Chrome/Edge/Brave/Opera/Samsung Internet)を推奨。iOS Safari 16+ は対応端末で利用可能です。非対応端末は手入力を利用します。
+A: Chromium系(Chrome/Edge/Brave/Opera/Samsung Internet)を推奨。iOS Safari 16+ はjsQRフォールバックで利用可能です。非対応端末は手入力を利用します。
 
 ### Q: CSVは期間指定できる？
 A: `start_date`/`end_date` を指定して期間出力できます。1日だけなら同日指定です。

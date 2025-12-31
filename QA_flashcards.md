@@ -72,7 +72,7 @@
     A: Rails の `csrf_meta_tags` とトークン検証。
 
 24. Q: カメラQRスキャン対応ブラウザは？
-    A: Chromium系(Chrome/Edge/Brave/Opera/Samsung Internet)推奨。iOS Safari 16+ も対応端末で利用可。
+    A: Chromium系(Chrome/Edge/Brave/Opera/Samsung Internet)推奨。iOS Safari 16+ はjsQRフォールバックで利用可。
 
 25. Q: QR偽造対策は？
     A: トークン短寿命と署名検証で無効化。

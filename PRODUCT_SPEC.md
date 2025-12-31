@@ -325,7 +325,7 @@ Rails 8 + Hotwire + PostgreSQL 構成で実装し、Render.com にデプロイ�
 - 障害時はRenderのログを確認
 
 ## 13. 既知の制約と今後の拡張
-- QR読み取りはカメラと手入力を併用
+- QR読み取りはカメラ(BarcodeDetector + jsQRフォールバック)と手入力を併用
 - 管理者画面は未実装
 
 ## 14. 追加仕様: QR本格導入
@@ -340,7 +340,7 @@ Rails 8 + Hotwire + PostgreSQL 構成で実装し、Render.com にデプロイ�
 - 環境変数 `QR_TOKEN_SECRET` を本番で必須化(変更で既存トークン無効)
 
 ## 15. 追加: カメラ対応ブラウザ/CSV
-- QRカメラスキャンはChromium系ブラウザ(Chrome/Edge/Brave/Opera/Samsung Internet)を推奨
+- QRカメラスキャンはChromium系ブラウザ(Chrome/Edge/Brave/Opera/Samsung Internet)を推奨、iOS Safari 16+ はjsQRフォールバックで対応
 - iOS Safari 16+ は対応端末では利用可能
 - 非対応端末は手入力フォールバック
 - CSVは期間指定(`start_date`/`end_date`)に対応

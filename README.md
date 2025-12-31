@@ -31,7 +31,7 @@ cd /mnt/c/Users/cafec/OneDrive/Desktop/tables勉強用/school
 
 
 ## 追加: QR本格導入のポイント
-- カメラQRスキャン(BarcodeDetector)対応、非対応端末は手入力にフォールバック
+- カメラQRスキャン(BarcodeDetector + jsQRフォールバック)対応、カメラ非対応端末は手入力にフォールバック
 - QR発行はQrSessionとして保存し、再生成時に既存セッションを失効
 - QRコードは自動ローテーションで更新(60秒間隔)
 - スキャンログ(QrScanEvent)に成功/失敗/理由/端末情報を記録
@@ -44,8 +44,8 @@ cd /mnt/c/Users/cafec/OneDrive/Desktop/tables勉強用/school
 - `QR_TOKEN_SECRET` : QRトークン署名用の秘密鍵(変更すると既存トークンは無効)
 
 ## 追加: カメラ対応ブラウザ
-- Chromium系 (Chrome / Edge / Brave / Opera / Samsung Internet) でカメラQRスキャンが動作
-- iOS Safari 16+ は対応端末では利用可能
+- Chromium系 (Chrome / Edge / Brave / Opera / Samsung Internet) でBarcodeDetectorが動作
+- iOS Safari 16+ はjsQRフォールバックで利用可能
 - それ以外のブラウザ/アプリ内ブラウザは手入力フォールバックを利用
 
 ## 追加: CSVエクスポート仕様

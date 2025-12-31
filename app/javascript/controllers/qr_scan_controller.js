@@ -1,4 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
+import "jsqr"
 
 export default class extends Controller {
   static targets = ["video", "manual", "status", "tokenInput", "form"]
@@ -7,10 +8,12 @@ export default class extends Controller {
   connect() {
     this.scanning = false
     this.scanBusy = false
+    this.detectorSupported = "BarcodeDetector" in window
+    this.jsQrSupported = typeof window.jsQR === "function"
     this.supported =
-      "BarcodeDetector" in window &&
       navigator.mediaDevices &&
-      navigator.mediaDevices.getUserMedia
+      navigator.mediaDevices.getUserMedia &&
+      (this.detectorSupported || this.jsQrSupported)
 
     if (!this.supported) {
       this.showManual()
@@ -18,7 +21,23 @@ export default class extends Controller {
       return
     }
 
-    this.detector = new BarcodeDetector({ formats: ["qr_code"] })
+    if (this.detectorSupported) {
+      this.detector = new BarcodeDetector({ formats: ["qr_code"] })
+      if (typeof BarcodeDetector.getSupportedFormats === "function") {
+        BarcodeDetector.getSupportedFormats()
+          .then((formats) => {
+            if (!formats.includes("qr_code")) {
+              this.detector = null
+              if (!this.jsQrSupported) {
+                this.supported = false
+                this.showManual()
+                this.updateStatus("unsupported")
+              }
+            }
+          })
+          .catch(() => {})
+      }
+    }
     this.updateStatus("ready")
   }
 
@@ -28,6 +47,11 @@ export default class extends Controller {
 
   start() {
     if (!this.supported || this.scanning) return
+    if (!this.detector && !this.jsQrSupported) {
+      this.showManual()
+      this.updateStatus("unsupported")
+      return
+    }
 
     navigator.mediaDevices
       .getUserMedia({ video: { facingMode: "environment" }, audio: false })
@@ -37,6 +61,7 @@ export default class extends Controller {
         this.videoTarget.play()
         this.scanning = true
         this.updateStatus("scanning")
+        this.prepareCanvas()
         this.startLoop()
       })
       .catch(() => {
@@ -57,6 +82,8 @@ export default class extends Controller {
       this.stream.getTracks().forEach((track) => track.stop())
       this.stream = null
     }
+    this.canvas = null
+    this.canvasContext = null
   }
 
   toggleManual() {
@@ -74,13 +101,27 @@ export default class extends Controller {
     this.scanBusy = true
 
     try {
-      const barcodes = await this.detector.detect(this.videoTarget)
-      if (barcodes.length > 0) {
-        this.handleResult(barcodes[0].rawValue)
+      let detected = false
+
+      if (this.detector) {
+        const barcodes = await this.detector.detect(this.videoTarget)
+        if (barcodes.length > 0) {
+          this.handleResult(barcodes[0].rawValue)
+          detected = true
+        }
+      }
+
+      if (!detected && this.jsQrSupported) {
+        this.scanWithJsQr()
       }
     } catch (_error) {
-      this.showManual()
-      this.updateStatus("error")
+      if (this.jsQrSupported) {
+        this.detector = null
+        this.scanWithJsQr()
+      } else {
+        this.showManual()
+        this.updateStatus("error")
+      }
     } finally {
       this.scanBusy = false
     }
@@ -104,6 +145,34 @@ export default class extends Controller {
   showManual() {
     if (this.hasManualTarget) {
       this.manualTarget.classList.remove("hidden")
+    }
+  }
+
+  prepareCanvas() {
+    if (!this.jsQrSupported || this.canvas) return
+
+    this.canvas = document.createElement("canvas")
+    this.canvasContext = this.canvas.getContext("2d", { willReadFrequently: true })
+  }
+
+  scanWithJsQr() {
+    if (!this.canvasContext) return
+    if (this.videoTarget.readyState < 2) return
+
+    const width = this.videoTarget.videoWidth
+    const height = this.videoTarget.videoHeight
+    if (!width || !height) return
+
+    this.canvas.width = width
+    this.canvas.height = height
+    this.canvasContext.drawImage(this.videoTarget, 0, 0, width, height)
+    const imageData = this.canvasContext.getImageData(0, 0, width, height)
+    const code = window.jsQR(imageData.data, width, height, {
+      inversionAttempts: "dontInvert"
+    })
+
+    if (code && code.data) {
+      this.handleResult(code.data)
     }
   }
 
