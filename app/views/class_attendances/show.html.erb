@@ -49,8 +49,8 @@
             <%= hidden_field_tag :class_id, @selected_class.id %>
             <%= hidden_field_tag :date, @date %>
             <div>
-              <span class="block text-sm font-medium text-gray-700 mb-2">遅刻判定</span>
-              <div class="text-sm text-gray-700">授業開始5分以内は出席扱い</div>
+              <span class="block text-sm font-medium text-gray-700 mb-2">出席判定</span>
+              <div class="text-sm text-gray-700">出席QRを発行してスキャンした記録は出席扱い</div>
               <%= f.hidden_field :late_after_minutes, value: AttendancePolicy::DEFAULTS[:late_after_minutes] %>
             </div>
             <div>
@@ -91,7 +91,7 @@
             </div>
           <% end %>
           <p class="text-xs text-gray-500 mt-2">
-            授業開始5分以内は出席、5分超〜20分以内は遅刻、20分以降は欠席として扱います。
+            出席QRのスキャンは出席扱いです。授業開始20分以降は欠席として扱います。
           </p>
           <p class="text-xs text-gray-500">
             IP/端末制限を設定すると条件に一致しないQRスキャンはブロックされます。

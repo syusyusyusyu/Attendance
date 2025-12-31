@@ -2,7 +2,7 @@ require "ipaddr"
 
 class AttendancePolicy < ApplicationRecord
   DEFAULTS = {
-    late_after_minutes: 5,
+    late_after_minutes: 20,
     close_after_minutes: 20,
     allow_early_checkin: true,
     max_scans_per_minute: 10,

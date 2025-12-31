@@ -170,14 +170,15 @@ class QrScansController < ApplicationController
       return
     end
 
-    policy_result = policy.evaluate(scan_time: scan_time, start_at: window[:start_at], mode: :checkin)
+    checkin_start_at = qr_session.issued_at || window[:start_at]
+    policy_result = policy.evaluate(scan_time: scan_time, start_at: checkin_start_at, mode: :checkin)
 
     unless policy_result[:allowed]
       log_scan_event(status: policy_result[:status], token: token, qr_session: qr_session)
       redirect_to scan_path, alert: policy_result[:message] and return
     end
 
-    attendance_status = policy_result[:attendance_status] || "present"
+    attendance_status = "present"
 
     if record.persisted? && record.verification_method_qrcode?
       log_scan_event(status: "duplicate", token: token, qr_session: qr_session, attendance_status: record.status)
