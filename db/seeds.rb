@@ -21,6 +21,15 @@ student.assign_attributes(
 )
 student.save!
 
+admin = User.find_or_initialize_by(email: "admin@example.com")
+admin.assign_attributes(
+  name: "管理者",
+  role: "admin",
+  password: "password",
+  password_confirmation: "password"
+)
+admin.save!
+
 class_one = SchoolClass.find_or_create_by!(name: "数学I", teacher: teacher) do |klass|
   klass.room = "2C教室"
   klass.subject = "数学"
