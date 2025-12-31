@@ -38,8 +38,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_31_090300) do
 
   create_table "attendance_policies", force: :cascade do |t|
     t.bigint "school_class_id", null: false
-    t.integer "late_after_minutes", default: 10, null: false
-    t.integer "close_after_minutes", default: 90, null: false
+    t.integer "late_after_minutes", default: 5, null: false
+    t.integer "close_after_minutes", default: 20, null: false
     t.boolean "allow_early_checkin", default: true, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
