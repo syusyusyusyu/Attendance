@@ -38,4 +38,6 @@ end
 
 Enrollment.find_or_create_by!(school_class: class_one, student: student)
 
-AttendancePolicy.find_or_create_by!(school_class: class_one, **AttendancePolicy.default_attributes)
+policy = AttendancePolicy.find_or_initialize_by(school_class: class_one)
+policy.assign_attributes(AttendancePolicy.default_attributes)
+policy.save!
