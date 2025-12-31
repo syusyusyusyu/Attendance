@@ -25,7 +25,7 @@
     end
 
     @records = current_user.attendance_records
-                           .includes(:school_class)
+                           .includes(:school_class, :class_session)
                            .where(date: @date)
                            .order(:timestamp)
 
@@ -39,6 +39,10 @@
                          .order(changed_at: :desc)
                          .group_by(&:attendance_record_id)
                          .transform_values { |items| items.first }
+    @policies_by_class = SchoolClass
+                         .where(id: @records.map(&:school_class_id))
+                         .includes(:attendance_policy)
+                         .index_by(&:id)
   rescue ArgumentError
     redirect_to history_path, alert: "日付の形式が正しくありません。"
   end

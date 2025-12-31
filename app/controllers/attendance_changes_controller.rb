@@ -1,10 +1,10 @@
 require "csv"
 
 class AttendanceChangesController < ApplicationController
-  before_action -> { require_role!("teacher") }
+  before_action -> { require_role!(%w[teacher admin]) }
 
   def index
-    @classes = current_user.taught_classes.order(:name)
+    @classes = current_user.manageable_classes.order(:name)
     @selected_class = @classes.find_by(id: params[:class_id])
     @start_date = params[:start_date].present? ? Date.parse(params[:start_date]) : nil
     @end_date = params[:end_date].present? ? Date.parse(params[:end_date]) : nil

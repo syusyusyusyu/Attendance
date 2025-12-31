@@ -35,6 +35,7 @@ cd /mnt/c/Users/cafec/OneDrive/Desktop/tables勉強用/school
 - QR発行はQrSessionとして保存し、再生成時に既存セッションを失効
 - QRコードは自動ローテーションで更新(60秒間隔)
 - スキャンログ(QrScanEvent)に成功/失敗/理由/端末情報を記録
+- 不正検知アラート(失敗多発/同一IP集中/端末制限/QR共有)を通知
 - 教員ダッシュボードに本日の出席率サマリーを表示
 - `/attendance` からCSVダウンロードが可能
 - 出席ポリシー(遅刻/締切/開始前許可)で自動判定
@@ -61,6 +62,18 @@ cd /mnt/c/Users/cafec/OneDrive/Desktop/tables勉強用/school
 ## 追加: 監査ログ
 - `/scan-logs` でQRスキャンログを確認可能
 
+## 追加: 期末レポート
+- `/reports` から期末レポート(PDF/CSV)を出力
+- 週次/日次の出席率推移・要注意者・理由分布を確認
+
+## 追加: デモデータ
+- `bin/rails demo:seed` でデモデータを生成
+- `bin/rails demo:reset` で削除
+- 詳細手順は `DEMO.md`
+
+## 運用ガイド
+- 教員向けの運用手順は `OPERATION_GUIDE.md`
+
 ## 追加: 運用強化
 - クラス管理/名簿インポート/特別日程(休講・補講)
 - 出席修正理由の必須化 + 変更ログ `/attendance-logs`
@@ -70,3 +83,4 @@ cd /mnt/c/Users/cafec/OneDrive/Desktop/tables勉強用/school
 - QRスキャン結果が出席管理画面にリアルタイム反映
 - 出席申請(欠席/遅刻/公欠)の申請・承認フロー
 - 出席確定/解除と自動欠席確定 (`bin/rails attendance:finalize`)
+- 管理者は出席確定解除/強制修正が可能

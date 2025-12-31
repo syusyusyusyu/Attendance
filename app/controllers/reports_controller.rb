@@ -1,11 +1,18 @@
+﻿require "csv"
+
 class ReportsController < ApplicationController
-  before_action -> { require_role!("teacher") }
+  before_action -> { require_role!(%w[teacher admin]) }
 
   def index
-    @classes = current_user.taught_classes.includes(:students).order(:name)
+    @classes = current_user.manageable_classes.includes(:students, :attendance_policy).order(:name)
+    @selected_class = params[:class_id].present? ? @classes.find { |klass| klass.id == params[:class_id].to_i } : nil
     @start_date = params[:start_date].present? ? Date.parse(params[:start_date]) : 30.days.ago.to_date
     @end_date = params[:end_date].present? ? Date.parse(params[:end_date]) : Date.current
     @end_date = @start_date if @end_date < @start_date
+
+    if request.format.csv? || request.format.pdf?
+      export_term_report and return
+    end
 
     class_ids = @classes.map(&:id)
     records = AttendanceRecord
@@ -76,7 +83,284 @@ class ReportsController < ApplicationController
         absent: counts["absent"].to_i
       }
     end
+
+    build_class_detail(@selected_class, records, @start_date, @end_date) if @selected_class
   rescue ArgumentError
     redirect_to reports_path, alert: "日付の形式が正しくありません。"
+  end
+
+  private
+
+  def export_term_report
+    unless @selected_class
+      redirect_to reports_path, alert: "クラスを選択してください。" and return
+    end
+
+    report = TermReportBuilder.new(
+      school_class: @selected_class,
+      start_date: @start_date,
+      end_date: @end_date
+    ).build
+
+    respond_to do |format|
+      format.csv do
+        csv_data = term_report_csv(report)
+        send_data "\uFEFF#{csv_data}",
+                  filename: term_report_filename(report, "csv"),
+                  type: "text/csv; charset=utf-8"
+      end
+      format.pdf do
+        send_data term_report_pdf(report),
+                  filename: term_report_filename(report, "pdf"),
+                  type: "application/pdf"
+      end
+    end
+  end
+
+  def term_report_filename(report, ext)
+    "term-report-#{report[:school_class].id}-#{report[:start_date].strftime('%Y%m%d')}-#{report[:end_date].strftime('%Y%m%d')}.#{ext}"
+  end
+
+  def term_report_csv(report)
+    CSV.generate(headers: true) do |csv|
+      csv << ["学生ID", "氏名", "出席率(%)", "出席", "遅刻", "公欠", "早退", "欠席", "未入力", "判定"]
+      report[:students].each do |row|
+        csv << [
+          row[:student].student_id,
+          row[:student].name,
+          row[:rate],
+          row[:present],
+          row[:late],
+          row[:excused],
+          row[:early_leave],
+          row[:absent],
+          row[:missing],
+          row[:alert_label]
+        ]
+      end
+    end
+  end
+
+  def term_report_pdf(report)
+    require "prawn"
+
+    pdf = Prawn::Document.new(page_size: "A4", margin: [36, 36, 36, 36])
+    pdf.text "期末出席レポート", size: 16, style: :bold
+    pdf.move_down 4
+    pdf.text "#{report[:school_class].name} / #{report[:start_date].strftime('%Y-%m-%d')} - #{report[:end_date].strftime('%Y-%m-%d')}"
+    pdf.move_down 6
+    pdf.text "対象授業回数: #{report[:sessions_count]}", size: 10
+    pdf.move_down 10
+
+    headers = ["学生ID", "氏名", "出席率", "出席", "遅刻", "公欠", "早退", "欠席", "未入力", "判定"]
+    pdf.text headers.join(" | "), size: 9, style: :bold
+    pdf.move_down 4
+
+    report[:students].each do |row|
+      pdf.text [
+        row[:student].student_id,
+        row[:student].name,
+        "#{row[:rate]}%",
+        row[:present],
+        row[:late],
+        row[:excused],
+        row[:early_leave],
+        row[:absent],
+        row[:missing],
+        row[:alert_label]
+      ].join(" | "), size: 9
+    end
+    pdf.render
+  end
+
+  def build_class_detail(selected_class, records, start_date, end_date)
+    policy = selected_class.attendance_policy || AttendancePolicy.new(AttendancePolicy.default_attributes)
+    sessions = sessions_by_date(selected_class, start_date, end_date)
+    session_dates = sessions.map(&:first)
+    total_students = selected_class.students.size
+
+    class_records = records.select { |record| record.school_class_id == selected_class.id }
+    records_by_date = class_records.group_by(&:date)
+    records_by_student = class_records.group_by(&:user_id)
+
+    @daily_rates = sessions.map do |date, session|
+      daily = records_by_date[date] || []
+      counts = daily.group_by(&:status).transform_values(&:count)
+      expected = total_students
+      rate =
+        if expected.zero?
+          0
+        else
+          ((counts["present"].to_i + counts["late"].to_i + counts["excused"].to_i) * 100.0 / expected).round
+        end
+
+      {
+        date: date,
+        session: session,
+        counts: {
+          present: counts["present"].to_i,
+          late: counts["late"].to_i,
+          excused: counts["excused"].to_i,
+          early_leave: counts["early_leave"].to_i,
+          absent: counts["absent"].to_i
+        },
+        missing: [expected - daily.size, 0].max,
+        rate: rate
+      }
+    end
+
+    @weekly_rates = build_weekly_rates(@daily_rates, total_students)
+    @student_stats = build_student_stats(selected_class, records_by_student, session_dates, policy)
+    @risk_students = @student_stats.select { |row| row[:alert] }
+
+    sessions_by_week = session_dates.group_by { |date| date.beginning_of_week(:monday) }
+    @weekly_keys = sessions_by_week.keys.sort.last(4)
+    @student_trends = build_student_trends(@student_stats, records_by_student, sessions_by_week, @weekly_keys)
+
+    @reason_distribution = build_reason_distribution(selected_class, class_records, start_date, end_date)
+  end
+
+  def sessions_by_date(school_class, start_date, end_date)
+    (start_date..end_date).each_with_object([]) do |date, memo|
+      result = ClassSessionResolver.new(school_class: school_class, date: date).resolve
+      session = result&.dig(:session)
+      next if session.blank? || session.status_canceled?
+
+      memo << [date, session]
+    end
+  end
+
+  def build_weekly_rates(daily_rates, total_students)
+    grouped = daily_rates.group_by { |row| row[:date].beginning_of_week(:monday) }
+    grouped.map do |week_start, rows|
+      totals = { present: 0, late: 0, excused: 0, early_leave: 0, absent: 0, missing: 0 }
+      rows.each do |row|
+        totals[:present] += row[:counts][:present]
+        totals[:late] += row[:counts][:late]
+        totals[:excused] += row[:counts][:excused]
+        totals[:early_leave] += row[:counts][:early_leave]
+        totals[:absent] += row[:counts][:absent]
+        totals[:missing] += row[:missing]
+      end
+      expected = total_students * rows.size
+      rate = expected.zero? ? 0 : ((totals[:present] + totals[:late] + totals[:excused]) * 100.0 / expected).round
+
+      {
+        week_start: week_start,
+        week_end: week_start + 6.days,
+        rate: rate,
+        totals: totals,
+        sessions_count: rows.size
+      }
+    end.sort_by { |row| row[:week_start] }
+  end
+
+  def build_student_stats(selected_class, records_by_student, session_dates, policy)
+    selected_class.students.order(:name).map do |student|
+      records_map = (records_by_student[student.id] || []).index_by(&:date)
+      counts = { present: 0, late: 0, excused: 0, early_leave: 0, absent: 0, missing: 0 }
+
+      session_dates.each do |date|
+        record = records_map[date]
+        if record
+          counts[record.status.to_sym] += 1
+        else
+          counts[:missing] += 1
+        end
+      end
+
+      expected = session_dates.size
+      rate = expected.zero? ? 0 : ((counts[:present] + counts[:late] + counts[:excused]) * 100.0 / expected).round
+      absence_total = counts[:absent] + counts[:early_leave] + counts[:missing]
+      alert = absence_total >= policy.warning_absent_count || rate < policy.warning_rate_percent
+
+      {
+        student: student,
+        rate: rate,
+        present: counts[:present],
+        late: counts[:late],
+        excused: counts[:excused],
+        early_leave: counts[:early_leave],
+        absent: counts[:absent],
+        missing: counts[:missing],
+        absence_total: absence_total,
+        expected: expected,
+        alert: alert,
+        alert_label: alert ? "要注意" : "正常"
+      }
+    end
+  end
+
+  def build_student_trends(student_stats, records_by_student, sessions_by_week, week_keys)
+    student_stats.map do |row|
+      records_map = (records_by_student[row[:student].id] || []).index_by(&:date)
+      weekly_rates = week_keys.map do |week_start|
+        dates = sessions_by_week[week_start] || []
+        expected = dates.size
+        counts = { present: 0, late: 0, excused: 0 }
+
+        dates.each do |date|
+          record = records_map[date]
+          next unless record
+
+          case record.status
+          when "present"
+            counts[:present] += 1
+          when "late"
+            counts[:late] += 1
+          when "excused"
+            counts[:excused] += 1
+          end
+        end
+
+        rate = expected.zero? ? 0 : ((counts[:present] + counts[:late] + counts[:excused]) * 100.0 / expected).round
+        { week_start: week_start, rate: rate }
+      end
+
+      row.merge(weekly_rates: weekly_rates)
+    end
+  end
+
+  def build_reason_distribution(selected_class, class_records, start_date, end_date)
+    requests = AttendanceRequest
+               .where(school_class: selected_class, date: start_date..end_date)
+               .order(processed_at: :desc, submitted_at: :desc)
+
+    requests_by_key = {}
+    requests.each do |request|
+      key = [request.user_id, request.date, request.request_type]
+      requests_by_key[key] ||= request
+    end
+
+    changes_by_record = AttendanceChange
+                        .where(attendance_record_id: class_records.map(&:id))
+                        .order(changed_at: :desc)
+                        .group_by(&:attendance_record_id)
+                        .transform_values { |items| items.first }
+
+    distribution = { "late" => Hash.new(0), "early_leave" => Hash.new(0) }
+    ignore_reasons = ["QRスキャン", "QR退室", "出席確定(自動欠席)", "出席確定(申請反映)"]
+
+    class_records.each do |record|
+      next unless record.status_late? || record.status_early_leave?
+
+      default_reason = record.status_early_leave? ? "滞在時間不足" : "自動判定"
+      reason = nil
+
+      if record.status_late?
+        request = requests_by_key[[record.user_id, record.date, "late"]]
+        reason = request&.reason
+      end
+
+      if reason.blank?
+        change = changes_by_record[record.id]
+        reason = change&.reason unless ignore_reasons.include?(change&.reason)
+      end
+
+      reason = default_reason if reason.blank?
+      distribution[record.status][reason] += 1
+    end
+
+    distribution.transform_values { |reasons| reasons.sort_by { |_, count| -count }.to_h }
   end
 end

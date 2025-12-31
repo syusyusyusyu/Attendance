@@ -1,8 +1,8 @@
 class QrCodesController < ApplicationController
-  before_action -> { require_role!("teacher") }
+  before_action -> { require_role!(%w[teacher admin]) }
 
   def show
-    @classes = current_user.taught_classes.order(:name)
+    @classes = current_user.manageable_classes.order(:name)
     @selected_class = @classes.find_by(id: params[:class_id])
 
     unless @selected_class
@@ -12,6 +12,8 @@ class QrCodesController < ApplicationController
       end
       return
     end
+
+    @class_session = ClassSessionResolver.new(school_class: @selected_class, date: Time.zone.today).resolve&.dig(:session)
 
     QrSession
       .where(school_class: @selected_class, attendance_date: Time.zone.today, revoked_at: nil)

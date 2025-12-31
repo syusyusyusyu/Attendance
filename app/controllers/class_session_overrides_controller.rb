@@ -1,8 +1,8 @@
 class ClassSessionOverridesController < ApplicationController
-  before_action -> { require_role!("teacher") }
+  before_action -> { require_role!(%w[teacher admin]) }
 
   def create
-    school_class = current_user.taught_classes.find(params[:school_class_id])
+    school_class = current_user.manageable_classes.find(params[:school_class_id])
     override = school_class.class_session_overrides.new(override_params)
 
     if override.save
@@ -15,7 +15,7 @@ class ClassSessionOverridesController < ApplicationController
   end
 
   def destroy
-    school_class = current_user.taught_classes.find(params[:school_class_id])
+    school_class = current_user.manageable_classes.find(params[:school_class_id])
     override = school_class.class_session_overrides.find(params[:id])
     override.destroy
     unless ClassSessionResolver.new(school_class: school_class, date: override.date).resolve

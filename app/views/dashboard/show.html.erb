@@ -7,14 +7,22 @@
     "こんばんは"
   end %>
 
+<% role_label = if @user.admin?
+  "管理者"
+elsif @user.teacher?
+  "教員"
+else
+  "学生"
+end %>
+
 <div class="space-y-6 sm:space-y-8">
   <div class="bg-google-green text-white p-4 sm:p-6 rounded-lg shadow-sm">
     <h1 class="text-xl sm:text-2xl font-bold mb-2"><%= greeting %>、<%= @user.name %>さん</h1>
-    <p class="opacity-90"><%= @user.teacher? ? "教員" : "学生" %>ダッシュボード</p>
+    <p class="opacity-90"><%= role_label %>ダッシュボード</p>
   </div>
 
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-    <% if @user.teacher? %>
+    <% if @user.staff? %>
       <%= link_to school_classes_path, class: "bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 cursor-pointer transition hover:-translate-y-1 hover:shadow-md" do %>
         <div class="mb-4 text-google-blue">
           <svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -74,8 +82,8 @@
             <path d="M11 11h2v2h-2z" />
           </svg>
         </div>
-        <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-1">出席を記録</h3>
-        <p class="text-sm text-gray-500">QRコードをスキャンして出席を登録します。</p>
+        <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-1">出席登録</h3>
+        <p class="text-sm text-gray-500">QRコードをスキャンして出席登録します。</p>
       <% end %>
 
       <%= link_to history_path, class: "bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 cursor-pointer transition hover:-translate-y-1 hover:shadow-md" do %>
@@ -91,7 +99,7 @@
     <% end %>
   </div>
 
-  <% if @user.teacher? %>
+  <% if @user.staff? %>
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
         <h2 class="text-lg sm:text-xl font-semibold">本日の出席状況</h2>
@@ -107,6 +115,11 @@
                 <div class="font-medium text-gray-900"><%= klass.name %></div>
                 <div class="text-xs text-gray-500"><%= stats[:total] %>名</div>
               </div>
+              <% if @today_sessions[klass.id] %>
+                <div class="mt-2">
+                  <%= render "shared/session_status_badges", session: @today_sessions[klass.id] %>
+                </div>
+              <% end %>
               <div class="mt-3">
                 <div class="flex items-center justify-between text-xs text-gray-500 mb-1">
                   <span>出席率</span>
@@ -127,7 +140,7 @@
       <% end %>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
       <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-lg sm:text-xl font-semibold">欠席・早退が多い学生</h2>
@@ -147,6 +160,25 @@
           </div>
         <% else %>
           <div class="text-sm text-gray-500">要注意の学生はいません。</div>
+        <% end %>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg sm:text-xl font-semibold">申請待ち</h2>
+          <%= link_to "出席申請", attendance_requests_path(status: "pending"), class: "text-sm text-google-green hover:underline" %>
+        </div>
+        <% if @pending_requests.any? %>
+          <div class="space-y-3">
+            <% @pending_requests.each do |request| %>
+              <div class="border border-gray-200 rounded-lg p-3">
+                <div class="text-sm font-medium text-gray-900"><%= request.user.name %> / <%= request.school_class.name %></div>
+                <div class="text-xs text-gray-500 mt-1"><%= request.date.strftime("%Y-%m-%d") %>・<%= { "absent" => "欠席", "late" => "遅刻", "excused" => "公欠" }[request.request_type] || request.request_type %></div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="text-sm text-gray-500">申請待ちはありません。</div>
         <% end %>
       </div>
 
@@ -219,7 +251,7 @@
   <% end %>
 
   <div id="classes">
-    <h2 class="text-lg sm:text-xl font-semibold mb-4"><%= @user.teacher? ? "担当クラス" : "履修クラス" %></h2>
+    <h2 class="text-lg sm:text-xl font-semibold mb-4"><%= @user.staff? ? (@user.admin? ? "管理クラス" : "担当クラス") : "履修クラス" %></h2>
 
     <% if @classes.any? %>
       <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
@@ -232,8 +264,13 @@
                   <p class="text-sm text-gray-500">
                     <%= [klass.schedule_label, "教室: #{klass.room}"].compact.join(" | ") %>
                   </p>
+                  <% if @today_sessions[klass.id] %>
+                    <div class="mt-2">
+                      <%= render "shared/session_status_badges", session: @today_sessions[klass.id] %>
+                    </div>
+                  <% end %>
                 </div>
-                <% if @user.teacher? %>
+                <% if @user.staff? %>
                   <%= link_to "出席確認", attendance_path(class_id: klass.id), class: "btn btn-secondary text-sm w-full sm:w-auto" %>
                 <% end %>
               </div>
@@ -243,7 +280,7 @@
       </div>
     <% else %>
       <div class="bg-white p-4 sm:p-6 rounded-lg shadow-sm text-center text-gray-500 border border-gray-200">
-        <%= @user.teacher? ? "担当クラスがありません。" : "履修中のクラスがありません。" %>
+        <%= @user.staff? ? (@user.admin? ? "管理できるクラスがありません。" : "担当クラスがありません。") : "履修中のクラスがありません。" %>
       </div>
     <% end %>
   </div>

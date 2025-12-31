@@ -239,7 +239,7 @@ class QrScansController < ApplicationController
   private
 
   def log_scan_event(status:, token:, qr_session: nil, school_class_id: nil, attendance_status: nil)
-    QrScanEvent.create(
+    event = QrScanEvent.create(
       status: status,
       token_digest: Digest::SHA256.hexdigest(token.to_s),
       qr_session: qr_session,
@@ -250,6 +250,8 @@ class QrScansController < ApplicationController
       scanned_at: Time.current,
       attendance_status: attendance_status
     )
+
+    QrFraudDetector.new(event: event).call if event.persisted?
   end
 
   def rate_limited?(token, limit:)

@@ -1,10 +1,10 @@
 require "csv"
 
 class ClassAttendancesController < ApplicationController
-  before_action -> { require_role!("teacher") }
+  before_action -> { require_role!(%w[teacher admin]) }
 
   def show
-    @classes = current_user.taught_classes.order(:name)
+    @classes = current_user.manageable_classes.order(:name)
     @selected_class = @classes.find_by(id: params[:class_id])
     @date = params[:date].present? ? Date.parse(params[:date]) : Date.current
 
@@ -38,14 +38,14 @@ class ClassAttendancesController < ApplicationController
   end
 
   def update
-    selected_class = current_user.taught_classes.find(params[:class_id])
+    selected_class = current_user.manageable_classes.find(params[:class_id])
     date = params[:date].present? ? Date.parse(params[:date]) : Date.current
     reason = params[:reason].to_s.strip
 
     window = selected_class.schedule_window(date)
     class_session = window&.dig(:class_session)
 
-    if class_session&.locked?
+    if class_session&.locked? && !current_user.admin?
       redirect_to attendance_path(class_id: selected_class.id, date: date), alert: "出席が確定済みのため修正できません。" and return
     end
 
@@ -113,7 +113,7 @@ class ClassAttendancesController < ApplicationController
   end
 
   def export
-    selected_class = current_user.taught_classes.find(params[:class_id])
+    selected_class = current_user.manageable_classes.find(params[:class_id])
     start_date = parse_date_param(params[:start_date]) || parse_date_param(params[:date]) || Date.current
     end_date = parse_date_param(params[:end_date]) || parse_date_param(params[:date]) || start_date
 
@@ -192,7 +192,7 @@ class ClassAttendancesController < ApplicationController
   end
 
   def import
-    selected_class = current_user.taught_classes.find(params[:class_id])
+    selected_class = current_user.manageable_classes.find(params[:class_id])
     date = params[:date].present? ? Date.parse(params[:date]) : Date.current
     file = params[:csv_file]
 
@@ -221,7 +221,7 @@ class ClassAttendancesController < ApplicationController
   end
 
   def update_policy
-    selected_class = current_user.taught_classes.find(params[:class_id])
+    selected_class = current_user.manageable_classes.find(params[:class_id])
     date = params[:date].present? ? Date.parse(params[:date]) : Date.current
 
     policy = selected_class.attendance_policy || selected_class.create_attendance_policy(AttendancePolicy.default_attributes)
@@ -236,10 +236,11 @@ class ClassAttendancesController < ApplicationController
   end
 
   def finalize
-    selected_class = current_user.taught_classes.find(params[:class_id])
+    selected_class = current_user.manageable_classes.find(params[:class_id])
     date = params[:date].present? ? Date.parse(params[:date]) : Date.current
     window = selected_class.schedule_window(date)
     class_session = window&.dig(:class_session)
+    policy = selected_class.attendance_policy || AttendancePolicy.new(AttendancePolicy.default_attributes)
 
     if class_session.blank?
       redirect_to attendance_path(class_id: selected_class.id, date: date), alert: "授業回が見つかりません。" and return
@@ -249,20 +250,33 @@ class ClassAttendancesController < ApplicationController
       redirect_to attendance_path(class_id: selected_class.id, date: date), notice: "すでに確定済みです。" and return
     end
 
-    AttendanceFinalizer.new(class_session: class_session).finalize!
+    if class_session.start_at.present?
+      close_at = class_session.start_at + policy.close_after_minutes.minutes
+      if Time.current < close_at
+        redirect_to attendance_path(class_id: selected_class.id, date: date), alert: "授業締切前のため確定できません。" and return
+      end
+    end
+
+    AttendanceFinalizer.new(class_session: class_session, policy: policy).finalize!(
+      class_session.start_at.present? ? class_session.start_at + policy.close_after_minutes.minutes : Time.current
+    )
     redirect_to attendance_path(class_id: selected_class.id, date: date), notice: "出席を確定しました。"
   rescue ArgumentError
     redirect_to attendance_path, alert: "日付の形式が正しくありません。"
   end
 
   def unlock
-    selected_class = current_user.taught_classes.find(params[:class_id])
+    selected_class = current_user.manageable_classes.find(params[:class_id])
     date = params[:date].present? ? Date.parse(params[:date]) : Date.current
     window = selected_class.schedule_window(date)
     class_session = window&.dig(:class_session)
 
     if class_session.blank?
       redirect_to attendance_path(class_id: selected_class.id, date: date), alert: "授業回が見つかりません。" and return
+    end
+
+    unless current_user.admin?
+      redirect_to attendance_path(class_id: selected_class.id, date: date), alert: "確定解除は管理者のみ実行できます。" and return
     end
 
     unless class_session.locked?

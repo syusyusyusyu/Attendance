@@ -2,19 +2,21 @@ class AttendanceRequestsController < ApplicationController
   before_action :load_request, only: [:update]
 
   def index
-    if current_user.teacher?
-      @classes = current_user.taught_classes.order(:name)
+    if current_user.staff?
+      @classes = current_user.manageable_classes.order(:name)
       @selected_class = @classes.find_by(id: params[:class_id])
       @status = params[:status].presence
 
-      scope = AttendanceRequest.includes(:user, :school_class).order(submitted_at: :desc)
+      scope = AttendanceRequest.includes(:user, :school_class, :class_session).order(submitted_at: :desc)
       scope = scope.where(school_class: @selected_class) if @selected_class
       scope = scope.where(status: @status) if @status
 
       @requests = scope.limit(200)
+      count_scope = @selected_class ? AttendanceRequest.where(school_class: @selected_class) : AttendanceRequest.all
+      @request_counts = count_scope.group(:status).count
     else
       @classes = current_user.enrolled_classes.order(:name)
-      @requests = current_user.attendance_requests.includes(:school_class).order(submitted_at: :desc).limit(200)
+      @requests = current_user.attendance_requests.includes(:school_class, :class_session).order(submitted_at: :desc).limit(200)
       @request = AttendanceRequest.new
     end
   end
@@ -62,9 +64,9 @@ class AttendanceRequestsController < ApplicationController
   end
 
   def update
-    require_role!("teacher")
+    require_role!(%w[teacher admin])
 
-    unless current_user.taught_classes.exists?(id: @request.school_class_id)
+    unless current_user.manageable_classes.exists?(id: @request.school_class_id)
       redirect_to attendance_requests_path, alert: "権限がありません。" and return
     end
 

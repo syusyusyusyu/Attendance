@@ -1,9 +1,9 @@
 class SchoolClassesController < ApplicationController
-  before_action -> { require_role!("teacher") }
+  before_action -> { require_role!(%w[teacher admin]) }
   before_action :set_school_class, only: [:show, :edit, :update, :destroy, :roster_import]
 
   def index
-    @classes = current_user.taught_classes.order(:name)
+    @classes = current_user.manageable_classes.order(:name)
   end
 
   def show
@@ -13,11 +13,21 @@ class SchoolClassesController < ApplicationController
   end
 
   def new
-    @school_class = current_user.taught_classes.new
+    @school_class =
+      if current_user.teacher?
+        current_user.taught_classes.new
+      else
+        SchoolClass.new(teacher: current_user)
+      end
   end
 
   def create
-    @school_class = current_user.taught_classes.new(school_class_params)
+    @school_class =
+      if current_user.teacher?
+        current_user.taught_classes.new(school_class_params)
+      else
+        SchoolClass.new(school_class_params.merge(teacher: current_user))
+      end
     @school_class.schedule = schedule_params
 
     if @school_class.save
@@ -72,7 +82,7 @@ class SchoolClassesController < ApplicationController
   private
 
   def set_school_class
-    @school_class = current_user.taught_classes.find(params[:id])
+    @school_class = current_user.manageable_classes.find(params[:id])
   end
 
   def school_class_params

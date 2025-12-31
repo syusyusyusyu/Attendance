@@ -19,6 +19,11 @@
 <% label = record&.status_label || status_labels[display_status] %>
 <% badge_class = record&.status_badge_class || status_badges[display_status] %>
 <% pending_request = local_assigns[:request] %>
+<% session = local_assigns[:class_session] || record&.class_session %>
+<% policy = local_assigns[:policy] %>
+<% required_minutes = if policy && session&.duration_minutes.present?
+  policy.required_attendance_minutes(session.duration_minutes)
+end %>
 
 <tr
   id="attendance_row_<%= student.id %>"
@@ -48,7 +53,10 @@
     <%= record&.checked_out_at&.strftime("%H:%M") || "-" %>
   </td>
   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-    <%= record&.duration_minutes || "-" %>
+    <div><%= record&.duration_minutes || "-" %></div>
+    <% if record&.status_early_leave? && required_minutes.present? && record&.duration_minutes.present? %>
+      <div class="text-xs text-gray-400">必要 <%= required_minutes %>分</div>
+    <% end %>
   </td>
   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
     <% if pending_request&.status_pending? %>

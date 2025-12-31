@@ -101,6 +101,11 @@
                       <span><%= record.status_label || record.status %></span>
                     </span>
                   </div>
+                  <% if record.class_session %>
+                    <div class="mb-2">
+                      <%= render "shared/session_status_badges", session: record.class_session %>
+                    </div>
+                  <% end %>
 
                   <% if record.timestamp %>
                     <div class="text-sm text-gray-600 flex items-center">
@@ -122,6 +127,13 @@
                         <span class="ml-2 text-xs text-gray-500">滞在 <%= record.duration_minutes %>分</span>
                       <% end %>
                     </div>
+                    <% policy = @policies_by_class[record.school_class_id]&.attendance_policy || AttendancePolicy.new(AttendancePolicy.default_attributes) %>
+                    <% required_minutes = record.class_session&.duration_minutes.present? ? policy.required_attendance_minutes(record.class_session.duration_minutes) : nil %>
+                    <% if record.status_early_leave? && required_minutes.present? && record.duration_minutes.present? %>
+                      <div class="text-xs text-gray-500 mt-1">
+                        早退判定: 必要 <%= required_minutes %>分 / 実績 <%= record.duration_minutes %>分
+                      </div>
+                    <% end %>
                   <% end %>
 
                   <% if record.modified_by %>

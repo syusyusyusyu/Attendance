@@ -1,10 +1,10 @@
 class DashboardController < ApplicationController
   def show
     @user = current_user
-    if @user.teacher?
-      @classes = @user.taught_classes.order(:name)
+    today = Time.zone.today
+    if @user.staff?
+      @classes = @user.manageable_classes.order(:name)
       class_ids = @classes.pluck(:id)
-      today = Time.zone.today
 
       totals = Enrollment.where(school_class_id: class_ids).group(:school_class_id).count
       status_counts =
@@ -48,6 +48,12 @@ class DashboardController < ApplicationController
         { student: student, absences: absents[student.id].to_i }
       end.sort_by { |row| -row[:absences] }.first(5)
 
+      @pending_requests = AttendanceRequest
+                          .includes(:user, :school_class)
+                          .where(school_class_id: class_ids, status: "pending")
+                          .order(submitted_at: :desc)
+                          .limit(5)
+
       @recent_notifications = current_user.notifications.order(created_at: :desc).limit(3)
     else
       @classes = @user.enrolled_classes.order(:name)
@@ -88,6 +94,11 @@ class DashboardController < ApplicationController
         absence_count >= policy.warning_absent_count || row[:rate] < policy.warning_rate_percent
       end
       @recent_notifications = current_user.notifications.order(created_at: :desc).limit(3)
+    end
+
+    @today_sessions = @classes.each_with_object({}) do |klass, memo|
+      result = ClassSessionResolver.new(school_class: klass, date: today).resolve
+      memo[klass.id] = result&.dig(:session)
     end
   end
 end

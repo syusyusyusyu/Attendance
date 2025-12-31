@@ -38,7 +38,7 @@ class AttendanceFinalizer
       request = approved_requests[student.id]
       status = request&.request_type || "absent"
 
-      AttendanceRecord.create!(
+      record = AttendanceRecord.create!(
         user: student,
         school_class: @school_class,
         class_session: @class_session,
@@ -46,6 +46,18 @@ class AttendanceFinalizer
         status: status,
         verification_method: "system",
         timestamp: timestamp
+      )
+
+      AttendanceChange.create!(
+        attendance_record: record,
+        user: student,
+        school_class: @school_class,
+        date: @class_session.date,
+        previous_status: nil,
+        new_status: status,
+        reason: status == "absent" ? "出席確定(自動欠席)" : "出席確定(申請反映)",
+        source: "system",
+        changed_at: timestamp
       )
 
       if status == "absent"
@@ -62,7 +74,7 @@ class AttendanceFinalizer
     end
 
     Notification.insert_all(notifications) if notifications.any?
-    @class_session.update!(locked_at: Time.current) unless @class_session.locked?
+    @class_session.update!(locked_at: timestamp) unless @class_session.locked?
     true
   end
 end

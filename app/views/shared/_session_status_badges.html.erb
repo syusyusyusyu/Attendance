@@ -1,0 +1,7 @@
+<% return if session.blank? %>
+<div class="flex flex-wrap items-center gap-2 text-xs">
+  <span class="<%= session.status_badge_class %>"><%= session.status_label %></span>
+  <% unless session.status_canceled? %>
+    <span class="<%= session.lock_badge_class %>"><%= session.lock_label %></span>
+  <% end %>
+</div>

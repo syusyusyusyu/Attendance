@@ -1,8 +1,8 @@
 class EnrollmentsController < ApplicationController
-  before_action -> { require_role!("teacher") }
+  before_action -> { require_role!(%w[teacher admin]) }
 
   def create
-    school_class = current_user.taught_classes.find(params[:school_class_id])
+    school_class = current_user.manageable_classes.find(params[:school_class_id])
     keyword = params[:keyword].to_s.strip
 
     if keyword.blank?
@@ -22,7 +22,7 @@ class EnrollmentsController < ApplicationController
   end
 
   def destroy
-    school_class = current_user.taught_classes.find(params[:school_class_id])
+    school_class = current_user.manageable_classes.find(params[:school_class_id])
     enrollment = school_class.enrollments.find(params[:id])
     enrollment.destroy
     redirect_to school_class_path(school_class), notice: "履修登録を削除しました。"

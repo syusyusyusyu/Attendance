@@ -21,4 +21,28 @@ class ClassSession < ApplicationRecord
 
     ((end_at - start_at) / 60).to_i
   end
+
+  def status_label
+    {
+      "regular" => "通常",
+      "makeup" => "補講",
+      "canceled" => "休講"
+    }[status] || status
+  end
+
+  def status_badge_class
+    {
+      "regular" => "badge badge-info",
+      "makeup" => "badge badge-warning",
+      "canceled" => "badge badge-error"
+    }[status] || "badge"
+  end
+
+  def lock_label
+    locked? ? "確定" : "未確定"
+  end
+
+  def lock_badge_class
+    locked? ? "badge badge-success" : "badge badge-warning"
+  end
 end

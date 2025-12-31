@@ -35,6 +35,14 @@ class User < ApplicationRecord
   validates :email, uniqueness: true
   validates :student_id, uniqueness: true, allow_nil: true
 
+  def staff?
+    teacher? || admin?
+  end
+
+  def manageable_classes
+    admin? ? SchoolClass.all : taught_classes
+  end
+
   before_validation :normalize_email
 
   private

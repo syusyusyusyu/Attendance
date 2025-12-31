@@ -52,6 +52,9 @@ class AttendanceFinalizerTest < ActiveSupport::TestCase
 
     record = AttendanceRecord.find_by(user: @student, school_class: @school_class, date: Date.new(2025, 1, 10))
     assert_equal "absent", record.status
+    change = AttendanceChange.find_by(attendance_record: record)
+    assert_equal "system", change.source
+    assert_equal "出席確定(自動欠席)", change.reason
     assert session.reload.locked?
   end
 end

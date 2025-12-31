@@ -1,4 +1,11 @@
 ﻿<% avatar_url = @user.profile_image.presence || "https://ui-avatars.com/api/?name=#{ERB::Util.url_encode(@user.name)}&background=random" %>
+<% role_label = if @user.admin?
+  "管理者"
+elsif @user.teacher?
+  "教員"
+else
+  "学生"
+end %>
 
 <div class="max-w-3xl mx-auto space-y-6" data-controller="profile" data-profile-editing-value="<%= @user.errors.any? %>">
   <div>
@@ -21,7 +28,7 @@
         </div>
         <div class="ml-6">
           <h3 class="text-lg font-medium"><%= @user.name %></h3>
-          <p class="text-sm text-gray-500"><%= @user.teacher? ? "教員" : "学生" %></p>
+          <p class="text-sm text-gray-500"><%= role_label %></p>
         </div>
       </div>
     </div>

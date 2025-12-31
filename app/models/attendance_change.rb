@@ -10,5 +10,5 @@ class AttendanceChange < ApplicationRecord
     system: "system"
   }, prefix: true
 
-  validates :date, :new_status, :changed_at, presence: true
+  validates :date, :new_status, :changed_at, :reason, presence: true
 end

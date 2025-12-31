@@ -1,10 +1,10 @@
 require "csv"
 
 class QrScanEventsController < ApplicationController
-  before_action -> { require_role!("teacher") }
+  before_action -> { require_role!(%w[teacher admin]) }
 
   def index
-    @classes = current_user.taught_classes.order(:name)
+    @classes = current_user.manageable_classes.order(:name)
     @selected_class = @classes.find_by(id: params[:class_id])
     @date = params[:date].present? ? Date.parse(params[:date]) : nil
     @status = params[:status].presence

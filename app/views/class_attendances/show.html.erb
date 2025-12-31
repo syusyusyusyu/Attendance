@@ -112,11 +112,12 @@
           <% elsif @session_window.present? %>
             <div class="text-sm text-gray-700">
               <%= @session_window[:start_at].strftime("%H:%M") %> - <%= @session_window[:end_at].strftime("%H:%M") %>
-              <% if @session_window[:status].present? %>
-                <% label = { "regular" => "通常", "makeup" => "補講" }[@session_window[:status]] || @session_window[:status] %>
-                <span class="ml-2 text-xs text-gray-500">(<%= label %>)</span>
-              <% end %>
             </div>
+            <% if @class_session %>
+              <div class="mt-2">
+                <%= render "shared/session_status_badges", session: @class_session %>
+              </div>
+            <% end %>
             <% if @session_window[:override]&.note.present? %>
               <div class="text-xs text-gray-500 mt-2">メモ: <%= @session_window[:override].note %></div>
             <% end %>
@@ -129,11 +130,18 @@
           <h3 class="text-sm font-medium text-gray-700 mb-3">授業回ステータス</h3>
           <% if @class_session %>
             <div class="text-sm text-gray-700">授業回ID: <%= @class_session.id %></div>
+            <div class="mt-2">
+              <%= render "shared/session_status_badges", session: @class_session %>
+            </div>
             <% if @class_session.locked? %>
               <div class="mt-2 text-sm text-green-700">出席は確定済みです。</div>
-              <div class="mt-3">
-                <%= button_to "確定を解除", attendance_unlock_path(class_id: @selected_class.id, date: @date), method: :patch, class: "btn btn-secondary w-full" %>
-              </div>
+              <% if current_user.admin? %>
+                <div class="mt-3">
+                  <%= button_to "確定を解除", attendance_unlock_path(class_id: @selected_class.id, date: @date), method: :patch, class: "btn btn-secondary w-full" %>
+                </div>
+              <% else %>
+                <div class="mt-2 text-xs text-gray-500">確定解除は管理者のみ実行できます。</div>
+              <% end %>
             <% else %>
               <div class="mt-2 text-sm text-gray-600">出席は未確定です。</div>
               <% if @finalize_available %>
@@ -263,7 +271,12 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                   <% @students.each do |student| %>
-                    <%= render "attendance_row", student: student, record: @records[student.id], request: @pending_requests[student.id] %>
+                    <%= render "attendance_row",
+                      student: student,
+                      record: @records[student.id],
+                      request: @pending_requests[student.id],
+                      policy: @policy,
+                      class_session: @class_session %>
                   <% end %>
                 </tbody>
               </table>
