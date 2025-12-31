@@ -9,8 +9,10 @@ class ClassSessionResolver
     override = @school_class.class_session_overrides.find_by(date: @date)
 
     day_index = schedule["day_of_week"] || schedule[:day_of_week]
-    start_time = override&.start_time || schedule["start_time"] || schedule[:start_time]
-    end_time = override&.end_time || schedule["end_time"] || schedule[:end_time]
+    period = schedule["period"] || schedule[:period]
+    period_times = SchoolClass.period_times(period) if period.present?
+    start_time = override&.start_time || schedule["start_time"] || schedule[:start_time] || period_times&.fetch(:start, nil)
+    end_time = override&.end_time || schedule["end_time"] || schedule[:end_time] || period_times&.fetch(:end, nil)
 
     return nil if override.nil? && (day_index.blank? || start_time.blank? || end_time.blank?)
     return nil if override.nil? && day_index.to_i != @date.wday

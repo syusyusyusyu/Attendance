@@ -101,9 +101,23 @@ class SchoolClassesController < ApplicationController
   def schedule_params
     data = params.fetch(:school_class, {})
     day = data[:schedule_day_of_week].presence
+    period = data[:schedule_period].presence
     start_time = data[:schedule_start_time].presence
     end_time = data[:schedule_end_time].presence
     frequency = data[:schedule_frequency].presence || "weekly"
+
+    if period.present?
+      times = SchoolClass.period_times(period)
+      return {} if day.blank? || times.blank?
+
+      return {
+        "day_of_week" => day.to_i,
+        "start_time" => times[:start],
+        "end_time" => times[:end],
+        "frequency" => frequency,
+        "period" => period.to_i
+      }
+    end
 
     return {} if day.blank? || start_time.blank? || end_time.blank?
 

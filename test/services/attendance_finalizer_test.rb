@@ -1,4 +1,4 @@
-require "test_helper"
+﻿require "test_helper"
 
 class AttendanceFinalizerTest < ActiveSupport::TestCase
   def setup
@@ -12,7 +12,7 @@ class AttendanceFinalizerTest < ActiveSupport::TestCase
     @school_class = SchoolClass.create!(
       name: "理科I",
       teacher: @teacher,
-      room: "D401",
+      room: "7D教室",
       subject: "理科",
       semester: "前期",
       year: 2024,

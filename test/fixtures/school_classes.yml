@@ -3,9 +3,9 @@
 one:
   name: MyString
   teacher: one
-  room: MyString
+  room: 2C教室
   subject: MyString
-  semester: MyString
+  semester: 前期
   year: 1
   capacity: 1
   description: MyText
@@ -15,9 +15,9 @@ one:
 two:
   name: MyString
   teacher: two
-  room: MyString
+  room: 3A教室
   subject: MyString
-  semester: MyString
+  semester: 後期
   year: 1
   capacity: 1
   description: MyText

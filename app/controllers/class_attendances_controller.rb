@@ -298,7 +298,7 @@ class ClassAttendancesController < ApplicationController
   end
 
   def policy_params
-    params.require(:attendance_policy).permit(
+    permitted = params.require(:attendance_policy).permit(
       :late_after_minutes,
       :close_after_minutes,
       :allow_early_checkin,
@@ -308,6 +308,10 @@ class ClassAttendancesController < ApplicationController
       :minimum_attendance_rate,
       :warning_absent_count,
       :warning_rate_percent
+    )
+    permitted.merge(
+      late_after_minutes: AttendancePolicy::DEFAULTS[:late_after_minutes],
+      close_after_minutes: AttendancePolicy::DEFAULTS[:close_after_minutes]
     )
   end
 end

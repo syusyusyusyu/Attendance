@@ -1,4 +1,4 @@
-require "test_helper"
+﻿require "test_helper"
 
 class RosterCsvImporterTest < ActiveSupport::TestCase
   def setup
@@ -12,7 +12,7 @@ class RosterCsvImporterTest < ActiveSupport::TestCase
     @class = SchoolClass.create!(
       name: "英語I",
       teacher: @teacher,
-      room: "B201",
+      room: "5B教室",
       subject: "英語",
       semester: "後期",
       year: 2024,

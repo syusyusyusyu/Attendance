@@ -1,4 +1,4 @@
-require "test_helper"
+﻿require "test_helper"
 
 class ClassSessionTest < ActiveSupport::TestCase
   def setup
@@ -12,7 +12,7 @@ class ClassSessionTest < ActiveSupport::TestCase
     @school_class = SchoolClass.create!(
       name: "情報I",
       teacher: @teacher,
-      room: "C301",
+      room: "6C教室",
       subject: "情報",
       semester: "後期",
       year: 2024,

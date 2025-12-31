@@ -1,4 +1,4 @@
-require "test_helper"
+﻿require "test_helper"
 
 class TermReportBuilderTest < ActiveSupport::TestCase
   test "counts missing records as absences and flags alerts" do
@@ -13,7 +13,7 @@ class TermReportBuilderTest < ActiveSupport::TestCase
     school_class = SchoolClass.create!(
       name: "期末評価",
       teacher: teacher,
-      room: "C301",
+      room: "6C教室",
       subject: "情報",
       semester: "前期",
       year: 2024,

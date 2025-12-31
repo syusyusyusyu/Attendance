@@ -1,4 +1,4 @@
-require "test_helper"
+﻿require "test_helper"
 
 class AttendancePolicyTest < ActiveSupport::TestCase
   def build_teacher
@@ -15,7 +15,7 @@ class AttendancePolicyTest < ActiveSupport::TestCase
     SchoolClass.create!(
       name: "数学I",
       teacher: teacher,
-      room: "A101",
+      room: "4A教室",
       subject: "数学",
       semester: "前期",
       year: 2024,

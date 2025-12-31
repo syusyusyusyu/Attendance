@@ -1,4 +1,4 @@
-require "test_helper"
+﻿require "test_helper"
 
 class QrFraudDetectorTest < ActiveSupport::TestCase
   test "notifies teacher when access is blocked" do
@@ -12,7 +12,7 @@ class QrFraudDetectorTest < ActiveSupport::TestCase
     school_class = SchoolClass.create!(
       name: "監査演習",
       teacher: teacher,
-      room: "B201",
+      room: "5B教室",
       subject: "情報",
       semester: "前期",
       year: 2024,

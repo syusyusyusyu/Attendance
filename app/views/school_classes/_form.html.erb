@@ -1,5 +1,8 @@
 <% schedule = @school_class.schedule || {} %>
 <% day_names = %w[日 月 火 水 木 金 土] %>
+<% period_value = schedule["period"] || SchoolClass.period_for_times(schedule["start_time"], schedule["end_time"]) %>
+<% room_options = SchoolClass::ROOM_OPTIONS %>
+<% semester_options = SchoolClass::SEMESTER_OPTIONS %>
 
 <div class="space-y-6">
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -9,7 +12,11 @@
     </div>
     <div>
       <%= f.label :room, "教室", class: "block text-sm font-medium text-gray-700 mb-2" %>
-      <%= f.text_field :room, class: "input", required: true %>
+      <%= f.select :room,
+        options_for_select(room_options, @school_class.room),
+        { include_blank: "教室を選択" },
+        class: "input",
+        required: true %>
     </div>
     <div>
       <%= f.label :subject, "科目", class: "block text-sm font-medium text-gray-700 mb-2" %>
@@ -17,7 +24,11 @@
     </div>
     <div>
       <%= f.label :semester, "学期", class: "block text-sm font-medium text-gray-700 mb-2" %>
-      <%= f.text_field :semester, class: "input", required: true %>
+      <%= f.select :semester,
+        options_for_select(semester_options, @school_class.semester),
+        { include_blank: "学期を選択" },
+        class: "input",
+        required: true %>
     </div>
     <div>
       <%= f.label :year, "年度", class: "block text-sm font-medium text-gray-700 mb-2" %>
@@ -45,12 +56,11 @@
           class: "input" %>
       </div>
       <div>
-        <%= label_tag :schedule_start_time, "開始時刻", class: "block text-sm font-medium text-gray-700 mb-2" %>
-        <%= time_field_tag "school_class[schedule_start_time]", schedule["start_time"], class: "input" %>
-      </div>
-      <div>
-        <%= label_tag :schedule_end_time, "終了時刻", class: "block text-sm font-medium text-gray-700 mb-2" %>
-        <%= time_field_tag "school_class[schedule_end_time]", schedule["end_time"], class: "input" %>
+        <%= label_tag :schedule_period, "時限", class: "block text-sm font-medium text-gray-700 mb-2" %>
+        <%= select_tag "school_class[schedule_period]",
+          options_for_select(SchoolClass.period_options, period_value),
+          include_blank: "時限を選択",
+          class: "input" %>
       </div>
       <div>
         <%= label_tag :schedule_frequency, "頻度", class: "block text-sm font-medium text-gray-700 mb-2" %>
@@ -59,6 +69,7 @@
           class: "input" %>
       </div>
     </div>
+    <p class="text-xs text-gray-500 mt-2">授業時間は大阪情報コンピュータ専門学校の時限に固定されています。</p>
   </div>
 
   <div class="flex items-center space-x-2">

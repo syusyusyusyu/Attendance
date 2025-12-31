@@ -22,14 +22,20 @@ student.assign_attributes(
 student.save!
 
 class_one = SchoolClass.find_or_create_by!(name: "数学I", teacher: teacher) do |klass|
-  klass.room = "A101"
+  klass.room = "2C教室"
   klass.subject = "数学"
   klass.semester = "前期"
   klass.year = 2024
   klass.capacity = 40
-  klass.schedule = { day_of_week: 1, start_time: "09:00", end_time: "10:30", frequency: "weekly" }
+  klass.schedule = {
+    day_of_week: 1,
+    period: 1,
+    start_time: "09:10",
+    end_time: "10:40",
+    frequency: "weekly"
+  }
 end
 
 Enrollment.find_or_create_by!(school_class: class_one, student: student)
 
-AttendancePolicy.find_or_create_by!(school_class: class_one)
+AttendancePolicy.find_or_create_by!(school_class: class_one, **AttendancePolicy.default_attributes)

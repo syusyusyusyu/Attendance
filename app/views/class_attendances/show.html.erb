@@ -49,12 +49,14 @@
             <%= hidden_field_tag :class_id, @selected_class.id %>
             <%= hidden_field_tag :date, @date %>
             <div>
-              <%= f.label :late_after_minutes, "遅刻判定(分)", class: "block text-sm font-medium text-gray-700 mb-2" %>
-              <%= f.number_field :late_after_minutes, value: @policy.late_after_minutes, min: 0, class: "input" %>
+              <span class="block text-sm font-medium text-gray-700 mb-2">遅刻判定</span>
+              <div class="text-sm text-gray-700">授業開始直後から遅刻扱い</div>
+              <%= f.hidden_field :late_after_minutes, value: AttendancePolicy::DEFAULTS[:late_after_minutes] %>
             </div>
             <div>
-              <%= f.label :close_after_minutes, "締切(分)", class: "block text-sm font-medium text-gray-700 mb-2" %>
-              <%= f.number_field :close_after_minutes, value: @policy.close_after_minutes, min: 0, class: "input" %>
+              <span class="block text-sm font-medium text-gray-700 mb-2">欠席判定</span>
+              <div class="text-sm text-gray-700">授業開始20分以降は欠席</div>
+              <%= f.hidden_field :close_after_minutes, value: AttendancePolicy::DEFAULTS[:close_after_minutes] %>
             </div>
             <div>
               <%= f.label :max_scans_per_minute, "分間スキャン上限", class: "block text-sm font-medium text-gray-700 mb-2" %>
@@ -89,7 +91,7 @@
             </div>
           <% end %>
           <p class="text-xs text-gray-500 mt-2">
-            遅刻は授業開始+遅刻判定分、締切は授業開始+締切分で判定します。
+            授業開始から20分以内は遅刻、20分以降は欠席として扱います。
           </p>
           <p class="text-xs text-gray-500">
             IP/端末制限を設定すると条件に一致しないQRスキャンはブロックされます。
