@@ -21,11 +21,11 @@
     <div class="card p-6">
       <h2 class="text-lg font-medium text-gray-900 mb-4">クラス別出席率</h2>
       <% if @class_stats.any? %>
-        <div class="mb-6 overflow-x-auto">
-          <div class="flex items-end gap-3 min-w-[480px] h-28">
+        <div class="mb-6 sm:overflow-x-auto">
+          <div class="flex flex-wrap sm:flex-nowrap items-end gap-3 h-auto sm:min-w-[480px] sm:h-28">
             <% @class_stats.each do |stat| %>
               <% bar_height = [stat[:rate].to_i, 3].max %>
-              <div class="flex flex-col items-center w-20 shrink-0">
+              <div class="flex flex-col items-center w-20 sm:shrink-0">
                 <div class="w-full h-20 bg-gray-100 rounded-md flex items-end">
                   <div class="w-full bg-google-green rounded-md" style="height: <%= bar_height %>%"></div>
                 </div>
