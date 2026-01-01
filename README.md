@@ -1,46 +1,46 @@
-# ŠwZ‚ÌoÈŠÇ—ƒVƒXƒeƒ€ (Rails 8 + Hotwire + PostgreSQL)
+# å­¦æ ¡ã®å‡ºå¸­ç®¡ç†ã‚·ã‚¹ãƒ†ãƒ  (Rails 8 + Hotwire + PostgreSQL)
 
-## ŠT—v
-ŠwZŒü‚¯‚ÌoÈŠÇ—‚ðAQR“üŽº/‘ÞŽº‚Æ\¿/ŠÄ¸/ƒŒƒ|[ƒg‚ÅŠ®Œ‹‚³‚¹‚éWebƒAƒvƒŠ‚Å‚·B
-‹³ˆõEŠw¶EŠÇ—ŽÒ‚Ì3ƒ[ƒ‹‚Å‰^—p‚µAŽÀ‰^—p‚ð‘z’è‚µ‚½³”Fƒtƒ[‚ÆŠÄ¸«‚ð”õ‚¦‚Ä‚¢‚Ü‚·B
+## æ¦‚è¦
+å­¦æ ¡å‘ã‘ã®å‡ºå¸­ç®¡ç†ã‚’ã€QRå…¥å®¤/é€€å®¤ã¨ç”³è«‹/ç›£æŸ»/ãƒ¬ãƒãƒ¼ãƒˆã§å®Œçµã•ã›ã‚‹Webã‚¢ãƒ—ãƒªã§ã™ã€‚
+æ•™å“¡ãƒ»å­¦ç”Ÿãƒ»ç®¡ç†è€…ã®3ãƒ­ãƒ¼ãƒ«ã§é‹ç”¨ã—ã€å®Ÿé‹ç”¨ã‚’æƒ³å®šã—ãŸæ‰¿èªãƒ•ãƒ­ãƒ¼ã¨ç›£æŸ»æ€§ã‚’å‚™ãˆã¦ã„ã¾ã™ã€‚
 
-## Žå‚È‹@”\
-- QRƒZƒbƒVƒ‡ƒ“”­s‚Æ–¼ƒg[ƒNƒ“ŒŸØ‚É‚æ‚éoÈ“o˜^
-- “üŽº/‘ÞŽº‚É‚æ‚é‘ØÝŽžŠÔ‚Ì‹L˜^‚Æ‘‘Þ”»’è
-- oÈ\¿(Œ‡È/’x/ŒöŒ‡)‚Æ³”Fƒ[ƒNƒtƒ[
-- oÈŠm’è/Šm’è‰ðœ/CSV”½‰f‚Ì³”Fƒtƒ[
-- ŠÄ¸ƒƒO(oÈ•ÏX/QRƒXƒLƒƒƒ“)‚ÌŒŸõ‚ÆCSVo—Í
-- ƒŒƒ|[ƒg(TŽŸ/“úŽŸ„ˆÚA—v’ˆÓŽÒ’ŠoAŠú––PDF/CSV)
-- ŠÇ—ŽÒŒü‚¯ŠÇ—‰æ–Ê(ƒ†[ƒU[/Œ ŒÀ/ŠÄ¸/³”F/’[––/SSO/API)
-- Œö”F’[––‚Ì“o˜^/³”F(”CˆÓ)
-- APIƒL[ + ƒXƒR[ƒv”F‰Â‚É‚æ‚éŠw–±˜AŒg
+## ä¸»ãªæ©Ÿèƒ½
+- QRã‚»ãƒƒã‚·ãƒ§ãƒ³ç™ºè¡Œã¨ç½²åãƒˆãƒ¼ã‚¯ãƒ³æ¤œè¨¼ã«ã‚ˆã‚‹å‡ºå¸­ç™»éŒ²
+- å…¥å®¤/é€€å®¤ã«ã‚ˆã‚‹æ»žåœ¨æ™‚é–“ã®è¨˜éŒ²ã¨æ—©é€€åˆ¤å®š
+- å‡ºå¸­ç”³è«‹(æ¬ å¸­/é…åˆ»/å…¬æ¬ )ã¨æ‰¿èªãƒ¯ãƒ¼ã‚¯ãƒ•ãƒ­ãƒ¼
+- å‡ºå¸­ç¢ºå®š/ç¢ºå®šè§£é™¤/CSVåæ˜ ã®æ‰¿èªãƒ•ãƒ­ãƒ¼
+- ç›£æŸ»ãƒ­ã‚°(å‡ºå¸­å¤‰æ›´/QRã‚¹ã‚­ãƒ£ãƒ³)ã®æ¤œç´¢ã¨CSVå‡ºåŠ›
+- ãƒ¬ãƒãƒ¼ãƒˆ(é€±æ¬¡/æ—¥æ¬¡æŽ¨ç§»ã€è¦æ³¨æ„è€…æŠ½å‡ºã€æœŸæœ«PDF/CSV)
+- ç®¡ç†è€…å‘ã‘ç®¡ç†ç”»é¢(ãƒ¦ãƒ¼ã‚¶ãƒ¼/æ¨©é™/ç›£æŸ»/æ‰¿èª/ç«¯æœ«/SSO/API)
+- å…¬èªç«¯æœ«ã®ç™»éŒ²/æ‰¿èª(ä»»æ„)
+- APIã‚­ãƒ¼ + ã‚¹ã‚³ãƒ¼ãƒ—èªå¯ã«ã‚ˆã‚‹å­¦å‹™é€£æº
 
-## ƒNƒCƒbƒNƒXƒ^[ƒg
+## ã‚¯ã‚¤ãƒƒã‚¯ã‚¹ã‚¿ãƒ¼ãƒˆ
 ```bash
 bundle install
 bin/rails db:setup
 bin/rails server
 ```
 
-## ‰ŠúƒƒOƒCƒ“
-- ŠÇ—ŽÒ: `admin@example.com` / `password`
-- ‹³ˆõ: `teacher@example.com` / `password`
-- Šw¶: `student@example.com` / `password`
+## åˆæœŸãƒ­ã‚°ã‚¤ãƒ³
+- ç®¡ç†è€…: `admin@example.com` / `password`
+- æ•™å“¡: `teacher@example.com` / `password`
+- å­¦ç”Ÿ: `student@example.com` / `password`
 
-## Render ƒfƒvƒƒC
-- ŠÂ‹«•Ï”
+## Render ãƒ‡ãƒ—ãƒ­ã‚¤
+- ç’°å¢ƒå¤‰æ•°
   - `DATABASE_URL`
   - `RAILS_MASTER_KEY`
   - `RAILS_ENV=production`
   - `RAILS_SERVE_STATIC_FILES=1`
-  - `APP_HOST` (—á: `attendance.example.com`)
-  - `QR_TOKEN_SECRET` (QR–¼—p‚Ì”é–§Œ®)
+  - `APP_HOST` (ä¾‹: `attendance.example.com`)
+  - `QR_TOKEN_SECRET` (QRç½²åç”¨ã®ç§˜å¯†éµ)
 - Build Command: `bin/render-build.sh`
 - Start Command: `bundle exec puma -C config/puma.rb`
 
-## ‰^—pƒƒ‚
-- ’èŠúŠm’è: `bin/rails attendance:finalize` ‚ðCron‚ÅŽÀs
-- ƒfƒ‚ƒf[ƒ^: `bin/rails demo:seed` / `bin/rails demo:reset`
-- ‰^—pƒKƒCƒh: `OPERATION_GUIDE.md`
-- ƒfƒ‚Žè‡: `DEMO.md`
-- Žd—l‘: `Žd—l‘.md`
+## é‹ç”¨ãƒ¡ãƒ¢
+- å®šæœŸç¢ºå®š: `bin/rails attendance:finalize` ã‚’Cronã§å®Ÿè¡Œ
+- ãƒ‡ãƒ¢ãƒ‡ãƒ¼ã‚¿: `bin/rails demo:seed` / `bin/rails demo:reset`
+- é‹ç”¨ã‚¬ã‚¤ãƒ‰: `OPERATION_GUIDE.md`
+- ãƒ‡ãƒ¢æ‰‹é †: `DEMO.md`
+- ä»•æ§˜æ›¸: `ä»•æ§˜æ›¸.md`

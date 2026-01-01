@@ -9,7 +9,7 @@ class Api::V1::ClassesControllerTest < ActionDispatch::IntegrationTest
   test "rejects missing scope" do
     admin = User.create!(
       email: "api-admin@example.com",
-      name: "APIŠÇ—ŽÒ",
+      name: "APIç®¡ç†è€…",
       role: "admin",
       password: "password",
       password_confirmation: "password"
@@ -23,24 +23,24 @@ class Api::V1::ClassesControllerTest < ActionDispatch::IntegrationTest
   test "returns classes with valid scope" do
     admin = User.create!(
       email: "api-admin2@example.com",
-      name: "APIŠÇ—ŽÒ2",
+      name: "APIç®¡ç†è€…2",
       role: "admin",
       password: "password",
       password_confirmation: "password"
     )
     teacher = User.create!(
       email: "api-teacher@example.com",
-      name: "’S“–‹³ˆõ",
+      name: "æ‹…å½“æ•™å“¡",
       role: "teacher",
       password: "password",
       password_confirmation: "password"
     )
     SchoolClass.create!(
-      name: "API‰‰K",
+      name: "APIæ¼”ç¿’",
       teacher: teacher,
-      room: "6A‹³Žº",
-      subject: "î•ñ",
-      semester: "‘OŠú",
+      room: "6Aæ•™å®¤",
+      subject: "æƒ…å ±",
+      semester: "å‰æœŸ",
       year: 2024,
       capacity: 35,
       schedule: { day_of_week: 2, start_time: "10:50", end_time: "12:20" }
@@ -52,6 +52,6 @@ class Api::V1::ClassesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     body = JSON.parse(@response.body)
     assert_equal 1, body.size
-    assert_equal "API‰‰K", body.first.fetch("name")
+    assert_equal "APIæ¼”ç¿’", body.first.fetch("name")
   end
 end

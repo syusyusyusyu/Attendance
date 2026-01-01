@@ -4,21 +4,21 @@ class OperationRequestProcessorTest < ActiveSupport::TestCase
   test "approves attendance correction and creates logs" do
     admin = User.create!(
       email: "admin-ops@example.com",
-      name: "ŠÇ—Ò",
+      name: "ç®¡ç†è€…",
       role: "admin",
       password: "password",
       password_confirmation: "password"
     )
     teacher = User.create!(
       email: "teacher-ops@example.com",
-      name: "’S“–‹³ˆõ",
+      name: "æ‹…å½“æ•™å“¡",
       role: "teacher",
       password: "password",
       password_confirmation: "password"
     )
     student = User.create!(
       email: "student-ops@example.com",
-      name: "óu¶",
+      name: "å—è¬›ç”Ÿ",
       role: "student",
       student_id: "S9999",
       password: "password",
@@ -26,11 +26,11 @@ class OperationRequestProcessorTest < ActiveSupport::TestCase
     )
 
     school_class = SchoolClass.create!(
-      name: "‰^—p‰‰K",
+      name: "é‹ç”¨æ¼”ç¿’",
       teacher: teacher,
-      room: "4B‹³º",
-      subject: "î•ñ",
-      semester: "ŒãŠú",
+      room: "4Bæ•™å®¤",
+      subject: "æƒ…å ±",
+      semester: "å¾ŒæœŸ",
       year: 2024,
       capacity: 30,
       schedule: { day_of_week: 1, start_time: "09:10", end_time: "10:40" }
@@ -55,7 +55,7 @@ class OperationRequestProcessorTest < ActiveSupport::TestCase
       payload: {
         "date" => date.to_s,
         "changes" => [{ "user_id" => student.id, "status" => "present" }],
-        "reason" => "‘Ì’²•s—Ç"
+        "reason" => "ä½“èª¿ä¸è‰¯"
       }
     )
 
@@ -76,6 +76,6 @@ class OperationRequestProcessorTest < ActiveSupport::TestCase
     assert_equal "present", record.status
 
     change = AttendanceChange.order(created_at: :desc).first
-    assert_equal "³”F\¿: ‘Ì’²•s—Ç", change.reason
+    assert_equal "æ‰¿èªç”³è«‹: ä½“èª¿ä¸è‰¯", change.reason
   end
 end

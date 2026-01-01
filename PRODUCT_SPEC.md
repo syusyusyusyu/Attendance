@@ -1,62 +1,62 @@
-# ŠwZ‚ÌoÈŠÇ—ƒVƒXƒeƒ€ Žd—l‘(—v–ñ”Å)
+# å­¦æ ¡ã®å‡ºå¸­ç®¡ç†ã‚·ã‚¹ãƒ†ãƒ  ä»•æ§˜æ›¸(è¦ç´„ç‰ˆ)
 
-## 1. ŠT—v
-- Rails 8 + Hotwire + PostgreSQL‚Å\’z‚µ‚½oÈŠÇ—WebƒAƒvƒŠ
-- ‹³ˆõEŠw¶EŠÇ—ŽÒ‚Ì3ƒ[ƒ‹‰^—p
-- QR“üŽº/‘ÞŽºA\¿³”FAŠÄ¸ƒƒOAƒŒƒ|[ƒg‚ðˆê‘Ì‰»
+## 1. æ¦‚è¦
+- Rails 8 + Hotwire + PostgreSQLã§æ§‹ç¯‰ã—ãŸå‡ºå¸­ç®¡ç†Webã‚¢ãƒ—ãƒª
+- æ•™å“¡ãƒ»å­¦ç”Ÿãƒ»ç®¡ç†è€…ã®3ãƒ­ãƒ¼ãƒ«é‹ç”¨
+- QRå…¥å®¤/é€€å®¤ã€ç”³è«‹æ‰¿èªã€ç›£æŸ»ãƒ­ã‚°ã€ãƒ¬ãƒãƒ¼ãƒˆã‚’ä¸€ä½“åŒ–
 
-## 2. –Ú“I
-- oÈ‹L˜^‚ÌŽè“ü—Í‚ðíŒ¸‚µA³Šm«‚ÆŠÄ¸«‚ð‚‚ß‚é
-- Šw¶‚ÌŽ©ŒÈŠÇ—(—š—ð/\¿/’Ê’m)‚ð‘£i‚·‚é
-- ‹³ˆõ‚Ì‰^—p(C³/Šm’è/•ñ)‚ð’ZŽžŠÔ‚ÅŠ®Œ‹‚³‚¹‚é
+## 2. ç›®çš„
+- å‡ºå¸­è¨˜éŒ²ã®æ‰‹å…¥åŠ›ã‚’å‰Šæ¸›ã—ã€æ­£ç¢ºæ€§ã¨ç›£æŸ»æ€§ã‚’é«˜ã‚ã‚‹
+- å­¦ç”Ÿã®è‡ªå·±ç®¡ç†(å±¥æ­´/ç”³è«‹/é€šçŸ¥)ã‚’ä¿ƒé€²ã™ã‚‹
+- æ•™å“¡ã®é‹ç”¨(ä¿®æ­£/ç¢ºå®š/å ±å‘Š)ã‚’çŸ­æ™‚é–“ã§å®Œçµã•ã›ã‚‹
 
-## 3. ƒ[ƒ‹‚ÆŒ ŒÀ
-- ŠÇ—ŽÒ: ‘SŒ ŒÀ + ³”Fƒ[ƒNƒtƒ[‚ÌÅIŽÀs
-- ‹³ˆõ: ƒNƒ‰ƒX‰^—p/oÈŠÇ—/ƒŒƒ|[ƒg‰{——
-- Šw¶: QRƒXƒLƒƒƒ“/—š—ð/\¿
-- Œ ŒÀ§Œä: ƒ[ƒ‹/Œ ŒÀƒe[ƒuƒ‹‚É‚æ‚é‹@”\’PˆÊ‚Ì”F‰Â
+## 3. ãƒ­ãƒ¼ãƒ«ã¨æ¨©é™
+- ç®¡ç†è€…: å…¨æ¨©é™ + æ‰¿èªãƒ¯ãƒ¼ã‚¯ãƒ•ãƒ­ãƒ¼ã®æœ€çµ‚å®Ÿè¡Œ
+- æ•™å“¡: ã‚¯ãƒ©ã‚¹é‹ç”¨/å‡ºå¸­ç®¡ç†/ãƒ¬ãƒãƒ¼ãƒˆé–²è¦§
+- å­¦ç”Ÿ: QRã‚¹ã‚­ãƒ£ãƒ³/å±¥æ­´/ç”³è«‹
+- æ¨©é™åˆ¶å¾¡: ãƒ­ãƒ¼ãƒ«/æ¨©é™ãƒ†ãƒ¼ãƒ–ãƒ«ã«ã‚ˆã‚‹æ©Ÿèƒ½å˜ä½ã®èªå¯
 
-## 4. Žå—v‰æ–Ê
-- `/login`: ƒƒOƒCƒ“
-- `/`: ƒ_ƒbƒVƒ…ƒ{[ƒh
-- `/generate-qr`: QR”­s(‹³ˆõ)
-- `/scan`: QRƒXƒLƒƒƒ“(Šw¶)
-- `/attendance`: oÈŠm”F/C³/Šm’è/CSV
-- `/attendance_requests`: oÈ\¿/³”F
-- `/attendance-logs`: oÈ•ÏXƒƒO
-- `/scan-logs`: ƒXƒLƒƒƒ“ƒƒO
-- `/reports`: WŒv/Šú––ƒŒƒ|[ƒg
-- `/notifications`: ’Ê’m
-- `/school_classes`: ƒNƒ‰ƒX/–¼•ë/“Á•Ê“ú’ö
-- `/profile`: ƒvƒƒtƒB[ƒ‹/’[––/’Ê’mÝ’è
-- `/admin`: ŠÇ—ƒ_ƒbƒVƒ…ƒ{[ƒh(ŠÇ—ŽÒ)
+## 4. ä¸»è¦ç”»é¢
+- `/login`: ãƒ­ã‚°ã‚¤ãƒ³
+- `/`: ãƒ€ãƒƒã‚·ãƒ¥ãƒœãƒ¼ãƒ‰
+- `/generate-qr`: QRç™ºè¡Œ(æ•™å“¡)
+- `/scan`: QRã‚¹ã‚­ãƒ£ãƒ³(å­¦ç”Ÿ)
+- `/attendance`: å‡ºå¸­ç¢ºèª/ä¿®æ­£/ç¢ºå®š/CSV
+- `/attendance_requests`: å‡ºå¸­ç”³è«‹/æ‰¿èª
+- `/attendance-logs`: å‡ºå¸­å¤‰æ›´ãƒ­ã‚°
+- `/scan-logs`: ã‚¹ã‚­ãƒ£ãƒ³ãƒ­ã‚°
+- `/reports`: é›†è¨ˆ/æœŸæœ«ãƒ¬ãƒãƒ¼ãƒˆ
+- `/notifications`: é€šçŸ¥
+- `/school_classes`: ã‚¯ãƒ©ã‚¹/åç°¿/ç‰¹åˆ¥æ—¥ç¨‹
+- `/profile`: ãƒ—ãƒ­ãƒ•ã‚£ãƒ¼ãƒ«/ç«¯æœ«/é€šçŸ¥è¨­å®š
+- `/admin`: ç®¡ç†ãƒ€ãƒƒã‚·ãƒ¥ãƒœãƒ¼ãƒ‰(ç®¡ç†è€…)
 
-## 5. ‹@”\Žd—l(—v“_)
-- QRoÈ: –¼ƒg[ƒNƒ“+ƒZƒbƒVƒ‡ƒ“ŒŸØ‚Å‰ü‚´‚ñ–hŽ~
-- “üŽº/‘ÞŽº: 2‰ñƒXƒLƒƒƒ“‚Å‘ØÝŽžŠÔ‚ð‹L˜^
-- oÈƒ|ƒŠƒV[: ’x/’÷Ø/‘‘Þ/Œxè‡’l/ƒŒ[ƒg§ŒÀ
-- ŠÄ¸ƒƒO: •ÏX——R•K{ACSVo—ÍAðŒ•Û‘¶
-- \¿³”F: Œ‡È/’x/ŒöŒ‡‚Ì\¿‚Æ³”F/‹p‰º
-- ³”Fƒ[ƒNƒtƒ[: oÈC³/Šm’è/‰ðœ/CSV”½‰f
-- •s³ŒŸ’m: Ž¸”s‘½”­/ˆÙíIP/’[––§ŒÀˆá”½‚ð’Ê’m
-- ƒŒƒ|[ƒg: TŽŸ/“úŽŸ„ˆÚA—v’ˆÓŽÒAŠú––PDF/CSV
-- ˜AŒg: APIƒL[ + ƒXƒR[ƒv”F‰Â
-- ’[––ŠÇ—: Œö”F’[––‚Ì“o˜^/³”F
-- SSOÝ’è: OIDC/SAMLÝ’è’l‚Ì•ÛŽ
+## 5. æ©Ÿèƒ½ä»•æ§˜(è¦ç‚¹)
+- QRå‡ºå¸­: ç½²åãƒˆãƒ¼ã‚¯ãƒ³+ã‚»ãƒƒã‚·ãƒ§ãƒ³æ¤œè¨¼ã§æ”¹ã–ã‚“é˜²æ­¢
+- å…¥å®¤/é€€å®¤: 2å›žã‚¹ã‚­ãƒ£ãƒ³ã§æ»žåœ¨æ™‚é–“ã‚’è¨˜éŒ²
+- å‡ºå¸­ãƒãƒªã‚·ãƒ¼: é…åˆ»/ç· åˆ‡/æ—©é€€/è­¦å‘Šé–¾å€¤/ãƒ¬ãƒ¼ãƒˆåˆ¶é™
+- ç›£æŸ»ãƒ­ã‚°: å¤‰æ›´ç†ç”±å¿…é ˆã€CSVå‡ºåŠ›ã€æ¡ä»¶ä¿å­˜
+- ç”³è«‹æ‰¿èª: æ¬ å¸­/é…åˆ»/å…¬æ¬ ã®ç”³è«‹ã¨æ‰¿èª/å´ä¸‹
+- æ‰¿èªãƒ¯ãƒ¼ã‚¯ãƒ•ãƒ­ãƒ¼: å‡ºå¸­ä¿®æ­£/ç¢ºå®š/è§£é™¤/CSVåæ˜ 
+- ä¸æ­£æ¤œçŸ¥: å¤±æ•—å¤šç™º/ç•°å¸¸IP/ç«¯æœ«åˆ¶é™é•åã‚’é€šçŸ¥
+- ãƒ¬ãƒãƒ¼ãƒˆ: é€±æ¬¡/æ—¥æ¬¡æŽ¨ç§»ã€è¦æ³¨æ„è€…ã€æœŸæœ«PDF/CSV
+- é€£æº: APIã‚­ãƒ¼ + ã‚¹ã‚³ãƒ¼ãƒ—èªå¯
+- ç«¯æœ«ç®¡ç†: å…¬èªç«¯æœ«ã®ç™»éŒ²/æ‰¿èª
+- SSOè¨­å®š: OIDC/SAMLè¨­å®šå€¤ã®ä¿æŒ
 
-## 6. ƒf[ƒ^ƒ‚ƒfƒ‹(‘ã•\)
+## 6. ãƒ‡ãƒ¼ã‚¿ãƒ¢ãƒ‡ãƒ«(ä»£è¡¨)
 - `users`, `school_classes`, `enrollments`, `class_sessions`
 - `attendance_records`, `attendance_requests`, `attendance_changes`
 - `attendance_policies`, `qr_sessions`, `qr_scan_events`
 - `notifications`, `operation_requests`, `audit_saved_searches`
 - `roles`, `permissions`, `role_permissions`, `devices`, `api_keys`, `sso_providers`
 
-## 7. ”ñ‹@”\—vŒ
-- “ú–{ŒêUIAƒ‚ƒoƒCƒ‹‘Î‰žAŠÄ¸«dŽ‹
-- ƒ^ƒCƒ€ƒ][ƒ“: Asia/Tokyo
-- HTTPS‹­§(–{”Ô)
+## 7. éžæ©Ÿèƒ½è¦ä»¶
+- æ—¥æœ¬èªžUIã€ãƒ¢ãƒã‚¤ãƒ«å¯¾å¿œã€ç›£æŸ»æ€§é‡è¦–
+- ã‚¿ã‚¤ãƒ ã‚¾ãƒ¼ãƒ³: Asia/Tokyo
+- HTTPSå¼·åˆ¶(æœ¬ç•ª)
 
-## 8. ŠÂ‹«•Ï”
+## 8. ç’°å¢ƒå¤‰æ•°
 - `DATABASE_URL`
 - `RAILS_MASTER_KEY`
 - `APP_HOST`
@@ -64,11 +64,11 @@
 - `RAILS_SERVE_STATIC_FILES`
 - `QR_TOKEN_SECRET`
 
-## 9. ƒfƒvƒƒC(Render)
+## 9. ãƒ‡ãƒ—ãƒ­ã‚¤(Render)
 - Build: `bin/render-build.sh`
 - Start: `bundle exec puma -C config/puma.rb`
 
-## 10. ‰^—pƒƒ‚
-- ’èŠúŠm’è: `bin/rails attendance:finalize`
-- ƒfƒ‚: `bin/rails demo:seed` / `bin/rails demo:reset`
-- ŠÄ¸ƒƒO: `/attendance-logs`, `/scan-logs`
+## 10. é‹ç”¨ãƒ¡ãƒ¢
+- å®šæœŸç¢ºå®š: `bin/rails attendance:finalize`
+- ãƒ‡ãƒ¢: `bin/rails demo:seed` / `bin/rails demo:reset`
+- ç›£æŸ»ãƒ­ã‚°: `/attendance-logs`, `/scan-logs`
