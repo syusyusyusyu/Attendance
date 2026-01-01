@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["code", "timeLeft"]
+  static targets = ["image", "timeLeft"]
   static values = { expiresAt: Number, filename: String, refreshUrl: String, refreshInterval: Number }
 
   connect() {
@@ -37,7 +37,7 @@ export default class extends Controller {
   }
 
   async refresh() {
-    if (!this.hasRefreshUrlValue || !this.hasCodeTarget) return
+    if (!this.hasRefreshUrlValue || !this.hasImageTarget) return
 
     try {
       const response = await fetch(this.refreshUrlValue, {
@@ -46,8 +46,8 @@ export default class extends Controller {
       if (!response.ok) return
 
       const data = await response.json()
-      if (data.svg) {
-        this.codeTarget.innerHTML = data.svg
+      if (data.png_data_url) {
+        this.imageTarget.src = data.png_data_url
       }
       if (data.expires_at) {
         this.expiresAtValue = data.expires_at
@@ -59,26 +59,16 @@ export default class extends Controller {
   }
 
   download() {
-    if (!this.hasCodeTarget) return
+    if (!this.hasImageTarget) return
 
-    const svg = this.codeTarget.querySelector("svg")
-    if (!svg) return
+    const url = this.imageTarget.src
+    if (!url) return
 
-    const serializer = new XMLSerializer()
-    let source = serializer.serializeToString(svg)
-
-    if (!source.includes("xmlns=\"http://www.w3.org/2000/svg\"")) {
-      source = source.replace("<svg", '<svg xmlns="http://www.w3.org/2000/svg"')
-    }
-
-    const blob = new Blob([source], { type: "image/svg+xml;charset=utf-8" })
-    const url = URL.createObjectURL(blob)
     const link = document.createElement("a")
     link.href = url
-    link.download = this.hasFilenameValue ? this.filenameValue : "qrcode.svg"
+    link.download = this.hasFilenameValue ? this.filenameValue : "qrcode.png"
     document.body.appendChild(link)
     link.click()
     link.remove()
-    URL.revokeObjectURL(url)
   }
 }

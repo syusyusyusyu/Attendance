@@ -30,8 +30,13 @@
 
       <% if @selected_class %>
         <div class="flex flex-col items-center">
-          <div class="bg-white p-5 rounded-lg border border-gray-300 mb-4 w-full max-w-sm sm:max-w-md qr-code" data-qr-target="code">
-            <%= @qr_svg.html_safe %>
+          <div class="bg-white p-5 rounded-lg border border-gray-300 mb-4 w-full max-w-sm sm:max-w-md qr-code">
+            <img
+              src="<%= @qr_image_url %>"
+              alt="QRコード"
+              class="w-full h-auto"
+              data-qr-target="image"
+            />
           </div>
 
           <div class="mb-4 text-center">

@@ -114,8 +114,10 @@
     @apply w-full h-auto object-cover;
   }
 
-  .qr-code svg {
+  .qr-code svg,
+  .qr-code img {
     @apply w-full h-auto;
+    image-rendering: crisp-edges;
   }
 }
 

@@ -2,6 +2,8 @@ class QrCodesController < ApplicationController
   before_action -> { require_role!(%w[teacher admin]) }
   before_action -> { require_permission!("qr.generate") }
 
+  require "base64"
+
   def show
     @classes = current_user.manageable_classes.order(:name)
     @selected_class = @classes.find_by(id: params[:class_id])
@@ -31,7 +33,7 @@ class QrCodesController < ApplicationController
     )
     @expires_at = @qr_session.expires_at
     @token = AttendanceToken.generate(qr_session: @qr_session)
-    @qr_svg = qr_svg(@token)
+    @qr_image_url = qr_png_data_url(@token)
 
     respond_to do |format|
       format.html
@@ -39,7 +41,7 @@ class QrCodesController < ApplicationController
         render json: {
           token: @token,
           expires_at: @expires_at.to_i,
-          svg: @qr_svg
+          png_data_url: @qr_image_url
         }
       end
     end
@@ -47,11 +49,21 @@ class QrCodesController < ApplicationController
 
   private
 
-  def qr_svg(token)
-    qr = RQRCode::QRCode.new(token, level: :m)
-    qr.as_svg(module_size: 8, border_modules: 4, fill: "ffffff", color: "0f172a", shape_rendering: "crispEdges")
+  def qr_png_data_url(token)
+    png = RQRCode::QRCode.new(token, level: :m).as_png(
+      size: 320,
+      border_modules: 4,
+      fill: "ffffff",
+      color: "000000"
+    )
+    "data:image/png;base64,#{Base64.strict_encode64(png.to_s)}"
   rescue RQRCode::QRCodeRunTimeError
-    qr = RQRCode::QRCode.new(token)
-    qr.as_svg(module_size: 6, border_modules: 4, fill: "ffffff", color: "0f172a", shape_rendering: "crispEdges")
+    png = RQRCode::QRCode.new(token).as_png(
+      size: 280,
+      border_modules: 4,
+      fill: "ffffff",
+      color: "000000"
+    )
+    "data:image/png;base64,#{Base64.strict_encode64(png.to_s)}"
   end
 end
