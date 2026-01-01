@@ -11,7 +11,15 @@ class Notification < ApplicationRecord
 
   scope :unread, -> { where(read_at: nil) }
 
+  after_create_commit :enqueue_delivery
+
   def mark_read!
     update!(read_at: Time.current)
+  end
+
+  private
+
+  def enqueue_delivery
+    NotificationDeliveryJob.perform_later(id)
   end
 end

@@ -5,6 +5,7 @@ class ProfilesController < ApplicationController
     @user = current_user
     @devices = current_user.devices.order(last_seen_at: :desc)
     @notification_preferences = current_user.notification_preferences
+    @push_subscriptions = current_user.push_subscriptions
   end
 
   def update
@@ -12,7 +13,8 @@ class ProfilesController < ApplicationController
     apply_notification_preferences
     apply_password_params
 
-    if @user.update(profile_params)
+    attributes = params[:user].present? ? profile_params : {}
+    if @user.update(attributes)
       redirect_to profile_path, notice: "プロフィールを更新しました。"
     else
       flash.now[:alert] = "プロフィールの更新に失敗しました。"
@@ -29,13 +31,14 @@ class ProfilesController < ApplicationController
   def apply_notification_preferences
     return unless params[:notifications]
 
-    prefs = params.require(:notifications).permit(:email, :line, :push)
+    prefs = params.require(:notifications).permit(:email, :line, :push, :line_user_id)
     settings = @user.settings || {}
     settings["notifications"] = {
       "email" => prefs[:email].to_s == "1",
       "line" => prefs[:line].to_s == "1",
       "push" => prefs[:push].to_s == "1"
     }
+    settings["line_user_id"] = prefs[:line_user_id].to_s.strip if prefs.key?(:line_user_id)
     @user.settings = settings
   end
 

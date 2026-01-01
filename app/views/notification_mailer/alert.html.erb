@@ -1,0 +1,7 @@
+<h1><%= @notification.title %></h1>
+
+<p><%= @notification.body.presence || "通知があります。" %></p>
+
+<% if @action_url.present? %>
+  <p><a href="<%= @action_url %>">詳細を見る</a></p>
+<% end %>

@@ -61,14 +61,22 @@ Rails.application.configure do
     host: ENV.fetch("APP_HOST", ENV["RENDER_EXTERNAL_HOSTNAME"] || "example.com")
   }
 
-  # Specify outgoing SMTP server. Remember to add smtp/* credentials via rails credentials:edit.
-  # config.action_mailer.smtp_settings = {
-  #   user_name: Rails.application.credentials.dig(:smtp, :user_name),
-  #   password: Rails.application.credentials.dig(:smtp, :password),
-  #   address: "smtp.example.com",
-  #   port: 587,
-  #   authentication: :plain
-  # }
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.default_options = {
+    from: ENV.fetch("MAIL_FROM", "noreply@example.com")
+  }
+
+  if ENV["SENDGRID_API_KEY"].present?
+    config.action_mailer.smtp_settings = {
+      user_name: "apikey",
+      password: ENV.fetch("SENDGRID_API_KEY"),
+      address: "smtp.sendgrid.net",
+      domain: ENV.fetch("APP_HOST", ENV["RENDER_EXTERNAL_HOSTNAME"] || "example.com"),
+      port: 587,
+      authentication: :plain,
+      enable_starttls_auto: true
+    }
+  end
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
   # the I18n.default_locale when a translation cannot be found).

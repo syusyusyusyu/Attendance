@@ -31,6 +31,7 @@ class QrCodesController < ApplicationController
     )
     @expires_at = @qr_session.expires_at
     @token = AttendanceToken.generate(qr_session: @qr_session)
+    @qr_svg = qr_svg(@token)
 
     respond_to do |format|
       format.html
@@ -38,7 +39,7 @@ class QrCodesController < ApplicationController
         render json: {
           token: @token,
           expires_at: @expires_at.to_i,
-          svg: qr_svg(@token)
+          svg: @qr_svg
         }
       end
     end
@@ -47,7 +48,10 @@ class QrCodesController < ApplicationController
   private
 
   def qr_svg(token)
+    qr = RQRCode::QRCode.new(token, level: :m)
+    qr.as_svg(module_size: 8, border_modules: 4, fill: "ffffff", color: "0f172a", shape_rendering: "crispEdges")
+  rescue RQRCode::QRCodeRunTimeError
     qr = RQRCode::QRCode.new(token)
-    qr.as_svg(module_size: 6, fill: "ffffff", color: "0f172a", shape_rendering: "crispEdges")
+    qr.as_svg(module_size: 6, border_modules: 4, fill: "ffffff", color: "0f172a", shape_rendering: "crispEdges")
   end
 end

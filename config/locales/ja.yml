@@ -1,8 +1,130 @@
 ja:
   activerecord:
+    models:
+      user: "ユーザー"
+      school_class: "クラス"
+      attendance_record: "出席記録"
+      attendance_request: "出席申請"
+      attendance_change: "出席変更"
+      attendance_policy: "出席ポリシー"
+      class_session: "授業回"
+      class_session_override: "特別日程"
+      enrollment: "履修"
+      notification: "通知"
+      audit_saved_search: "保存条件"
+      operation_request: "操作申請"
+      api_key: "APIキー"
+      device: "端末"
+      qr_session: "QRセッション"
+      qr_scan_event: "QRスキャンログ"
+      role: "ロール"
+      permission: "権限"
+      sso_provider: "SSOプロバイダ"
+      sso_identity: "SSO連携"
+    attributes:
+      user:
+        name: "氏名"
+        email: "メールアドレス"
+        role: "ロール"
+        student_id: "学籍ID"
+        password: "パスワード"
+        password_confirmation: "パスワード確認"
+      school_class:
+        name: "クラス名"
+        room: "教室"
+        subject: "科目"
+        semester: "学期"
+        year: "学年"
+        capacity: "定員"
+        description: "説明"
+        schedule: "スケジュール"
+      attendance_record:
+        date: "日付"
+        status: "出席状況"
+        verification_method: "登録方法"
+      attendance_request:
+        date: "日付"
+        request_type: "申請種別"
+        status: "申請状況"
+        submitted_at: "申請日時"
+        reason: "理由"
+      attendance_change:
+        date: "日付"
+        new_status: "出席状況"
+        changed_at: "変更日時"
+        reason: "理由"
+      attendance_policy:
+        late_after_minutes: "遅刻判定(分)"
+        close_after_minutes: "締切(分)"
+        allow_early_checkin: "開始前許可"
+        allowed_ip_ranges: "許可IP"
+        allowed_user_agent_keywords: "許可端末"
+        max_scans_per_minute: "分間スキャン上限"
+        student_max_scans_per_minute: "学生スキャン上限"
+        minimum_attendance_rate: "最低出席率"
+        warning_absent_count: "警告欠席回数"
+        warning_rate_percent: "警告出席率"
+        require_registered_device: "公認端末のみ"
+        fraud_failure_threshold: "不正検知(失敗)"
+        fraud_ip_burst_threshold: "不正検知(IP)"
+        fraud_token_share_threshold: "不正検知(QR共有)"
+      class_session:
+        date: "日付"
+      class_session_override:
+        date: "日付"
+        start_time: "開始時刻"
+        end_time: "終了時刻"
+        status: "種別"
+      enrollment:
+        student_id: "学生ID"
+      notification:
+        title: "タイトル"
+      audit_saved_search:
+        name: "保存名"
+        scope: "対象"
+      operation_request:
+        kind: "種別"
+        status: "状況"
+      api_key:
+        name: "名称"
+        token_digest: "トークン"
+      device:
+        device_id: "端末ID"
+      qr_session:
+        attendance_date: "日付"
+        issued_at: "発行時刻"
+        expires_at: "有効期限"
+      qr_scan_event:
+        status: "状態"
+        token_digest: "トークン"
+        scanned_at: "スキャン時刻"
+      role:
+        name: "ロール名"
+        label: "表示名"
+      permission:
+        key: "権限キー"
+        label: "権限名"
+      sso_provider:
+        name: "プロバイダ名"
+        strategy: "方式"
+      sso_identity:
+        uid: "UID"
     errors:
       messages:
         record_invalid: "バリデーションに失敗しました: %{errors}"
   errors:
+    format: "%{attribute}%{message}"
     messages:
       blank: "を入力してください"
+      taken: "はすでに存在します"
+      invalid: "が正しくありません"
+      confirmation: "が一致しません"
+      too_short: "は%{count}文字以上で入力してください"
+      too_long: "は%{count}文字以内で入力してください"
+      wrong_length: "は%{count}文字で入力してください"
+      not_a_number: "は数値で入力してください"
+      greater_than: "は%{count}より大きい値にしてください"
+      greater_than_or_equal_to: "は%{count}以上で入力してください"
+      less_than: "は%{count}より小さい値にしてください"
+      less_than_or_equal_to: "は%{count}以下で入力してください"
+      inclusion: "は一覧にありません"

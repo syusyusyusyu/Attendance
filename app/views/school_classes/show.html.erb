@@ -41,7 +41,15 @@
           </div>
           <%= f.submit "インポート", class: "btn btn-secondary" %>
         <% end %>
-        <p class="text-xs text-gray-500 mt-2">必須列: 学生ID / 氏名 / メール。パスワードは任意です。</p>
+        <% if current_user.admin? %>
+          <p class="text-xs text-gray-500 mt-2">
+            必須列: 学生ID / 氏名 / メール。パスワードは任意です（未入力の場合は学生IDが初期パスワードになります）。
+          </p>
+        <% else %>
+          <p class="text-xs text-gray-500 mt-2">
+            必須列: 学生ID / 氏名 / メール。パスワードは任意です。新規アカウント作成は管理者のみです。
+          </p>
+        <% end %>
       </div>
 
       <div class="relative">

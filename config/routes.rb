@@ -7,13 +7,16 @@ Rails.application.routes.draw do
 
   # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
-  # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
+  get "/service-worker.js", to: "rails/pwa#service_worker", as: :pwa_service_worker
 
   root "dashboard#show"
 
   get "/login", to: "sessions#new"
   post "/login", to: "sessions#create"
   delete "/logout", to: "sessions#destroy"
+  get "/terms", to: "legal#terms"
+  get "/privacy", to: "legal#privacy"
+  get "/data-policy", to: "legal#data_policy"
 
   get "/scan", to: "qr_scans#new"
   post "/scan", to: "qr_scans#create"
@@ -49,6 +52,7 @@ Rails.application.routes.draw do
   end
 
   resource :profile, only: [:show, :update]
+  resource :push_subscription, only: [:create, :destroy], path: "push-subscription"
   resources :devices, only: [:update] do
     post :request_approval, on: :member
   end

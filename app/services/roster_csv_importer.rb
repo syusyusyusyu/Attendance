@@ -27,6 +27,11 @@ class RosterCsvImporter < BaseCsvImporter
       user = User.find_by(email: email) || User.find_by(student_id: student_id)
 
       if user.nil?
+        unless @teacher.admin?
+          result[:errors] << "行#{line_no}: 管理者のみ新規アカウントを作成できます。"
+          next
+        end
+
         user = User.new(
           email: email,
           name: name,

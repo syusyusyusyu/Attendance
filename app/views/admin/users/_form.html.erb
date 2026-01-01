@@ -25,6 +25,7 @@
       <%= f.password_field :password_confirmation, class: "input" %>
     </div>
   </div>
+  <p class="text-xs text-gray-500">学生は未入力の場合、学籍IDが初期パスワードになります。</p>
   <div class="flex gap-2">
     <%= f.submit class: "btn btn-primary" %>
     <%= link_to "戻る", admin_users_path, class: "btn btn-secondary" %>

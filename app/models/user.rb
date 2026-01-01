@@ -35,6 +35,7 @@ class User < ApplicationRecord
            foreign_key: :modified_by_id,
            dependent: :nullify
   has_many :notifications, dependent: :destroy
+  has_many :push_subscriptions, dependent: :destroy
 
   validates :email, :name, :role, presence: true
   validates :email, uniqueness: true
@@ -70,6 +71,10 @@ class User < ApplicationRecord
     settings.fetch("notifications", {}).reverse_merge(defaults)
   end
 
+  def line_user_id
+    settings["line_user_id"].to_s.strip.presence
+  end
+
   private
 
   def normalize_email
@@ -82,5 +87,6 @@ class User < ApplicationRecord
     settings["notifications"]["email"] = true if settings["notifications"]["email"].nil?
     settings["notifications"]["push"] = false if settings["notifications"]["push"].nil?
     settings["notifications"]["line"] = false if settings["notifications"]["line"].nil?
+    settings["onboarding_seen"] = false if settings["onboarding_seen"].nil?
   end
 end

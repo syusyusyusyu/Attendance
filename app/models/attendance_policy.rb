@@ -124,7 +124,7 @@ class AttendancePolicy < ApplicationRecord
     return if late_after_minutes.blank? || close_after_minutes.blank?
 
     if close_after_minutes < late_after_minutes
-      errors.add(:close_after_minutes, "must be greater than or equal to late_after_minutes")
+      errors.add(:close_after_minutes, "は遅刻判定時間以上に設定してください")
     end
   end
 
@@ -133,7 +133,7 @@ class AttendancePolicy < ApplicationRecord
       begin
         IPAddr.new(range)
       rescue IPAddr::InvalidAddressError
-        errors.add(:allowed_ip_ranges, "contains invalid IP range")
+        errors.add(:allowed_ip_ranges, "に無効なIP範囲が含まれています")
       end
     end
   end

@@ -73,7 +73,7 @@ class AttendanceFinalizer
       end
     end
 
-    Notification.insert_all(notifications) if notifications.any?
+    notifications.each { |attrs| Notification.create!(attrs) }
     @class_session.update!(locked_at: timestamp) unless @class_session.locked?
     true
   end

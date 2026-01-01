@@ -20,7 +20,16 @@ class Admin::UsersController < Admin::BaseController
   end
 
   def create
-    @user = User.new(user_params)
+    attrs = user_params
+    if attrs[:role].to_s == "student" && attrs[:password].blank?
+      default_password = attrs[:student_id].to_s.strip
+      if default_password.present?
+        attrs[:password] = default_password
+        attrs[:password_confirmation] = default_password
+      end
+    end
+
+    @user = User.new(attrs)
     if @user.save
       redirect_to admin_users_path, notice: "ユーザーを作成しました。"
     else

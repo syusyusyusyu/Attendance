@@ -53,16 +53,30 @@ export default class extends Controller {
       return
     }
 
+    const constraints = {
+      video: {
+        facingMode: { ideal: "environment" },
+        width: { ideal: 1280 },
+        height: { ideal: 720 }
+      },
+      audio: false
+    }
+
     navigator.mediaDevices
-      .getUserMedia({ video: { facingMode: "environment" }, audio: false })
+      .getUserMedia(constraints)
       .then((stream) => {
         this.stream = stream
+        this.videoTarget.setAttribute("playsinline", "")
+        this.videoTarget.setAttribute("autoplay", "")
+        this.videoTarget.muted = true
         this.videoTarget.srcObject = stream
-        this.videoTarget.play()
-        this.scanning = true
-        this.updateStatus("scanning")
-        this.prepareCanvas()
-        this.startLoop()
+        this.videoTarget.onloadedmetadata = () => {
+          this.videoTarget.play()
+          this.scanning = true
+          this.updateStatus("scanning")
+          this.prepareCanvas()
+          this.startLoop()
+        }
       })
       .catch(() => {
         this.showManual()
@@ -168,7 +182,7 @@ export default class extends Controller {
     this.canvasContext.drawImage(this.videoTarget, 0, 0, width, height)
     const imageData = this.canvasContext.getImageData(0, 0, width, height)
     const code = window.jsQR(imageData.data, width, height, {
-      inversionAttempts: "dontInvert"
+      inversionAttempts: "attemptBoth"
     })
 
     if (code && code.data) {

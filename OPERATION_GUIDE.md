@@ -40,3 +40,8 @@
 - `bin/rails demo:seed` でデモデータ作成
 - `bin/rails demo:reset` でデモデータ削除
 - 詳細は `DEMO.md` を参照
+
+## 10. 通知チャネル設定
+- メール: `SENDGRID_API_KEY` と `MAIL_FROM` を設定し、プロフィールの「メール通知」を有効化
+- LINE: Messaging APIのアクセストークンを設定し、ユーザーがLINEユーザーIDを登録
+- Push: `WEBPUSH_PUBLIC_KEY/PRIVATE_KEY/SUBJECT` を設定し、ユーザーがブラウザで購読登録

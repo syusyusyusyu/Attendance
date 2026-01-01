@@ -19,7 +19,7 @@ class QrSession < ApplicationRecord
     return if expires_at.blank? || issued_at.blank?
 
     if expires_at <= issued_at
-      errors.add(:expires_at, "must be after issued_at")
+      errors.add(:expires_at, "は発行時刻より後に設定してください")
     end
   end
 end

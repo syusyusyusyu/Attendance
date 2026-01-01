@@ -16,7 +16,7 @@ class ClassSessionOverride < ApplicationRecord
     return if start_time.blank? && end_time.blank?
 
     if start_time.blank? || end_time.blank?
-      errors.add(:base, "start_time and end_time must be set together")
+      errors.add(:base, "開始時刻と終了時刻はセットで入力してください")
     end
   end
 end

@@ -1,0 +1,7 @@
+<%= @notification.title %>
+
+<%= @notification.body.presence || "通知があります。" %>
+
+<% if @action_url.present? %>
+詳細: <%= @action_url %>
+<% end %>

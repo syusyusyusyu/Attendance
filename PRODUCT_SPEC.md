@@ -18,6 +18,9 @@
 
 ## 4. 主要画面
 - `/login`: ログイン
+- `/terms`: 利用規約
+- `/privacy`: プライバシーポリシー
+- `/data-policy`: データ保持ポリシー
 - `/`: ダッシュボード
 - `/generate-qr`: QR発行(教員)
 - `/scan`: QRスキャン(学生)
@@ -39,6 +42,7 @@
 - 申請承認: 欠席/遅刻/公欠の申請と承認/却下
 - 承認ワークフロー: 出席修正/確定/解除/CSV反映
 - 不正検知: 失敗多発/異常IP/端末制限違反を通知
+- 通知配信: メール/LINE/Pushをユーザー設定に応じて実配信
 - レポート: 週次/日次推移、要注意者、期末PDF/CSV
 - 連携: APIキー + スコープ認可
 - 端末管理: 公認端末の登録/承認
@@ -49,7 +53,7 @@
 - `users`, `school_classes`, `enrollments`, `class_sessions`
 - `attendance_records`, `attendance_requests`, `attendance_changes`
 - `attendance_policies`, `qr_sessions`, `qr_scan_events`
-- `notifications`, `operation_requests`, `audit_saved_searches`
+- `notifications`, `operation_requests`, `audit_saved_searches`, `push_subscriptions`
 - `roles`, `permissions`, `role_permissions`, `devices`, `api_keys`, `sso_providers`
 
 ## 7. 非機能要件
@@ -73,3 +77,11 @@
 - 定期確定: `bin/rails attendance:finalize`
 - デモ: `bin/rails demo:seed` / `bin/rails demo:reset`
 - 監査ログ: `/attendance-logs`, `/scan-logs`
+
+## 11. 完成版の機能一覧(業務用 + 作品展)
+- 学生: QRスキャン/手入力、履修/出席履歴、申請(欠席/遅刻/公欠)、通知、端末登録
+- 教員: QR発行/失効、授業回管理、出席確認/修正/確定、申請承認、CSV入出力、レポート
+- 管理者: ユーザー/ロール/権限、監査ログ、操作申請、端末/SSO/APIキー管理
+- 不正対策: QRローテーション、IP/端末制限、レート制限、異常検知アラート
+- 分析: 出席率推移、要注意者抽出、理由分布、期末PDF/CSV
+- 運用: 監視/バックアップ/復旧、手順書、性能/セキュリティ検証

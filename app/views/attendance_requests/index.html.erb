@@ -75,11 +75,11 @@
           </button>
         </div>
       <% end %>
-      <p class="text-xs text-gray-500 mt-2">表のチェックボックスで対象申請を選択してください。</p>
+      <p class="text-xs text-gray-500 mt-2">表のチェックボックスで対象申請を選択してください。ショートカット: Shift + A = 承認 / Shift + R = 却下</p>
     </div>
 
     <div class="card p-6">
-      <div class="table-container" data-controller="bulk-select">
+      <div class="table-container" data-controller="bulk-select" data-bulk-select-form-id-value="bulk-requests-form">
         <table class="min-w-full divide-y divide-gray-200 text-sm">
           <thead class="bg-gray-50">
             <tr>
@@ -117,7 +117,7 @@
                       <%= request.status_pending? ? "" : "disabled" %>
                     />
                   </td>
-                  <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500"><%= request.date.strftime("%Y-%m-%d") %></td>
+                  <td class="px-4 py-3 whitespace-normal text-sm text-gray-500"><%= request.date.strftime("%Y-%m-%d") %></td>
                   <td class="px-4 py-3 text-sm text-gray-700"><%= request.school_class.name %></td>
                   <td class="px-4 py-3 text-sm text-gray-700">
                     <%= render "shared/session_status_badges", session: request.class_session %>

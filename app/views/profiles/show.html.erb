@@ -86,10 +86,39 @@ end %>
         <%= f.check_box :line, { checked: @notification_preferences["line"] }, "1", "0" %>
         LINE通知を受け取る
       </label>
+      <div>
+        <%= f.label :line_user_id, "LINEユーザーID", class: "block text-sm font-medium text-gray-700 mb-2" %>
+        <%= f.text_field :line_user_id, value: @user.line_user_id, class: "input", placeholder: "Uxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" %>
+        <p class="text-xs text-gray-500 mt-1">LINEのメッセージ受信ユーザーIDを設定してください。</p>
+      </div>
       <label class="flex items-center gap-2 text-sm text-gray-700">
         <%= f.check_box :push, { checked: @notification_preferences["push"] }, "1", "0" %>
         Push通知を受け取る
       </label>
+      <% webpush_public_key = ENV["WEBPUSH_PUBLIC_KEY"].to_s %>
+      <div
+        class="border border-gray-200 rounded-lg p-3 space-y-2"
+        data-controller="push-subscription"
+        data-push-subscription-public-key-value="<%= webpush_public_key %>"
+      >
+        <p class="text-xs text-gray-500" data-push-subscription-target="status">
+          <% if webpush_public_key.blank? %>
+            Push通知の配信キーが未設定です。
+          <% elsif @push_subscriptions.any? %>
+            Push通知は有効化されています。
+          <% else %>
+            Push通知は未設定です。
+          <% end %>
+        </p>
+        <div class="flex flex-col sm:flex-row gap-2">
+          <button type="button" class="btn btn-primary" data-action="push-subscription#subscribe" data-push-subscription-target="subscribeButton">
+            Push通知を有効化
+          </button>
+          <button type="button" class="btn btn-secondary" data-action="push-subscription#unsubscribe" data-push-subscription-target="unsubscribeButton">
+            Push通知を解除
+          </button>
+        </div>
+      </div>
       <div>
         <%= f.submit "通知設定を更新", class: "btn btn-secondary" %>
       </div>

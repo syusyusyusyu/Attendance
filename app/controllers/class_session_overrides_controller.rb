@@ -49,6 +49,6 @@ class ClassSessionOverridesController < ApplicationController
       }
     end
 
-    Notification.insert_all(notifications) if notifications.any?
+    notifications.each { |attrs| Notification.create!(attrs) }
   end
 end
