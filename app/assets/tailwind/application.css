@@ -14,10 +14,22 @@
   html {
     font-family: "Roboto", "Noto Sans JP", sans-serif;
     -webkit-tap-highlight-color: transparent;
+    overflow-x: hidden;
+    width: 100%;
   }
 
   body {
     @apply bg-gray-50 text-gray-900 text-[15px] sm:text-base leading-relaxed overflow-x-hidden;
+    width: 100%;
+  }
+
+  img,
+  svg,
+  video,
+  canvas,
+  iframe {
+    max-width: 100%;
+    height: auto;
   }
 
   h1,
@@ -82,6 +94,7 @@
 
   .table-container {
     @apply w-full overflow-x-auto;
+    max-width: 100%;
   }
 
   .responsive-image {
