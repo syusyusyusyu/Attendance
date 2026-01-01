@@ -93,7 +93,9 @@
         </div>
         <div class="md:col-span-4 flex flex-col sm:flex-row gap-2">
           <%= f.submit "絞り込む", class: "btn btn-primary w-full sm:w-auto" %>
-          <%= link_to "CSV出力", scan_logs_path(format: :csv, class_id: @selected_class&.id, date: @date, status: @status, attendance_status: @attendance_status), class: "btn btn-secondary w-full sm:w-auto" %>
+          <%= link_to "CSV出力",
+            scan_logs_path(format: :csv, class_id: @selected_class&.id, date: @date, status: @status, attendance_status: @attendance_status),
+            class: "btn btn-secondary w-full sm:w-auto" %>
         </div>
       <% end %>
 
@@ -107,7 +109,7 @@
         <div class="rounded-lg border border-gray-200 bg-white p-3">
           <div class="text-[11px] text-gray-500">結果内訳</div>
           <div class="text-xs text-gray-700">
-            成功 <%= status_counts["success"].to_i %> / 退室 <%= status_counts["checkout"].to_i %> / 失敗 <%= status_counts["error"].to_i %>
+            成功 <%= status_counts["success"].to_i %> / 退室 <%= status_counts["checkout"].to_i %> / エラー <%= status_counts["error"].to_i %>
           </div>
         </div>
         <div class="rounded-lg border border-gray-200 bg-white p-3">

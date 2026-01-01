@@ -63,8 +63,8 @@
         <%= hidden_field_tag :class_id, @selected_class&.id %>
         <%= hidden_field_tag :filter_status, @status %>
         <div class="lg:col-span-2">
-          <label class="block text-sm font-medium text-gray-700 mb-2">コメント(任意)</label>
-          <%= text_area_tag :decision_reason, nil, rows: 2, class: "input", placeholder: "一括処理時のコメントを入力" %>
+          <label class="block text-sm font-medium text-gray-700 mb-2">コメント任意</label>
+          <%= text_area_tag :decision_reason, nil, rows: 2, class: "input", placeholder: "一括処理のコメントを入力" %>
         </div>
         <div class="flex flex-col sm:flex-row gap-2">
           <button type="submit" name="status" value="approved" class="btn btn-primary w-full sm:w-auto">
@@ -144,7 +144,7 @@
                             却下
                           </button>
                         </div>
-                        <%= f.text_area :decision_reason, rows: 2, class: "input", placeholder: "コメント(任意)" %>
+                        <%= f.text_area :decision_reason, rows: 2, class: "input", placeholder: "コメント任意" %>
                       <% end %>
                     <% else %>
                       <div class="text-xs text-gray-500">

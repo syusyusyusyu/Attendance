@@ -1,5 +1,6 @@
 class EnrollmentsController < ApplicationController
   before_action -> { require_role!(%w[teacher admin]) }
+  before_action -> { require_permission!("enrollments.manage") }
 
   def create
     school_class = current_user.manageable_classes.find(params[:school_class_id])

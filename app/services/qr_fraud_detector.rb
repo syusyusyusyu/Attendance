@@ -35,7 +35,7 @@ class QrFraudDetector
     notify_once!(
       key,
       title: "不正スキャンの疑い: #{reason}",
-      body: "#{@school_class.name} で#{reason}に該当するスキャンが検知されました。(IP: #{@event.ip})",
+      body: "#{@school_class.name} で#{reason}に該当するスキャンが発生しました。(IP: #{@event.ip})",
       action_path: Rails.application.routes.url_helpers.scan_logs_path(status: @event.status, class_id: @school_class.id)
     )
   end
@@ -45,14 +45,14 @@ class QrFraudDetector
 
     key = "qr_fraud:failures:#{@event.school_class_id}:#{minute_key}"
     count = Rails.cache.increment(key, 1, expires_in: 2.minutes)
-    threshold = 4
+    threshold = [@policy&.fraud_failure_threshold.to_i, 4].max
 
     return if count < threshold
 
     notify_once!(
       "qr_fraud:failures_alerted:#{@event.school_class_id}:#{minute_key}",
-      title: "不正スキャンの疑い: 同時刻の失敗多発",
-      body: "#{@school_class.name} で失敗スキャンが短時間に多発しています。",
+      title: "不正スキャンの疑い: 連続失敗の検知",
+      body: "#{@school_class.name} で失敗スキャンが短時間に集中しています。",
       action_path: Rails.application.routes.url_helpers.scan_logs_path(class_id: @school_class.id)
     )
   end
@@ -67,7 +67,8 @@ class QrFraudDetector
                .distinct
                .pluck(:user_id)
 
-    return if user_ids.size < 2
+    threshold = [@policy&.fraud_token_share_threshold.to_i, 2].max
+    return if user_ids.size < threshold
 
     notify_once!(
       "qr_fraud:token_share:#{@event.token_digest}",
@@ -82,14 +83,14 @@ class QrFraudDetector
 
     window = 1.minute.ago..Time.current
     count = QrScanEvent.where(ip: @event.ip, scanned_at: window).count
-    threshold = [@policy&.max_scans_per_minute.to_i, 8].max
+    threshold = [@policy&.fraud_ip_burst_threshold.to_i, 8].max
 
     return if count < threshold
 
     notify_once!(
       "qr_fraud:ip_burst:#{@event.ip}:#{minute_key}",
       title: "不正スキャンの疑い: 同一IPの集中アクセス",
-      body: "#{@school_class.name} で同一IPから短時間に多数のスキャンが発生しました。(IP: #{@event.ip})",
+      body: "#{@school_class.name} で同一IPから短時間にスキャンが集中しました。(IP: #{@event.ip})",
       action_path: Rails.application.routes.url_helpers.scan_logs_path(class_id: @school_class.id)
     )
   end

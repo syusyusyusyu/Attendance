@@ -23,6 +23,11 @@ class User < ApplicationRecord
            class_name: "AttendanceRequest",
            foreign_key: :processed_by_id,
            dependent: :nullify
+  has_many :operation_requests, dependent: :destroy
+  has_many :audit_saved_searches, dependent: :destroy
+  has_many :api_keys, dependent: :destroy
+  has_many :devices, dependent: :destroy
+  has_many :sso_identities, dependent: :destroy
   has_many :qr_sessions,
            foreign_key: :teacher_id,
            dependent: :destroy
@@ -44,10 +49,38 @@ class User < ApplicationRecord
   end
 
   before_validation :normalize_email
+  before_validation :ensure_settings_defaults
+
+  def role_record
+    Role.find_by(name: role)
+  end
+
+  def permissions
+    role_record ? role_record.permissions.pluck(:key) : []
+  end
+
+  def has_permission?(permission_key)
+    return true if admin?
+
+    permissions.include?(permission_key.to_s)
+  end
+
+  def notification_preferences
+    defaults = { "email" => true, "push" => false, "line" => false }
+    settings.fetch("notifications", {}).reverse_merge(defaults)
+  end
 
   private
 
   def normalize_email
     self.email = email.to_s.downcase.strip
+  end
+
+  def ensure_settings_defaults
+    self.settings ||= {}
+    settings["notifications"] ||= {}
+    settings["notifications"]["email"] = true if settings["notifications"]["email"].nil?
+    settings["notifications"]["push"] = false if settings["notifications"]["push"].nil?
+    settings["notifications"]["line"] = false if settings["notifications"]["line"].nil?
   end
 end

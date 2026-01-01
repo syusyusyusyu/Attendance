@@ -2,6 +2,7 @@ require "digest"
 
 class QrScansController < ApplicationController
   before_action -> { require_role!("student") }
+  before_action -> { require_permission!("qr.scan") }
 
   def new
   end
@@ -11,12 +12,13 @@ class QrScansController < ApplicationController
 
     if token.blank?
       log_scan_event(status: "invalid", token: token)
-      redirect_to scan_path, alert: "QRコードが読み取れませんでした。明るい場所で再度スキャンするか、手入力をご利用ください。" and return
+      redirect_to scan_path,
+                  alert: "QRコードが読み取れませんでした。明るい場所で再度スキャンするか、手入力をご利用ください。" and return
     end
 
-    if rate_limited?(token, limit: AttendancePolicy::DEFAULTS[:max_scans_per_minute])
+    if rate_limited_for_user?(limit: AttendancePolicy::DEFAULTS[:student_max_scans_per_minute])
       log_scan_event(status: "rate_limited", token: token)
-      redirect_to scan_path, alert: "短時間に連続スキャンされています。30秒ほど待って再試行してください。" and return
+      redirect_to scan_path, alert: "短時間に連続スキャンされています。1分ほど待って再試行してください。" and return
     end
 
     result = AttendanceToken.verify(token)
@@ -44,7 +46,7 @@ class QrScansController < ApplicationController
 
     if result[:attendance_date] != qr_session.attendance_date
       log_scan_event(status: "wrong_date", token: token, qr_session: qr_session)
-      redirect_to scan_path, alert: "このQRは本日分の授業ではありません。" and return
+      redirect_to scan_path, alert: "このQRは本日の授業ではありません。" and return
     end
 
     school_class = current_user.enrolled_classes.find_by(id: qr_session.school_class_id)
@@ -56,9 +58,14 @@ class QrScansController < ApplicationController
     scan_time = Time.current
     policy = school_class.attendance_policy || school_class.create_attendance_policy(AttendancePolicy.default_attributes)
 
-    if rate_limited?(token, limit: policy.max_scans_per_minute)
+    if rate_limited_for_class?(school_class.id, limit: policy.max_scans_per_minute)
       log_scan_event(status: "rate_limited", token: token, qr_session: qr_session)
-      redirect_to scan_path, alert: "短時間に連続スキャンされています。30秒ほど待って再試行してください。" and return
+      redirect_to scan_path, alert: "この授業のスキャンが集中しています。1分ほど待って再試行してください。" and return
+    end
+
+    if rate_limited_for_user?(limit: policy.student_max_scans_per_minute)
+      log_scan_event(status: "rate_limited", token: token, qr_session: qr_session)
+      redirect_to scan_path, alert: "短時間に連続スキャンされています。1分ほど待って再試行してください。" and return
     end
 
     if policy.allowed_ip_ranges_list.any? && !policy.ip_allowed?(request.remote_ip)
@@ -69,6 +76,16 @@ class QrScansController < ApplicationController
     if policy.allowed_user_agent_keywords_list.any? && !policy.user_agent_allowed?(request.user_agent)
       log_scan_event(status: "device_blocked", token: token, qr_session: qr_session)
       redirect_to scan_path, alert: "許可されていない端末からのアクセスです。別の端末で再試行してください。" and return
+    end
+
+    device = current_device
+    if policy.require_registered_device && (device.blank? || !device.approved?)
+      log_scan_event(status: "device_blocked", token: token, qr_session: qr_session)
+      redirect_to scan_path, alert: "公認端末のみ出席登録できます。端末登録を申請してください。" and return
+    end
+
+    if device.present?
+      device.update(last_seen_at: Time.current, ip: request.remote_ip, user_agent: request.user_agent)
     end
 
     window = school_class.schedule_window(qr_session.attendance_date)
@@ -216,16 +233,6 @@ class QrScansController < ApplicationController
           )
         end
 
-        if record.status_late?
-          Notification.create!(
-            user: current_user,
-            kind: "warning",
-            title: "遅刻として記録されました",
-            body: "#{school_class.name} (#{qr_session.attendance_date.strftime('%Y-%m-%d')}) が遅刻として登録されました。",
-            action_path: history_path(date: qr_session.attendance_date)
-          )
-        end
-
         redirect_to scan_path, notice: "出席を記録しました。"
       else
         log_scan_event(status: "error", token: token, qr_session: qr_session)
@@ -255,10 +262,18 @@ class QrScansController < ApplicationController
     QrFraudDetector.new(event: event).call if event.persisted?
   end
 
-  def rate_limited?(token, limit:)
-    return false if token.blank?
+  def rate_limited_for_user?(limit:)
+    return false if limit.to_i <= 0
 
-    key = "qr_scan:#{current_user.id}:#{Time.current.strftime('%Y%m%d%H%M')}"
+    key = "qr_scan:user:#{current_user.id}:#{Time.current.strftime('%Y%m%d%H%M')}"
+    count = Rails.cache.increment(key, 1, expires_in: 60)
+    count.present? && count > limit
+  end
+
+  def rate_limited_for_class?(class_id, limit:)
+    return false if class_id.blank? || limit.to_i <= 0
+
+    key = "qr_scan:class:#{class_id}:#{Time.current.strftime('%Y%m%d%H%M')}"
     count = Rails.cache.increment(key, 1, expires_in: 60)
     count.present? && count > limit
   end

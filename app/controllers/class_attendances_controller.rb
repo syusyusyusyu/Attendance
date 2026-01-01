@@ -2,6 +2,11 @@ require "csv"
 
 class ClassAttendancesController < ApplicationController
   before_action -> { require_role!(%w[teacher admin]) }
+  before_action -> { require_permission!("attendance.manage") }, only: [:show, :update, :export]
+  before_action -> { require_permission!("attendance.import") }, only: [:import]
+  before_action -> { require_permission!("attendance.policy.manage") }, only: [:update_policy]
+  before_action -> { require_permission!("attendance.finalize") }, only: [:finalize]
+  before_action -> { require_permission!("attendance.unlock") }, only: [:unlock]
 
   def show
     @classes = current_user.manageable_classes.order(:name)
@@ -46,7 +51,8 @@ class ClassAttendancesController < ApplicationController
     class_session = window&.dig(:class_session)
 
     if class_session&.locked? && !current_user.admin?
-      redirect_to attendance_path(class_id: selected_class.id, date: date), alert: "出席が確定済みのため修正できません。" and return
+      redirect_to attendance_path(class_id: selected_class.id, date: date),
+                  alert: "出席が確定済みのため修正できません。" and return
     end
 
     changes = []
@@ -63,7 +69,22 @@ class ClassAttendancesController < ApplicationController
     end
 
     if changes.any? && reason.blank?
-      redirect_to attendance_path(class_id: selected_class.id, date: date), alert: "修正理由を入力してください。" and return
+      redirect_to attendance_path(class_id: selected_class.id, date: date),
+                  alert: "修正理由を入力してください。" and return
+    end
+
+    if changes.any? && !current_user.admin?
+      create_operation_request!(
+        kind: "attendance_correction",
+        school_class: selected_class,
+        reason: reason,
+        payload: {
+          "date" => date.to_s,
+          "changes" => changes.map { |user_id, _previous, status| { "user_id" => user_id, "status" => status } }
+        }
+      )
+      redirect_to attendance_path(class_id: selected_class.id, date: date), notice: "修正内容を承認申請しました。"
+      return
     end
 
     (params[:attendance] || {}).each do |user_id, status|
@@ -146,7 +167,7 @@ class ClassAttendancesController < ApplicationController
         "出席状況",
         "入室時刻",
         "退室時刻",
-        "滞在分",
+        "滞在(分)",
         "方法",
         "QRセッションID",
         "IP",
@@ -197,7 +218,23 @@ class ClassAttendancesController < ApplicationController
     file = params[:csv_file]
 
     if file.blank?
-      redirect_to attendance_path(class_id: selected_class.id, date: date), alert: "CSVファイルを選択してください。" and return
+      redirect_to attendance_path(class_id: selected_class.id, date: date),
+                  alert: "CSVファイルを選択してください。" and return
+    end
+
+    unless current_user.admin?
+      create_operation_request!(
+        kind: "attendance_csv_import",
+        school_class: selected_class,
+        reason: "CSVインポート申請",
+        payload: {
+          "date" => date.to_s,
+          "filename" => file.original_filename,
+          "csv_text" => file.read
+        }
+      )
+      redirect_to attendance_path(class_id: selected_class.id, date: date), notice: "CSVインポートを承認申請しました。"
+      return
     end
 
     result = AttendanceCsvImporter.new(
@@ -253,8 +290,23 @@ class ClassAttendancesController < ApplicationController
     if class_session.start_at.present?
       close_at = class_session.start_at + policy.close_after_minutes.minutes
       if Time.current < close_at
-        redirect_to attendance_path(class_id: selected_class.id, date: date), alert: "授業締切前のため確定できません。" and return
+        redirect_to attendance_path(class_id: selected_class.id, date: date),
+                    alert: "授業締切のため確定できません。" and return
       end
+    end
+
+    unless current_user.admin?
+      create_operation_request!(
+        kind: "attendance_finalize",
+        school_class: selected_class,
+        reason: "出席確定申請",
+        payload: {
+          "date" => date.to_s,
+          "class_session_id" => class_session.id
+        }
+      )
+      redirect_to attendance_path(class_id: selected_class.id, date: date), notice: "出席確定を承認申請しました。"
+      return
     end
 
     AttendanceFinalizer.new(class_session: class_session, policy: policy).finalize!(
@@ -276,7 +328,17 @@ class ClassAttendancesController < ApplicationController
     end
 
     unless current_user.admin?
-      redirect_to attendance_path(class_id: selected_class.id, date: date), alert: "確定解除は管理者のみ実行できます。" and return
+      create_operation_request!(
+        kind: "attendance_unlock",
+        school_class: selected_class,
+        reason: "確定解除申請",
+        payload: {
+          "date" => date.to_s,
+          "class_session_id" => class_session.id
+        }
+      )
+      redirect_to attendance_path(class_id: selected_class.id, date: date), notice: "確定解除を承認申請しました。"
+      return
     end
 
     unless class_session.locked?
@@ -305,13 +367,46 @@ class ClassAttendancesController < ApplicationController
       :allowed_ip_ranges,
       :allowed_user_agent_keywords,
       :max_scans_per_minute,
+      :student_max_scans_per_minute,
       :minimum_attendance_rate,
       :warning_absent_count,
-      :warning_rate_percent
+      :warning_rate_percent,
+      :require_registered_device,
+      :fraud_failure_threshold,
+      :fraud_ip_burst_threshold,
+      :fraud_token_share_threshold
     )
     permitted.merge(
       late_after_minutes: AttendancePolicy::DEFAULTS[:late_after_minutes],
       close_after_minutes: AttendancePolicy::DEFAULTS[:close_after_minutes]
     )
+  end
+
+  def create_operation_request!(kind:, school_class:, reason:, payload:)
+    kind_labels = {
+      "attendance_correction" => "出席修正",
+      "attendance_finalize" => "出席確定",
+      "attendance_unlock" => "確定解除",
+      "attendance_csv_import" => "CSV反映"
+    }
+
+    OperationRequest.create!(
+      user: current_user,
+      school_class: school_class,
+      kind: kind,
+      reason: reason,
+      payload: payload,
+      status: "pending"
+    )
+
+    User.where(role: "admin").find_each do |admin|
+      Notification.create!(
+        user: admin,
+        kind: "warning",
+        title: "操作申請が届きました",
+        body: "#{current_user.name} から#{kind_labels[kind] || kind}の申請があります。",
+        action_path: admin_operation_requests_path(status: "pending")
+      )
+    end
   end
 end

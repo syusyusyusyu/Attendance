@@ -74,4 +74,56 @@ end %>
       <% end %>
     </div>
   </div>
+
+  <div class="card p-6">
+    <h2 class="text-lg font-medium text-gray-900 mb-4">通知設定</h2>
+    <%= form_with url: profile_path, method: :patch, scope: :notifications, class: "space-y-4" do |f| %>
+      <label class="flex items-center gap-2 text-sm text-gray-700">
+        <%= f.check_box :email, { checked: @notification_preferences["email"] }, "1", "0" %>
+        メール通知を受け取る
+      </label>
+      <label class="flex items-center gap-2 text-sm text-gray-700">
+        <%= f.check_box :line, { checked: @notification_preferences["line"] }, "1", "0" %>
+        LINE通知を受け取る
+      </label>
+      <label class="flex items-center gap-2 text-sm text-gray-700">
+        <%= f.check_box :push, { checked: @notification_preferences["push"] }, "1", "0" %>
+        Push通知を受け取る
+      </label>
+      <div>
+        <%= f.submit "通知設定を更新", class: "btn btn-secondary" %>
+      </div>
+    <% end %>
+    <p class="text-xs text-gray-500 mt-2">配信チャネルの設定は管理者の承認や連携状況により有効化されます。</p>
+  </div>
+
+  <div class="card p-6">
+    <h2 class="text-lg font-medium text-gray-900 mb-4">端末登録</h2>
+    <p class="text-sm text-gray-500 mb-4">QRスキャンを利用する端末の登録・承認申請を行います。</p>
+    <div class="space-y-4">
+      <% @devices.each do |device| %>
+        <div class="border border-gray-200 rounded-lg p-4">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+              <div class="text-sm font-medium text-gray-900"><%= device.name.presence || "未登録端末" %></div>
+              <div class="text-xs text-gray-500">最終利用: <%= device.last_seen_at&.strftime("%Y-%m-%d %H:%M") || "-" %></div>
+              <div class="text-xs text-gray-500">状態: <%= device.approved? ? "承認済み" : "未承認" %></div>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-2">
+              <%= form_with model: device, url: device_path(device), method: :patch, class: "flex gap-2" do |f| %>
+                <%= f.text_field :name, class: "input", placeholder: "端末名を入力" %>
+                <%= f.submit "更新", class: "btn btn-secondary" %>
+              <% end %>
+              <% unless device.approved? %>
+                <%= button_to "承認申請", request_approval_device_path(device), method: :post, class: "btn btn-primary" %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+      <% if @devices.empty? %>
+        <div class="text-sm text-gray-500">端末が登録されていません。</div>
+      <% end %>
+    </div>
+  </div>
 </div>

@@ -2,6 +2,7 @@
 
 class ReportsController < ApplicationController
   before_action -> { require_role!(%w[teacher admin]) }
+  before_action -> { require_permission!("reports.view") }
 
   def index
     @classes = current_user.manageable_classes.includes(:students, :attendance_policy).order(:name)
@@ -92,6 +93,8 @@ class ReportsController < ApplicationController
   private
 
   def export_term_report
+    require_permission!("reports.export")
+
     unless @selected_class
       redirect_to reports_path, alert: "クラスを選択してください。" and return
     end

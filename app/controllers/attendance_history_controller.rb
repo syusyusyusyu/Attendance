@@ -2,6 +2,8 @@
 
 class AttendanceHistoryController < ApplicationController
   before_action -> { require_role!("student") }
+  before_action -> { require_permission!("history.view") }
+  before_action -> { require_permission!("history.export") }, only: [:export]
 
   def show
     @date = params[:date].present? ? Date.parse(params[:date]) : Date.current

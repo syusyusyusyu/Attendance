@@ -24,7 +24,7 @@ class RosterCsvImporter
       password = password.to_s.strip
 
       if student_id.blank? || name.blank? || email.blank?
-        result[:errors] << "行#{line_no}: 学生ID/氏名/メールが必要です。"
+        result[:errors] << "行#{line_no}: 学生ID/氏名/メールが必須です。"
         next
       end
 
@@ -66,9 +66,7 @@ class RosterCsvImporter
       end
 
       existing = Enrollment.find_by(school_class: @school_class, student: user)
-      if existing
-        next
-      end
+      next if existing
 
       Enrollment.create!(school_class: @school_class, student: user)
       result[:enrolled] += 1

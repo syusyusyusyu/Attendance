@@ -1,4 +1,4 @@
-﻿
+
 <% prev_date = @date - 1.day %>
 <% next_date = @date + 1.day %>
 
@@ -63,6 +63,10 @@
               <%= f.number_field :max_scans_per_minute, value: @policy.max_scans_per_minute, min: 1, class: "input" %>
             </div>
             <div>
+              <%= f.label :student_max_scans_per_minute, "学生単位の分間上限", class: "block text-sm font-medium text-gray-700 mb-2" %>
+              <%= f.number_field :student_max_scans_per_minute, value: @policy.student_max_scans_per_minute, min: 1, class: "input" %>
+            </div>
+            <div>
               <%= f.label :minimum_attendance_rate, "最低出席率(%)", class: "block text-sm font-medium text-gray-700 mb-2" %>
               <%= f.number_field :minimum_attendance_rate, value: @policy.minimum_attendance_rate, min: 0, max: 100, class: "input" %>
             </div>
@@ -78,6 +82,10 @@
               <%= f.check_box :allow_early_checkin, { checked: @policy.allow_early_checkin }, true, false %>
               <%= f.label :allow_early_checkin, "開始前の出席登録を許可", class: "text-sm text-gray-700" %>
             </div>
+            <div class="flex items-center space-x-2">
+              <%= f.check_box :require_registered_device, { checked: @policy.require_registered_device }, true, false %>
+              <%= f.label :require_registered_device, "公認端末のみ出席登録を許可", class: "text-sm text-gray-700" %>
+            </div>
             <div class="md:col-span-3">
               <%= f.label :allowed_ip_ranges, "許可IP(任意)", class: "block text-sm font-medium text-gray-700 mb-2" %>
               <%= f.text_area :allowed_ip_ranges, value: @policy.allowed_ip_ranges, rows: 2, class: "input", placeholder: "例: 192.168.0.0/24, 10.0.0.0/8" %>
@@ -85,6 +93,18 @@
             <div class="md:col-span-3">
               <%= f.label :allowed_user_agent_keywords, "許可端末キーワード(任意)", class: "block text-sm font-medium text-gray-700 mb-2" %>
               <%= f.text_area :allowed_user_agent_keywords, value: @policy.allowed_user_agent_keywords, rows: 2, class: "input", placeholder: "例: iPhone, Android, Chrome" %>
+            </div>
+            <div>
+              <%= f.label :fraud_failure_threshold, "連続失敗しきい値", class: "block text-sm font-medium text-gray-700 mb-2" %>
+              <%= f.number_field :fraud_failure_threshold, value: @policy.fraud_failure_threshold, min: 1, class: "input" %>
+            </div>
+            <div>
+              <%= f.label :fraud_ip_burst_threshold, "IP集中しきい値", class: "block text-sm font-medium text-gray-700 mb-2" %>
+              <%= f.number_field :fraud_ip_burst_threshold, value: @policy.fraud_ip_burst_threshold, min: 1, class: "input" %>
+            </div>
+            <div>
+              <%= f.label :fraud_token_share_threshold, "トークン共有しきい値", class: "block text-sm font-medium text-gray-700 mb-2" %>
+              <%= f.number_field :fraud_token_share_threshold, value: @policy.fraud_token_share_threshold, min: 1, class: "input" %>
             </div>
             <div class="md:col-span-3">
               <%= f.submit "ポリシー更新", class: "btn btn-secondary w-full" %>
@@ -97,7 +117,7 @@
             IP/端末制限を設定すると条件に一致しないQRスキャンはブロックされます。
           </p>
           <p class="text-xs text-gray-500">
-            最低出席率は入室〜退室の滞在時間に基づき早退判定に利用されます。
+            最低出席率は入室/退室の滞在時間に基づき早退判定に利用されます。
           </p>
           <p class="text-xs text-gray-500">
             警告欠席回数・警告出席率はダッシュボードの注意アラートに反映されます。
@@ -137,27 +157,29 @@
             </div>
             <% if @class_session.locked? %>
               <div class="mt-2 text-sm text-green-700">出席は確定済みです。</div>
-              <% if current_user.admin? %>
-                <div class="mt-3">
-                  <%= button_to "確定を解除",
-                    attendance_unlock_path(class_id: @selected_class.id, date: @date),
-                    method: :patch,
-                    data: { turbo_confirm: "出席確定を解除します。よろしいですか？" },
-                    class: "btn btn-secondary w-full" %>
-                </div>
-              <% else %>
-                <div class="mt-2 text-xs text-gray-500">確定解除は管理者のみ実行できます。</div>
+              <div class="mt-3">
+                <%= button_to(current_user.admin? ? "確定を解除" : "確定解除を申請",
+                  attendance_unlock_path(class_id: @selected_class.id, date: @date),
+                  method: :patch,
+                  data: { turbo_confirm: "出席確定を解除します。よろしいですか？" },
+                  class: "btn btn-secondary w-full") %>
+              </div>
+              <% unless current_user.admin? %>
+                <div class="mt-2 text-xs text-gray-500">教員は承認申請となります。</div>
               <% end %>
             <% else %>
               <div class="mt-2 text-sm text-gray-600">出席は未確定です。</div>
               <% if @finalize_available %>
                 <div class="mt-3">
-                  <%= button_to "出席を確定",
+                  <%= button_to(current_user.admin? ? "出席を確定" : "出席確定を申請",
                     attendance_finalize_path(class_id: @selected_class.id, date: @date),
                     method: :patch,
                     data: { turbo_confirm: "出席を確定します。よろしいですか？" },
-                    class: "btn btn-primary w-full" %>
+                    class: "btn btn-primary w-full") %>
                 </div>
+                <% unless current_user.admin? %>
+                  <div class="mt-2 text-xs text-gray-500">教員は承認申請となります。</div>
+                <% end %>
               <% else %>
                 <div class="mt-2 text-xs text-gray-500">授業終了後に確定できます。</div>
               <% end %>
@@ -196,14 +218,17 @@
               <%= f.file_field :csv_file, accept: ".csv", class: "input" %>
             </div>
             <div>
-            <%= f.submit "CSVインポート",
+            <%= f.submit(current_user.admin? ? "CSVインポート" : "CSVインポート申請",
               class: "btn btn-secondary w-full",
-              data: { turbo_confirm: "CSVを反映します。よろしいですか？" } %>
+              data: { turbo_confirm: "CSVを反映します。よろしいですか？" }) %>
             </div>
           <% end %>
           <p class="text-xs text-gray-500 mt-2">
             必須列: 日付 / 学生ID / 出席状況(出席・遅刻・欠席・公欠)。備考は任意です。
           </p>
+          <% unless current_user.admin? %>
+            <p class="text-xs text-gray-500">教員は承認申請として登録されます。</p>
+          <% end %>
         </div>
       <% end %>
 

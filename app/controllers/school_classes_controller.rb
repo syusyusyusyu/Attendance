@@ -1,5 +1,7 @@
 class SchoolClassesController < ApplicationController
   before_action -> { require_role!(%w[teacher admin]) }
+  before_action -> { require_permission!("classes.manage") }
+  before_action -> { require_permission!("enrollments.manage") }, only: [:roster_import]
   before_action :set_school_class, only: [:show, :edit, :update, :destroy, :roster_import]
 
   def index

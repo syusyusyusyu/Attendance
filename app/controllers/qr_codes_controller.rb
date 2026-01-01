@@ -1,5 +1,6 @@
 class QrCodesController < ApplicationController
   before_action -> { require_role!(%w[teacher admin]) }
+  before_action -> { require_permission!("qr.generate") }
 
   def show
     @classes = current_user.manageable_classes.order(:name)

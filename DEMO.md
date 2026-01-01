@@ -1,20 +1,22 @@
-# ãƒ‡ãƒ¢ã‚·ãƒŠãƒªã‚ª
+# ƒfƒ‚ƒVƒiƒŠƒI
 
-## äº‹å‰æº–å‚™
+## Ž–‘O€”õ
 1. `bin/rails db:setup`
 2. `bin/rails demo:seed`
 
-## ãƒ‡ãƒ¢ç”¨ã‚¢ã‚«ã‚¦ãƒ³ãƒˆ
-- æ•™å“¡: `demo_teacher@example.com` / `password`
-- å­¦ç”Ÿ: `demo_student1@example.com` / `password`
+## ƒfƒ‚—pƒAƒJƒEƒ“ƒg
+- ŠÇ—ŽÒ: `admin@example.com` / `password`
+- ‹³ˆõ: `demo_teacher@example.com` / `password`
+- Šw¶: `demo_student1@example.com` / `password`
 
-## ãƒ‡ãƒ¢æ‰‹é †ï¼ˆ5åˆ†æƒ³å®šï¼‰
-1. æ•™å“¡ã§ãƒ­ã‚°ã‚¤ãƒ³ â†’ ã€ŒQRã‚³ãƒ¼ãƒ‰ç”Ÿæˆã€ã‹ã‚‰æŽˆæ¥­ã‚’é¸æŠžã—ã¦QRã‚’è¡¨ç¤ºã€‚
-2. å­¦ç”Ÿã§ãƒ­ã‚°ã‚¤ãƒ³ â†’ ã€ŒQRã‚³ãƒ¼ãƒ‰ã‚¹ã‚­ãƒ£ãƒ³ã€ã‹ã‚‰å…¥å®¤ç™»éŒ²ã€‚
-3. åŒã˜å­¦ç”Ÿã§å†åº¦ã‚¹ã‚­ãƒ£ãƒ³ â†’ é€€å®¤ç™»éŒ²ï¼ˆæ—©é€€åˆ¤å®šã®è¡¨ç¤ºã‚’ç¢ºèªï¼‰ã€‚
-4. å­¦ç”ŸãŒã€Œå‡ºå¸­ç”³è«‹ã€ã‚’é€ä¿¡ â†’ æ•™å“¡ãŒæ‰¿èª/å´ä¸‹ã€‚
-5. æ•™å“¡ãŒã€Œå‡ºå¸­ç¢ºèªã€ã§å‡ºå¸­ã‚’ç¢ºå®š â†’ è‡ªå‹•æ¬ å¸­ç¢ºå®šã¨é€šçŸ¥ã‚’ç¢ºèªã€‚
-6. ã€Œãƒ¬ãƒãƒ¼ãƒˆã€ã‹ã‚‰é€±æ¬¡/æ—¥æ¬¡æŽ¨ç§»ã¨æœŸæœ«ãƒ¬ãƒãƒ¼ãƒˆ(PDF/CSV)ã‚’ç¢ºèªã€‚
+## ƒfƒ‚Žè‡(–ñ5•ª)
+1. ‹³ˆõ‚ÅƒƒOƒCƒ“ ¨ uQRƒR[ƒh¶¬v‚©‚çŽö‹Æ‚ð‘I‘ð‚µQR‚ð•\Ž¦
+2. Šw¶‚ÅƒƒOƒCƒ“ ¨ uQRƒR[ƒhƒXƒLƒƒƒ“v‚Å“üŽº“o˜^
+3. “¯‚¶Šw¶‚ÅÄ“xƒXƒLƒƒƒ“ ¨ ‘ÞŽº“o˜^(‘ØÝŽžŠÔ/‘‘Þ”»’è‚ðŠm”F)
+4. Šw¶‚ªuoÈ\¿v‚ð‘—M ¨ ‹³ˆõ‚ª³”F/‹p‰º
+5. ‹³ˆõ‚ªuoÈŠm”Fv‚ÅoÈ‚ðŠm’è ¨ Ž©“®Œ‡ÈŠm’è‚Æ’Ê’m‚ðŠm”F
+6. uƒŒƒ|[ƒgv‚ÅTŽŸ/“úŽŸ„ˆÚ‚ÆŠú––ƒŒƒ|[ƒg(PDF/CSV)‚ðŠm”F
+7. ŠÇ—ŽÒ‚ÅƒƒOƒCƒ“ ¨ ‘€ì\¿/’[––³”F‚ðŠm”F
 
-## ãƒªã‚»ãƒƒãƒˆ
-- `bin/rails demo:reset` ã§ãƒ‡ãƒ¢ãƒ‡ãƒ¼ã‚¿ã‚’å‰Šé™¤ã§ãã¾ã™ã€‚
+## ƒŠƒZƒbƒg
+- `bin/rails demo:reset` ‚Åƒfƒ‚ƒf[ƒ^‚ðíœ‚Å‚«‚Ü‚·B

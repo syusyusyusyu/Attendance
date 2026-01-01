@@ -1,5 +1,8 @@
 class AttendanceRequestsController < ApplicationController
   before_action :load_request, only: [:update]
+  before_action -> { require_permission!("attendance.request.view") }, only: [:index]
+  before_action -> { require_permission!("attendance.request.create") }, only: [:create]
+  before_action -> { require_permission!("attendance.request.approve") }, only: [:update, :bulk_update]
 
   def index
     if current_user.staff?
@@ -29,7 +32,7 @@ class AttendanceRequestsController < ApplicationController
     date = Date.parse(request_params[:date])
 
     if AttendanceRequest.where(user: current_user, school_class: school_class, date: date, status: "pending").exists?
-      redirect_to attendance_requests_path, alert: "この日付の申請がすでに送信されています。" and return
+      redirect_to attendance_requests_path, alert: "同じ日付の申請がすでに送信されています。" and return
     end
 
     window = school_class.schedule_window(date)
@@ -88,9 +91,7 @@ class AttendanceRequestsController < ApplicationController
       decision_reason: update_params[:decision_reason]
     )
 
-    if @request.status_approved?
-      apply_request_to_attendance!(@request)
-    end
+    apply_request_to_attendance!(@request) if @request.status_approved?
 
     Notification.create!(
       user: @request.user,
@@ -136,7 +137,7 @@ class AttendanceRequestsController < ApplicationController
     end
 
     redirect_to attendance_requests_path(class_id: params[:class_id], status: params[:filter_status]),
-                notice: "申請を一括更新しました。(#{processed}件)"
+                notice: "申請を一括更新しました(#{processed}件)"
   end
 
   private

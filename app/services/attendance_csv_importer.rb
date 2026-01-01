@@ -19,9 +19,9 @@ class AttendanceCsvImporter
       student_id = row["学生ID"] || row["student_id"] || row["StudentID"]
       status_value = row["出席状況"] || row["status"] || row["Status"]
       notes = row["備考"] || row["notes"] || row["Notes"]
-      check_in_value = row["入室時刻"] || row["check_in"] || row["checked_in_at"]
-      check_out_value = row["退室時刻"] || row["check_out"] || row["checked_out_at"]
-      duration_value = row["滞在分"] || row["duration_minutes"] || row["duration"]
+      check_in_value = row["入室時刻"] || row["入室"] || row["check_in"] || row["checked_in_at"]
+      check_out_value = row["退室時刻"] || row["退室"] || row["check_out"] || row["checked_out_at"]
+      duration_value = row["滞在(分)"] || row["滞在時間(分)"] || row["duration_minutes"] || row["duration"]
 
       student_id = student_id.to_s.strip
 
@@ -117,7 +117,7 @@ class AttendanceCsvImporter
     text = value.to_s.strip
     return nil if text.blank?
 
-    normalized = {
+    {
       "出席" => "present",
       "遅刻" => "late",
       "欠席" => "absent",
@@ -130,8 +130,6 @@ class AttendanceCsvImporter
       "excused" => "excused",
       "early_leave" => "early_leave"
     }[text]
-
-    normalized
   end
 
   def session_for(date)

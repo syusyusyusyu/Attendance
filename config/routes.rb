@@ -25,6 +25,15 @@ Rails.application.routes.draw do
   patch "/notifications/mark-all", to: "notifications#mark_all"
   get "/admin", to: "admin_dashboard#index"
 
+  namespace :admin do
+    resources :users, only: [:index, :new, :create, :edit, :update]
+    resources :roles, only: [:index, :update]
+    resources :operation_requests, only: [:index, :update]
+    resources :devices, only: [:index, :update]
+    resources :api_keys, only: [:index, :create, :update]
+    resources :sso_providers, only: [:index, :create, :edit, :update]
+  end
+
   get "/history", to: "attendance_history#show"
   get "/history/export", to: "attendance_history#export", as: :attendance_history_export
   get "/attendance", to: "class_attendances#show"
@@ -40,10 +49,22 @@ Rails.application.routes.draw do
   end
 
   resource :profile, only: [:show, :update]
+  resources :devices, only: [:update] do
+    post :request_approval, on: :member
+  end
 
   resources :school_classes do
     post :roster_import, on: :member
     resources :enrollments, only: [:create, :destroy]
     resources :class_session_overrides, only: [:create, :destroy]
+  end
+
+  namespace :api do
+    namespace :v1 do
+      resources :classes, only: [:index, :show] do
+        get :attendance_records, on: :member
+        get :students, on: :member
+      end
+    end
   end
 end

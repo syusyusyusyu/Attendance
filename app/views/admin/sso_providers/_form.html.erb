@@ -1,0 +1,42 @@
+<%= form_with model: [:admin, provider], class: "space-y-4" do |f| %>
+  <div>
+    <%= f.label :name, "名称", class: "block text-sm font-medium text-gray-700 mb-2" %>
+    <%= f.text_field :name, class: "input" %>
+  </div>
+  <div>
+    <%= f.label :strategy, "方式", class: "block text-sm font-medium text-gray-700 mb-2" %>
+    <%= f.select :strategy, options_for_select([["OIDC", "oidc"], ["SAML", "saml"]], provider.strategy), {}, class: "input" %>
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <%= f.label :client_id, "Client ID", class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= f.text_field :client_id, class: "input" %>
+    </div>
+    <div>
+      <%= f.label :client_secret, "Client Secret", class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= f.text_field :client_secret, class: "input" %>
+    </div>
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <%= f.label :authorize_url, "認可URL", class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= f.text_field :authorize_url, class: "input" %>
+    </div>
+    <div>
+      <%= f.label :token_url, "トークンURL", class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= f.text_field :token_url, class: "input" %>
+    </div>
+  </div>
+  <div>
+    <%= f.label :issuer, "Issuer", class: "block text-sm font-medium text-gray-700 mb-2" %>
+    <%= f.text_field :issuer, class: "input" %>
+  </div>
+  <div class="flex items-center gap-2">
+    <%= f.check_box :enabled, {}, true, false %>
+    <%= f.label :enabled, "有効化", class: "text-sm text-gray-700" %>
+  </div>
+  <div class="flex gap-2">
+    <%= f.submit class: "btn btn-primary" %>
+    <%= link_to "戻る", admin_sso_providers_path, class: "btn btn-secondary" %>
+  </div>
+<% end %>
