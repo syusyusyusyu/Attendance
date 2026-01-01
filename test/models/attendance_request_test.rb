@@ -38,10 +38,11 @@ class AttendanceRequestTest < ActiveSupport::TestCase
       request_type: "absent",
       submitted_at: nil
     )
+    message = I18n.t("errors.messages.blank")
 
     assert_not request.valid?
-    assert_includes request.errors[:reason], "can't be blank"
-    assert_includes request.errors[:submitted_at], "can't be blank"
+    assert_includes request.errors[:reason], message
+    assert_includes request.errors[:submitted_at], message
   end
 
   test "accepts pending status by default" do

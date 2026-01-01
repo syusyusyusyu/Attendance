@@ -27,11 +27,11 @@ class AttendanceTokenTest < ActiveSupport::TestCase
   test "generate and verify token with session" do
     teacher = create_teacher
     school_class = create_class(teacher)
-    issued_at = Time.zone.parse("2025-01-01 09:00")
+    issued_at = Time.current.change(sec: 0)
     qr_session = QrSession.create!(
       school_class: school_class,
       teacher: teacher,
-      attendance_date: Date.new(2025, 1, 1),
+      attendance_date: Date.current,
       issued_at: issued_at,
       expires_at: issued_at + 5.minutes
     )
@@ -43,7 +43,7 @@ class AttendanceTokenTest < ActiveSupport::TestCase
     assert_equal school_class.id, result[:class_id]
     assert_equal teacher.id, result[:teacher_id]
     assert_equal qr_session.id, result[:session_id]
-    assert_equal Date.new(2025, 1, 1), result[:attendance_date]
+    assert_equal Date.current, result[:attendance_date]
   end
 
   test "expired token returns error status" do

@@ -1,4 +1,4 @@
-﻿# This file is auto-generated from the current state of the database. Instead
+# This file is auto-generated from the current state of the database. Instead
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
 #
@@ -10,9 +10,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_31_090300) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_01_007000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "api_keys", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "name", null: false
+    t.string "token_digest", null: false
+    t.jsonb "scopes", default: [], null: false
+    t.datetime "last_used_at"
+    t.datetime "revoked_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["revoked_at"], name: "index_api_keys_on_revoked_at"
+    t.index ["token_digest"], name: "index_api_keys_on_token_digest", unique: true
+    t.index ["user_id"], name: "index_api_keys_on_user_id"
+  end
 
   create_table "attendance_changes", force: :cascade do |t|
     t.bigint "attendance_record_id"
@@ -49,6 +63,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_31_090300) do
     t.integer "minimum_attendance_rate", default: 80, null: false
     t.integer "warning_absent_count", default: 3, null: false
     t.integer "warning_rate_percent", default: 70, null: false
+    t.integer "student_max_scans_per_minute", default: 6, null: false
+    t.boolean "require_registered_device", default: false, null: false
+    t.integer "fraud_failure_threshold", default: 4, null: false
+    t.integer "fraud_ip_burst_threshold", default: 8, null: false
+    t.integer "fraud_token_share_threshold", default: 2, null: false
     t.index ["school_class_id"], name: "index_attendance_policies_on_school_class_id", unique: true
   end
 
@@ -99,6 +118,20 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_31_090300) do
     t.index ["user_id"], name: "index_attendance_requests_on_user_id"
   end
 
+  create_table "audit_saved_searches", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "name", null: false
+    t.string "scope", default: "audit", null: false
+    t.text "query"
+    t.jsonb "filters", default: {}, null: false
+    t.boolean "is_default", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "scope", "is_default"], name: "index_audit_saved_searches_on_user_id_and_scope_and_is_default"
+    t.index ["user_id", "scope", "name"], name: "index_audit_saved_searches_on_user_id_and_scope_and_name", unique: true
+    t.index ["user_id"], name: "index_audit_saved_searches_on_user_id"
+  end
+
   create_table "class_session_overrides", force: :cascade do |t|
     t.bigint "school_class_id", null: false
     t.date "date", null: false
@@ -129,6 +162,21 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_31_090300) do
     t.index ["status"], name: "index_class_sessions_on_status"
   end
 
+  create_table "devices", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "device_id", null: false
+    t.string "name"
+    t.string "user_agent"
+    t.string "ip"
+    t.boolean "approved", default: false, null: false
+    t.datetime "last_seen_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["approved"], name: "index_devices_on_approved"
+    t.index ["user_id", "device_id"], name: "index_devices_on_user_id_and_device_id", unique: true
+    t.index ["user_id"], name: "index_devices_on_user_id"
+  end
+
   create_table "enrollments", force: :cascade do |t|
     t.bigint "school_class_id", null: false
     t.bigint "student_id", null: false
@@ -150,6 +198,35 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_31_090300) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id", "read_at"], name: "index_notifications_on_user_id_and_read_at"
+  end
+
+  create_table "operation_requests", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "school_class_id"
+    t.string "kind", null: false
+    t.string "status", default: "pending", null: false
+    t.jsonb "payload", default: {}, null: false
+    t.text "reason"
+    t.text "decision_reason"
+    t.bigint "processed_by_id"
+    t.datetime "processed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "index_operation_requests_on_created_at"
+    t.index ["kind"], name: "index_operation_requests_on_kind"
+    t.index ["processed_by_id"], name: "index_operation_requests_on_processed_by_id"
+    t.index ["school_class_id"], name: "index_operation_requests_on_school_class_id"
+    t.index ["status"], name: "index_operation_requests_on_status"
+    t.index ["user_id"], name: "index_operation_requests_on_user_id"
+  end
+
+  create_table "permissions", force: :cascade do |t|
+    t.string "key", null: false
+    t.string "label", null: false
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["key"], name: "index_permissions_on_key", unique: true
   end
 
   create_table "qr_scan_events", force: :cascade do |t|
@@ -187,6 +264,25 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_31_090300) do
     t.index ["teacher_id"], name: "index_qr_sessions_on_teacher_id"
   end
 
+  create_table "role_permissions", force: :cascade do |t|
+    t.bigint "role_id", null: false
+    t.bigint "permission_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["permission_id"], name: "index_role_permissions_on_permission_id"
+    t.index ["role_id", "permission_id"], name: "index_role_permissions_on_role_id_and_permission_id", unique: true
+    t.index ["role_id"], name: "index_role_permissions_on_role_id"
+  end
+
+  create_table "roles", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "label", null: false
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_roles_on_name", unique: true
+  end
+
   create_table "school_classes", force: :cascade do |t|
     t.string "name", null: false
     t.bigint "teacher_id", null: false
@@ -201,6 +297,32 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_31_090300) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["teacher_id"], name: "index_school_classes_on_teacher_id"
+  end
+
+  create_table "sso_identities", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "sso_provider_id", null: false
+    t.string "uid", null: false
+    t.string "email"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["sso_provider_id", "uid"], name: "index_sso_identities_on_sso_provider_id_and_uid", unique: true
+    t.index ["sso_provider_id"], name: "index_sso_identities_on_sso_provider_id"
+    t.index ["user_id"], name: "index_sso_identities_on_user_id"
+  end
+
+  create_table "sso_providers", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "strategy", null: false
+    t.string "client_id"
+    t.string "client_secret"
+    t.string "authorize_url"
+    t.string "token_url"
+    t.string "issuer"
+    t.boolean "enabled", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_sso_providers_on_name", unique: true
   end
 
   create_table "users", force: :cascade do |t|
@@ -218,6 +340,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_31_090300) do
     t.index ["student_id"], name: "index_users_on_student_id", unique: true
   end
 
+  add_foreign_key "api_keys", "users"
   add_foreign_key "attendance_changes", "attendance_records"
   add_foreign_key "attendance_changes", "school_classes"
   add_foreign_key "attendance_changes", "users"
@@ -231,15 +354,24 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_31_090300) do
   add_foreign_key "attendance_requests", "school_classes"
   add_foreign_key "attendance_requests", "users"
   add_foreign_key "attendance_requests", "users", column: "processed_by_id"
+  add_foreign_key "audit_saved_searches", "users"
   add_foreign_key "class_session_overrides", "school_classes"
   add_foreign_key "class_sessions", "school_classes"
+  add_foreign_key "devices", "users"
   add_foreign_key "enrollments", "school_classes"
   add_foreign_key "enrollments", "users", column: "student_id"
   add_foreign_key "notifications", "users"
+  add_foreign_key "operation_requests", "school_classes"
+  add_foreign_key "operation_requests", "users"
+  add_foreign_key "operation_requests", "users", column: "processed_by_id"
   add_foreign_key "qr_scan_events", "qr_sessions"
   add_foreign_key "qr_scan_events", "school_classes"
   add_foreign_key "qr_scan_events", "users"
   add_foreign_key "qr_sessions", "school_classes"
   add_foreign_key "qr_sessions", "users", column: "teacher_id"
+  add_foreign_key "role_permissions", "permissions"
+  add_foreign_key "role_permissions", "roles"
   add_foreign_key "school_classes", "users", column: "teacher_id"
+  add_foreign_key "sso_identities", "sso_providers"
+  add_foreign_key "sso_identities", "users"
 end

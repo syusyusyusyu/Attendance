@@ -28,8 +28,9 @@ class Api::BaseController < ActionController::API
   end
 
   def require_scope!(scope)
-    return if current_api_key&.scopes&.include?(scope)
+    return true if current_api_key&.scopes&.include?(scope)
 
     render json: { error: "権限がありません。" }, status: :forbidden
+    false
   end
 end

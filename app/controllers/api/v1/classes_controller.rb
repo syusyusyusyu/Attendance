@@ -1,20 +1,20 @@
 class Api::V1::ClassesController < Api::BaseController
   def index
-    require_scope!("classes:read")
+    return unless require_scope!("classes:read")
 
     classes = accessible_classes.order(:name)
     render json: classes.map { |klass| class_payload(klass) }
   end
 
   def show
-    require_scope!("classes:read")
+    return unless require_scope!("classes:read")
 
     klass = accessible_classes.find(params[:id])
     render json: class_payload(klass)
   end
 
   def attendance_records
-    require_scope!("attendance:read")
+    return unless require_scope!("attendance:read")
 
     klass = accessible_classes.find(params[:id])
     start_date = params[:start_date].present? ? Date.parse(params[:start_date]) : Date.current.beginning_of_month
@@ -47,7 +47,7 @@ class Api::V1::ClassesController < Api::BaseController
   end
 
   def students
-    require_scope!("students:read")
+    return unless require_scope!("students:read")
 
     klass = accessible_classes.find(params[:id])
     render json: klass.students.order(:name).map { |student| student_payload(student) }

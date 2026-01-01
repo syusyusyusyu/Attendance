@@ -1,21 +1,31 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  email: MyString
-  name: MyString
-  role: MyString
-  student_id: MyString
+  email: one@example.com
+  name: Test User One
+  role: teacher
+  student_id: S001
   profile_image: MyString
-  settings: 
+  settings:
+    theme: light
+    language: ja
+    notifications:
+      push: false
+      email: true
   password_digest: MyString
   last_login: 2025-12-29 16:01:45
 
 two:
-  email: MyString
-  name: MyString
-  role: MyString
-  student_id: MyString
+  email: two@example.com
+  name: Test User Two
+  role: teacher
+  student_id: S002
   profile_image: MyString
-  settings: 
+  settings:
+    theme: light
+    language: ja
+    notifications:
+      push: false
+      email: true
   password_digest: MyString
   last_login: 2025-12-29 16:01:45

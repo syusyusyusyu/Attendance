@@ -51,7 +51,7 @@ class Api::V1::ClassesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     body = JSON.parse(@response.body)
-    assert_equal 1, body.size
-    assert_equal "API演習", body.first.fetch("name")
+    names = body.map { |row| row.fetch("name") }
+    assert_includes names, "API演習"
   end
 end

@@ -31,3 +31,4 @@ dist-ssr
 /app/assets/builds/*
 !/app/assets/builds/.keep
 tmp/cache/
+tmp/pg/

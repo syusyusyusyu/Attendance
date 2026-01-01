@@ -22,7 +22,7 @@ class AttendanceFinalizerTest < ActiveSupport::TestCase
     AttendancePolicy.create!(
       school_class: @school_class,
       late_after_minutes: 10,
-      close_after_minutes: 0,
+      close_after_minutes: 20,
       allow_early_checkin: true,
       max_scans_per_minute: 10,
       minimum_attendance_rate: 80,

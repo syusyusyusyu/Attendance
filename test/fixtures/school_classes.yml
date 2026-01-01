@@ -9,7 +9,7 @@ one:
   year: 1
   capacity: 1
   description: MyText
-  schedule: 
+  schedule: {}
   is_active: false
 
 two:
@@ -21,5 +21,5 @@ two:
   year: 1
   capacity: 1
   description: MyText
-  schedule: 
+  schedule: {}
   is_active: false
