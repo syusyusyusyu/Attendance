@@ -10,7 +10,7 @@
       data-controller="qr"
       <% if @selected_class %>
         data-qr-expires-at-value="<%= @expires_at.to_i %>"
-        data-qr-filename-value="qrcode-<%= @selected_class.id %>.svg"
+        data-qr-filename-value="qrcode-<%= @selected_class.id %>.png"
         data-qr-refresh-url-value="<%= generate_qr_path(class_id: @selected_class.id, format: :json) %>"
         data-qr-refresh-interval-value="60"
       <% end %>

@@ -53,16 +53,16 @@ class QrCodesController < ApplicationController
     png = RQRCode::QRCode.new(token, level: :m).as_png(
       size: 320,
       border_modules: 4,
-      fill: "ffffff",
-      color: "000000"
+      fill: "#ffffff",
+      color: "#000000"
     )
     "data:image/png;base64,#{Base64.strict_encode64(png.to_s)}"
   rescue RQRCode::QRCodeRunTimeError
     png = RQRCode::QRCode.new(token).as_png(
       size: 280,
       border_modules: 4,
-      fill: "ffffff",
-      color: "000000"
+      fill: "#ffffff",
+      color: "#000000"
     )
     "data:image/png;base64,#{Base64.strict_encode64(png.to_s)}"
   end
