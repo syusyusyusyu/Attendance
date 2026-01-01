@@ -1,27 +1,22 @@
-require "csv"
-
-class AttendanceCsvImporter
+class AttendanceCsvImporter < BaseCsvImporter
   def initialize(teacher:, school_class:, csv_text:)
+    super(csv_text: csv_text)
     @teacher = teacher
     @school_class = school_class
-    @csv_text = csv_text
     @sessions_cache = {}
   end
 
   def import
     result = { created: 0, updated: 0, skipped: 0, errors: [] }
 
-    sanitized_csv = @csv_text.to_s.sub(/\A\uFEFF/, "")
-
-    CSV.parse(sanitized_csv, headers: true).each_with_index do |row, index|
-      line_no = index + 2
-      date_value = row["日付"] || row["date"] || row["Date"]
-      student_id = row["学生ID"] || row["student_id"] || row["StudentID"]
-      status_value = row["出席状況"] || row["status"] || row["Status"]
-      notes = row["備考"] || row["notes"] || row["Notes"]
-      check_in_value = row["入室時刻"] || row["入室"] || row["check_in"] || row["checked_in_at"]
-      check_out_value = row["退室時刻"] || row["退室"] || row["check_out"] || row["checked_out_at"]
-      duration_value = row["滞在(分)"] || row["滞在時間(分)"] || row["duration_minutes"] || row["duration"]
+    each_row do |row, line_no|
+      date_value = cell_value(row, "日付", "date", "Date")
+      student_id = cell_value(row, "学生ID", "student_id", "StudentID")
+      status_value = cell_value(row, "出席状況", "status", "Status")
+      notes = cell_value(row, "備考", "notes", "Notes")
+      check_in_value = cell_value(row, "入室時刻", "入室", "check_in", "checked_in_at")
+      check_out_value = cell_value(row, "退室時刻", "退室", "check_out", "checked_out_at")
+      duration_value = cell_value(row, "滞在(分)", "滞在時間(分)", "duration_minutes", "duration")
 
       student_id = student_id.to_s.strip
 
@@ -36,7 +31,7 @@ class AttendanceCsvImporter
         next
       end
 
-      status = normalize_status(status_value)
+      status = AttendanceRecord.normalize_status(status_value)
       if status == :skip
         result[:skipped] += 1
         next
@@ -111,25 +106,6 @@ class AttendanceCsvImporter
     Date.parse(value.to_s)
   rescue ArgumentError
     nil
-  end
-
-  def normalize_status(value)
-    text = value.to_s.strip
-    return nil if text.blank?
-
-    {
-      "出席" => "present",
-      "遅刻" => "late",
-      "欠席" => "absent",
-      "公欠" => "excused",
-      "早退" => "early_leave",
-      "未入力" => :skip,
-      "present" => "present",
-      "late" => "late",
-      "absent" => "absent",
-      "excused" => "excused",
-      "early_leave" => "early_leave"
-    }[text]
   end
 
   def session_for(date)

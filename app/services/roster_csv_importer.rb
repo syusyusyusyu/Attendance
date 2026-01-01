@@ -1,22 +1,18 @@
-require "csv"
-
-class RosterCsvImporter
+class RosterCsvImporter < BaseCsvImporter
   def initialize(teacher:, school_class:, csv_text:)
+    super(csv_text: csv_text)
     @teacher = teacher
     @school_class = school_class
-    @csv_text = csv_text
   end
 
   def import
     result = { created: 0, updated: 0, enrolled: 0, errors: [] }
-    sanitized_csv = @csv_text.to_s.sub(/\A\uFEFF/, "")
 
-    CSV.parse(sanitized_csv, headers: true).each_with_index do |row, index|
-      line_no = index + 2
-      student_id = row["学生ID"] || row["student_id"] || row["StudentID"]
-      name = row["氏名"] || row["name"] || row["Name"]
-      email = row["メール"] || row["email"] || row["Email"]
-      password = row["パスワード"] || row["password"] || row["Password"]
+    each_row do |row, line_no|
+      student_id = cell_value(row, "学生ID", "student_id", "StudentID")
+      name = cell_value(row, "氏名", "name", "Name")
+      email = cell_value(row, "メール", "email", "Email")
+      password = cell_value(row, "パスワード", "password", "Password")
 
       student_id = student_id.to_s.strip
       name = name.to_s.strip

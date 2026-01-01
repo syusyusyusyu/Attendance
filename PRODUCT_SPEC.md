@@ -43,6 +43,7 @@
 - 連携: APIキー + スコープ認可
 - 端末管理: 公認端末の登録/承認
 - SSO設定: OIDC/SAML設定値の保持
+- CSV処理: BOM除去や列名解決を共通化し、出席ステータスの正規化を統一
 
 ## 6. データモデル(代表)
 - `users`, `school_classes`, `enrollments`, `class_sessions`
