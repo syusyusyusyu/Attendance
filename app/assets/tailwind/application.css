@@ -114,6 +114,11 @@
     @apply w-full h-auto object-cover;
   }
 
+  .scan-frame {
+    aspect-ratio: 1 / 1;
+    width: 100%;
+  }
+
   .qr-code svg,
   .qr-code img {
     @apply w-full h-auto;
