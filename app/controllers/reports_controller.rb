@@ -148,6 +148,7 @@ class ReportsController < ApplicationController
     require "prawn"
 
     pdf = Prawn::Document.new(page_size: "A4", margin: [36, 36, 36, 36])
+    font_name = apply_japanese_font(pdf)
     pdf.text "期末出席レポート", size: 16, style: :bold
     pdf.move_down 4
     pdf.text "#{report[:school_class].name} / #{report[:start_date].strftime('%Y-%m-%d')} - #{report[:end_date].strftime('%Y-%m-%d')}"
@@ -233,7 +234,7 @@ class ReportsController < ApplicationController
     end
 
     pdf.move_down 4
-    pdf.font("Courier") do
+    pdf.font(font_name) do
       pdf.font_size 8
       pdf.text format_row.call(headers)
       pdf.stroke_horizontal_rule
@@ -244,6 +245,26 @@ class ReportsController < ApplicationController
     end
 
     pdf.render
+  end
+
+  def apply_japanese_font(pdf)
+    font_path = Rails.root.join("app/assets/fonts/NotoSansJP-Regular.ttf")
+    bold_path = Rails.root.join("app/assets/fonts/NotoSansJP-Bold.ttf")
+    font_name = "NotoSansJP"
+
+    if File.exist?(font_path)
+      pdf.font_families.update(
+        font_name => {
+          normal: font_path.to_s,
+          bold: File.exist?(bold_path) ? bold_path.to_s : font_path.to_s
+        }
+      )
+      pdf.font(font_name)
+      font_name
+    else
+      pdf.font("Helvetica")
+      "Helvetica"
+    end
   end
 
   def build_class_detail(selected_class, records, start_date, end_date)
