@@ -3,9 +3,9 @@
 class RosterCsvImporterTest < ActiveSupport::TestCase
   def setup
     @teacher = User.create!(
-      email: "teacher-roster@example.com",
-      name: "Teacher",
-      role: "teacher",
+      email: "admin-roster@example.com",
+      name: "Admin",
+      role: "admin",
       password: "password",
       password_confirmation: "password"
     )

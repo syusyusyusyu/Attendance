@@ -4,7 +4,7 @@
 #
 teacher = User.find_or_initialize_by(email: "teacher@example.com")
 teacher.assign_attributes(
-  name: "鈴木先生",
+  name: "先生",
   role: "teacher",
   password: "password",
   password_confirmation: "password"
@@ -13,7 +13,7 @@ teacher.save!
 
 student = User.find_or_initialize_by(email: "student@example.com")
 student.assign_attributes(
-  name: "山田太郎",
+  name: "生徒",
   role: "student",
   student_id: "S12345",
   password: "password",

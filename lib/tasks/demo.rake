@@ -1,5 +1,5 @@
-namespace :demo do
-  desc "デモ用の授業回・出席・申請データを生成します"
+﻿namespace :demo do
+  desc "デモ用の授業回と出席・申請データを生成します"
   task seed: :environment do
     DemoSeeder.new.run
   end
@@ -33,9 +33,7 @@ class DemoSeeder
 
   def reset
     demo_classes = SchoolClass.where("name LIKE ?", "#{DEMO_PREFIX}%")
-    demo_classes.find_each do |klass|
-      klass.destroy!
-    end
+    demo_classes.find_each(&:destroy!)
     User.where(email: DEMO_TEACHER_EMAIL).destroy_all
     User.where("email LIKE ?", "demo_student%@example.com").destroy_all
   end
@@ -68,21 +66,21 @@ class DemoSeeder
     [
       {
         name: "#{DEMO_PREFIX}Webアプリ開発",
-        room: "A201",
+        room: "2C教室",
         subject: "Web",
         semester: "前期",
         year: 2024,
         capacity: 40,
-        schedule: { day_of_week: 1, start_time: "09:00", end_time: "10:30", frequency: "weekly" }
+        schedule: { day_of_week: 1, start_time: "09:10", end_time: "10:40", frequency: "weekly" }
       },
       {
         name: "#{DEMO_PREFIX}ネットワーク演習",
-        room: "B301",
+        room: "3A教室",
         subject: "NW",
         semester: "前期",
         year: 2024,
         capacity: 40,
-        schedule: { day_of_week: 3, start_time: "13:00", end_time: "14:30", frequency: "weekly" }
+        schedule: { day_of_week: 3, start_time: "13:10", end_time: "14:40", frequency: "weekly" }
       }
     ].map do |attrs|
       SchoolClass.find_or_create_by!(name: attrs[:name], teacher: teacher) do |klass|
@@ -121,19 +119,15 @@ class DemoSeeder
         record.status = status
         record.verification_method = status == "absent" ? "system" : "qrcode"
         record.class_session = session
-        record.timestamp = session.start_at || Time.zone.parse("#{date} 09:00")
+        record.timestamp = session.start_at || Time.zone.parse("#{date} 09:10")
 
         if status != "absent"
           check_in = session.start_at + @rng.rand(0..15).minutes
-          if status == "late"
-            check_in = session.start_at + 20.minutes
-          end
+          check_in = session.start_at + 20.minutes if status == "late"
           record.checked_in_at = check_in
         end
 
-        if status == "early_leave"
-          record.checked_out_at = session.start_at + 50.minutes
-        end
+        record.checked_out_at = session.start_at + 50.minutes if status == "early_leave"
 
         record.save!
 

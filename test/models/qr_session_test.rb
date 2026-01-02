@@ -32,6 +32,6 @@ class QrSessionTest < ActiveSupport::TestCase
     )
 
     assert_not qr_session.valid?
-    assert_includes qr_session.errors[:expires_at], "must be after issued_at"
+    assert_includes qr_session.errors[:expires_at], "は発行時刻より後に設定してください"
   end
 end

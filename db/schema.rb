@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_01_007000) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_01_008000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -229,6 +229,19 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_007000) do
     t.index ["key"], name: "index_permissions_on_key", unique: true
   end
 
+  create_table "push_subscriptions", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "endpoint", null: false
+    t.string "p256dh", null: false
+    t.string "auth", null: false
+    t.string "user_agent"
+    t.datetime "last_used_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["endpoint"], name: "index_push_subscriptions_on_endpoint", unique: true
+    t.index ["user_id"], name: "index_push_subscriptions_on_user_id"
+  end
+
   create_table "qr_scan_events", force: :cascade do |t|
     t.bigint "qr_session_id"
     t.bigint "user_id"
@@ -364,6 +377,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_007000) do
   add_foreign_key "operation_requests", "school_classes"
   add_foreign_key "operation_requests", "users"
   add_foreign_key "operation_requests", "users", column: "processed_by_id"
+  add_foreign_key "push_subscriptions", "users"
   add_foreign_key "qr_scan_events", "qr_sessions"
   add_foreign_key "qr_scan_events", "school_classes"
   add_foreign_key "qr_scan_events", "users"

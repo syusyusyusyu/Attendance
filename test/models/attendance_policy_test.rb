@@ -87,7 +87,7 @@ class AttendancePolicyTest < ActiveSupport::TestCase
     )
 
     assert_not policy.valid?
-    assert_includes policy.errors[:close_after_minutes], "must be greater than or equal to late_after_minutes"
+    assert_includes policy.errors[:close_after_minutes], "は遅刻判定時間以上に設定してください"
   end
 
   test "invalid ip range is rejected" do
