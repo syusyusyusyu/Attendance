@@ -202,7 +202,14 @@ details summary {
 
 @media (max-width: 640px) {
   .table-container table {
-    @apply w-full;
+    min-width: 720px;
+  }
+
+  .table-container th,
+  .table-container td {
+    white-space: nowrap;
+    word-break: keep-all;
+    line-break: normal;
   }
 }
 
