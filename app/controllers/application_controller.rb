@@ -34,6 +34,7 @@
   def require_login
     return if current_user
 
+    store_return_to
     redirect_to login_path, alert: "ログインが必要です。"
   end
 
@@ -48,6 +49,14 @@
     return if current_user&.has_permission?(permission_key)
 
     redirect_to root_path, alert: "アクセス権限がありません。"
+  end
+
+  def store_return_to
+    return unless request.get?
+    return unless request.format.html?
+    return if request.path == login_path
+
+    session[:return_to] = request.fullpath
   end
 
   def set_unread_notifications_count

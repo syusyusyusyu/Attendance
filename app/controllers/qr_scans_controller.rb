@@ -1,4 +1,5 @@
 require "digest"
+require "uri"
 
 class QrScansController < ApplicationController
   before_action -> { require_role!("student") }
@@ -8,7 +9,7 @@ class QrScansController < ApplicationController
   end
 
   def create
-    token = params[:token].to_s.strip
+    token = normalize_token(params[:token])
 
     if token.blank?
       log_scan_event(status: "invalid", token: token)
@@ -276,5 +277,22 @@ class QrScansController < ApplicationController
     key = "qr_scan:class:#{class_id}:#{Time.current.strftime('%Y%m%d%H%M')}"
     count = Rails.cache.increment(key, 1, expires_in: 60)
     count.present? && count > limit
+  end
+
+  def normalize_token(raw)
+    text = raw.to_s.strip
+    return "" if text.blank?
+
+    text = text.gsub(/\s+/, "")
+    return text unless text.match?(/\Ahttps?:/i)
+
+    begin
+      uri = URI.parse(text)
+      query = uri.query.to_s
+      token_param = Rack::Utils.parse_nested_query(query)["token"]
+      token_param.presence || text
+    rescue URI::InvalidURIError
+      text
+    end
   end
 end

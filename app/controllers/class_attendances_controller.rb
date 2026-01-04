@@ -10,8 +10,34 @@ class ClassAttendancesController < ApplicationController
 
   def show
     @classes = current_user.manageable_classes.order(:name)
-    @selected_class = @classes.find_by(id: params[:class_id])
-    @date = params[:date].present? ? Date.parse(params[:date]) : Date.current
+    selected_class_id =
+      if params.key?(:class_id)
+        params[:class_id].presence
+      else
+        session[:attendance_class_id]
+      end
+    selected_class_id = @classes.first.id if selected_class_id.blank? && @classes.one?
+    @selected_class = @classes.find_by(id: selected_class_id)
+
+    if params.key?(:class_id)
+      if @selected_class
+        session[:attendance_class_id] = @selected_class.id
+      else
+        session.delete(:attendance_class_id)
+      end
+    elsif @selected_class
+      session[:attendance_class_id] ||= @selected_class.id
+    elsif selected_class_id.present?
+      session.delete(:attendance_class_id)
+    end
+
+    @date =
+      if params[:date].present?
+        Date.parse(params[:date])
+      else
+        safe_date_from(session[:attendance_date]) || Date.current
+      end
+    session[:attendance_date] = @date.to_s
 
     return unless @selected_class
 
@@ -357,6 +383,14 @@ class ClassAttendancesController < ApplicationController
     return nil if value.blank?
 
     Date.parse(value)
+  end
+
+  def safe_date_from(value)
+    return nil if value.blank?
+
+    Date.parse(value)
+  rescue ArgumentError
+    nil
   end
 
   def policy_params

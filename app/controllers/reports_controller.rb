@@ -6,10 +6,44 @@ class ReportsController < ApplicationController
 
   def index
     @classes = current_user.manageable_classes.includes(:students, :attendance_policy).order(:name)
-    @selected_class = params[:class_id].present? ? @classes.find { |klass| klass.id == params[:class_id].to_i } : nil
-    @start_date = params[:start_date].present? ? Date.parse(params[:start_date]) : 30.days.ago.to_date
-    @end_date = params[:end_date].present? ? Date.parse(params[:end_date]) : Date.current
-    @end_date = @start_date if @end_date < @start_date
+    selected_class_id =
+      if params.key?(:class_id)
+        params[:class_id].presence
+      else
+        session[:reports_class_id]
+      end
+    selected_class_id = @classes.first.id if selected_class_id.blank? && @classes.one?
+    @selected_class = selected_class_id.present? ? @classes.find { |klass| klass.id == selected_class_id.to_i } : nil
+
+    if params.key?(:class_id)
+      if @selected_class
+        session[:reports_class_id] = @selected_class.id
+      else
+        session.delete(:reports_class_id)
+      end
+    elsif @selected_class
+      session[:reports_class_id] ||= @selected_class.id
+    elsif selected_class_id.present?
+      session.delete(:reports_class_id)
+    end
+
+    @start_date =
+      if params[:start_date].present?
+        Date.parse(params[:start_date])
+      else
+        safe_date_from(session[:reports_start_date]) || 30.days.ago.to_date
+      end
+    @end_date =
+      if params[:end_date].present?
+        Date.parse(params[:end_date])
+      else
+        safe_date_from(session[:reports_end_date]) || Date.current
+      end
+    session[:reports_start_date] = @start_date.to_s
+    session[:reports_end_date] = @end_date.to_s
+    if @end_date < @start_date
+      @start_date, @end_date = @end_date, @start_date
+    end
 
     if request.format.csv? || request.format.pdf?
       export_term_report and return
@@ -265,6 +299,14 @@ class ReportsController < ApplicationController
       pdf.font("Helvetica")
       "Helvetica"
     end
+  end
+
+  def safe_date_from(value)
+    return nil if value.blank?
+
+    Date.parse(value)
+  rescue ArgumentError
+    nil
   end
 
   def build_class_detail(selected_class, records, start_date, end_date)

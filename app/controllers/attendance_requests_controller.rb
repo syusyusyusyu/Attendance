@@ -7,8 +7,33 @@ class AttendanceRequestsController < ApplicationController
   def index
     if current_user.staff?
       @classes = current_user.manageable_classes.order(:name)
-      @selected_class = @classes.find_by(id: params[:class_id])
-      @status = params[:status].presence
+      selected_class_id =
+        if params.key?(:class_id)
+          params[:class_id].presence
+        else
+          session[:attendance_requests_class_id]
+        end
+      selected_class_id = @classes.first.id if selected_class_id.blank? && @classes.one?
+      @selected_class = @classes.find_by(id: selected_class_id)
+
+      if params.key?(:class_id)
+        if @selected_class
+          session[:attendance_requests_class_id] = @selected_class.id
+        else
+          session.delete(:attendance_requests_class_id)
+        end
+      elsif @selected_class
+        session[:attendance_requests_class_id] ||= @selected_class.id
+      elsif selected_class_id.present?
+        session.delete(:attendance_requests_class_id)
+      end
+
+      if params.key?(:status)
+        @status = params[:status].presence
+        session[:attendance_requests_status] = @status
+      else
+        @status = session[:attendance_requests_status]
+      end
 
       scope = AttendanceRequest.includes(:user, :school_class, :class_session).order(submitted_at: :desc)
       scope = scope.where(school_class: @selected_class) if @selected_class
@@ -19,8 +44,18 @@ class AttendanceRequestsController < ApplicationController
       @request_counts = count_scope.group(:status).count
     else
       @classes = current_user.enrolled_classes.order(:name)
+      default_class_id = params[:class_id].presence || session[:attendance_request_class_id]
+      if default_class_id.present? && @classes.none? { |klass| klass.id == default_class_id.to_i }
+        default_class_id = nil
+        session.delete(:attendance_request_class_id)
+      end
+      default_class_id = @classes.first.id if default_class_id.blank? && @classes.one?
+      session[:attendance_request_class_id] = default_class_id if default_class_id.present?
       @requests = current_user.attendance_requests.includes(:school_class, :class_session).order(submitted_at: :desc).limit(200)
-      @request = AttendanceRequest.new
+      @request = AttendanceRequest.new(
+        school_class_id: default_class_id,
+        request_type: session[:attendance_request_type]
+      )
     end
   end
 
@@ -28,6 +63,21 @@ class AttendanceRequestsController < ApplicationController
     require_role!("student")
 
     request_params = params.require(:attendance_request).permit(:school_class_id, :date, :request_type, :reason)
+    session[:attendance_request_class_id] = request_params[:school_class_id] if request_params[:school_class_id].present?
+    session[:attendance_request_type] = request_params[:request_type] if request_params[:request_type].present?
+    if request_params[:school_class_id].blank?
+      redirect_to attendance_requests_path, alert: "クラスを選択してください。" and return
+    end
+    if request_params[:date].blank?
+      redirect_to attendance_requests_path, alert: "日付を選択してください。" and return
+    end
+    if request_params[:request_type].blank?
+      redirect_to attendance_requests_path, alert: "申請種別を選択してください。" and return
+    end
+    if request_params[:reason].blank?
+      redirect_to attendance_requests_path, alert: "理由を入力してください。" and return
+    end
+
     school_class = current_user.enrolled_classes.find(request_params[:school_class_id])
     date = Date.parse(request_params[:date])
 
@@ -56,6 +106,8 @@ class AttendanceRequestsController < ApplicationController
         action_path: attendance_requests_path(class_id: school_class.id, status: "pending")
       )
 
+      session[:attendance_request_class_id] = school_class.id
+      session[:attendance_request_type] = request.request_type
       redirect_to attendance_requests_path, notice: "出席申請を送信しました。"
     else
       redirect_to attendance_requests_path, alert: request.errors.full_messages.join("、")
@@ -70,18 +122,18 @@ class AttendanceRequestsController < ApplicationController
     require_role!(%w[teacher admin])
 
     unless current_user.manageable_classes.exists?(id: @request.school_class_id)
-      redirect_to attendance_requests_path, alert: "権限がありません。" and return
+      redirect_back fallback_location: attendance_requests_path, alert: "権限がありません。" and return
     end
 
     update_params = params.require(:attendance_request).permit(:status, :decision_reason)
     status = update_params[:status].to_s
 
     unless %w[approved rejected].include?(status)
-      redirect_to attendance_requests_path, alert: "ステータスが不正です。" and return
+      redirect_back fallback_location: attendance_requests_path, alert: "ステータスが不正です。" and return
     end
 
     if @request.status != "pending"
-      redirect_to attendance_requests_path, alert: "この申請は処理済みです。" and return
+      redirect_back fallback_location: attendance_requests_path, alert: "この申請は処理済みです。" and return
     end
 
     @request.update!(
@@ -101,7 +153,7 @@ class AttendanceRequestsController < ApplicationController
       action_path: attendance_requests_path
     )
 
-    redirect_to attendance_requests_path, notice: "申請を更新しました。"
+    redirect_back fallback_location: attendance_requests_path, notice: "申請を更新しました。"
   end
 
   def bulk_update

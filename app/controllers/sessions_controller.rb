@@ -13,7 +13,8 @@
       session[:user_id] = user.id
       user.update!(last_login: Time.current)
       session[:show_onboarding] = true if first_login
-      redirect_to root_path, notice: "ログインしました。"
+      redirect_path = session.delete(:return_to).presence || root_path
+      redirect_to redirect_path, notice: "ログインしました。"
     else
       flash.now[:alert] = "メールアドレスまたはパスワードが間違っています。"
       render :new, status: :unprocessable_entity
