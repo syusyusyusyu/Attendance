@@ -65,6 +65,10 @@
     @apply px-4 py-2 rounded-md font-medium transition-all duration-200 flex items-center justify-center gap-2 min-h-[44px];
   }
 
+  .btn.is-loading {
+    @apply opacity-70 cursor-not-allowed;
+  }
+
   .btn-primary {
     @apply bg-[var(--google-green)] hover:bg-[#2d964a] text-white;
   }
