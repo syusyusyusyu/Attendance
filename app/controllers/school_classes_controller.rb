@@ -2,6 +2,7 @@ class SchoolClassesController < ApplicationController
   before_action -> { require_role!(%w[teacher admin]) }
   before_action -> { require_permission!("classes.manage") }
   before_action -> { require_permission!("enrollments.manage") }, only: [:roster_import]
+  before_action -> { require_role!("admin") }, only: [:destroy]
   before_action :set_school_class, only: [:show, :edit, :update, :destroy, :roster_import]
 
   def index
@@ -55,8 +56,8 @@ class SchoolClassesController < ApplicationController
   end
 
   def destroy
-    @school_class.update!(is_active: false)
-    redirect_to school_classes_path, notice: "クラスを無効化しました。"
+    @school_class.destroy!
+    redirect_to school_classes_path, notice: "クラスを削除しました。"
   end
 
   def roster_import

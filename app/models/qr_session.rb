@@ -1,6 +1,7 @@
 class QrSession < ApplicationRecord
   belongs_to :school_class
   belongs_to :teacher, class_name: "User"
+  has_many :qr_scan_events, dependent: :nullify
 
   validates :attendance_date, :issued_at, :expires_at, presence: true
   validate :expires_after_issued

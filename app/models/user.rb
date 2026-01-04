@@ -18,12 +18,20 @@ class User < ApplicationRecord
            class_name: "AttendanceRecord",
            foreign_key: :modified_by_id,
            dependent: :nullify
+  has_many :attendance_change_records,
+           class_name: "AttendanceChange",
+           foreign_key: :user_id,
+           dependent: :nullify
   has_many :attendance_requests, dependent: :destroy
   has_many :processed_attendance_requests,
            class_name: "AttendanceRequest",
            foreign_key: :processed_by_id,
            dependent: :nullify
   has_many :operation_requests, dependent: :destroy
+  has_many :processed_operation_requests,
+           class_name: "OperationRequest",
+           foreign_key: :processed_by_id,
+           dependent: :nullify
   has_many :audit_saved_searches, dependent: :destroy
   has_many :api_keys, dependent: :destroy
   has_many :devices, dependent: :destroy
@@ -31,6 +39,7 @@ class User < ApplicationRecord
   has_many :qr_sessions,
            foreign_key: :teacher_id,
            dependent: :destroy
+  has_many :qr_scan_events, dependent: :nullify
   has_many :attendance_changes,
            foreign_key: :modified_by_id,
            dependent: :nullify

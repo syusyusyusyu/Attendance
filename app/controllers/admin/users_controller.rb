@@ -1,6 +1,6 @@
 class Admin::UsersController < Admin::BaseController
   before_action -> { require_permission!("admin.users.manage") }
-  before_action :load_user, only: [:edit, :update]
+  before_action :load_user, only: [:edit, :update, :destroy]
 
   def index
     @query = params[:q].to_s.strip
@@ -52,6 +52,21 @@ class Admin::UsersController < Admin::BaseController
     else
       render :edit, status: :unprocessable_entity
     end
+  end
+
+  def destroy
+    if @user == current_user
+      redirect_to admin_users_path, alert: "自分のアカウントは削除できません。"
+      return
+    end
+
+    if @user.admin? && User.admin.count <= 1
+      redirect_to admin_users_path, alert: "最後の管理者は削除できません。"
+      return
+    end
+
+    @user.destroy!
+    redirect_to admin_users_path, notice: "ユーザーを削除しました。"
   end
 
   private

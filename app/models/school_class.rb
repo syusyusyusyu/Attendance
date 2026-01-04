@@ -43,11 +43,13 @@
   has_many :students, through: :enrollments, source: :student
   has_many :attendance_records, dependent: :destroy
   has_many :qr_sessions, dependent: :destroy
+  has_many :qr_scan_events, dependent: :nullify
   has_one :attendance_policy, dependent: :destroy
   has_many :class_sessions, dependent: :destroy
   has_many :class_session_overrides, dependent: :destroy
   has_many :attendance_changes, dependent: :nullify
   has_many :attendance_requests, dependent: :nullify
+  has_many :operation_requests, dependent: :nullify
 
   validates :name, :room, :subject, :semester, :year, :capacity, presence: true
   validates :semester, inclusion: { in: SEMESTER_OPTIONS }

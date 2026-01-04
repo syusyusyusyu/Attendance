@@ -29,7 +29,7 @@ Rails.application.routes.draw do
   get "/admin", to: "admin_dashboard#index"
 
   namespace :admin do
-    resources :users, only: [:index, :new, :create, :edit, :update]
+    resources :users, only: [:index, :new, :create, :edit, :update, :destroy]
     resources :roles, only: [:index, :update]
     resources :operation_requests, only: [:index, :update]
     resources :devices, only: [:index, :update]
