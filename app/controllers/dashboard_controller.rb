@@ -74,7 +74,13 @@ class DashboardController < ApplicationController
         excused = excused_by_class[klass.id].to_i
         absent = absent_by_class[klass.id].to_i
         early_leave = early_leave_by_class[klass.id].to_i
-        rate = total.zero? ? 0 : ((present + late + excused) * 100.0 / total).round
+        policy = klass.attendance_policy || AttendancePolicy.new(AttendancePolicy.default_attributes)
+        rate = policy.attendance_rate(
+          present: present,
+          late: late,
+          excused: excused,
+          expected: total
+        )
 
         {
           klass: klass,
@@ -85,14 +91,14 @@ class DashboardController < ApplicationController
           absent: absent,
           early_leave: early_leave,
           rate: rate,
-          policy: klass.attendance_policy || AttendancePolicy.new(AttendancePolicy.default_attributes)
+          policy: policy
         }
       end
 
       @student_warnings = @student_summary.select do |row|
         policy = row[:policy]
         absence_count = row[:absent] + row[:early_leave]
-        absence_count >= policy.warning_absent_count || row[:rate] < policy.warning_rate_percent
+        policy.warning?(absence_total: absence_count, attendance_rate: row[:rate])
       end
       @recent_notifications = current_user.notifications.order(created_at: :desc).limit(3)
     end

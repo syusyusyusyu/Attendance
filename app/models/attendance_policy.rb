@@ -38,6 +38,21 @@ class AttendancePolicy < ApplicationRecord
     DEFAULTS
   end
 
+  def attendance_rate(present:, late:, excused:, expected:)
+    expected = expected.to_i
+    return 0 if expected <= 0
+
+    ((present.to_i + late.to_i + excused.to_i) * 100.0 / expected).round
+  end
+
+  def warning?(absence_total:, attendance_rate:)
+    absence_total.to_i >= warning_absent_count.to_i || attendance_rate.to_i < warning_rate_percent.to_i
+  end
+
+  def warning_label(absence_total:, attendance_rate:)
+    warning?(absence_total: absence_total, attendance_rate: attendance_rate) ? "要注意" : "正常"
+  end
+
   def evaluate(scan_time:, start_at:, mode: :checkin)
     return { allowed: true, attendance_status: "present" } if start_at.blank?
 

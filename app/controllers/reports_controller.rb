@@ -58,6 +58,7 @@ class ReportsController < ApplicationController
     records_by_class_date = records.group_by { |record| [record.school_class_id, record.date] }
 
     @class_stats = @classes.map do |klass|
+      policy = klass.attendance_policy || AttendancePolicy.new(AttendancePolicy.default_attributes)
       dates = records_by_class_date.keys.filter { |pair| pair[0] == klass.id }.map(&:last).uniq
       total_students = klass.students.size
       totals = { present: 0, late: 0, excused: 0, early_leave: 0, absent: 0, missing: 0 }
@@ -74,12 +75,12 @@ class ReportsController < ApplicationController
       end
 
       expected = total_students * dates.size
-      rate =
-        if expected.zero?
-          0
-        else
-          ((totals[:present] + totals[:late] + totals[:excused]) * 100.0 / expected).round
-        end
+      rate = policy.attendance_rate(
+        present: totals[:present],
+        late: totals[:late],
+        excused: totals[:excused],
+        expected: expected
+      )
 
       {
         klass: klass,
@@ -323,12 +324,12 @@ class ReportsController < ApplicationController
       daily = records_by_date[date] || []
       counts = daily.group_by(&:status).transform_values(&:count)
       expected = total_students
-      rate =
-        if expected.zero?
-          0
-        else
-          ((counts["present"].to_i + counts["late"].to_i + counts["excused"].to_i) * 100.0 / expected).round
-        end
+      rate = policy.attendance_rate(
+        present: counts["present"],
+        late: counts["late"],
+        excused: counts["excused"],
+        expected: expected
+      )
 
       {
         date: date,
@@ -345,13 +346,13 @@ class ReportsController < ApplicationController
       }
     end
 
-    @weekly_rates = build_weekly_rates(@daily_rates, total_students)
+    @weekly_rates = build_weekly_rates(@daily_rates, total_students, policy)
     @student_stats = build_student_stats(selected_class, records_by_student, session_dates, policy)
     @risk_students = @student_stats.select { |row| row[:alert] }
 
     sessions_by_week = session_dates.group_by { |date| date.beginning_of_week(:monday) }
     @weekly_keys = sessions_by_week.keys.sort.last(4)
-    @student_trends = build_student_trends(@student_stats, records_by_student, sessions_by_week, @weekly_keys)
+    @student_trends = build_student_trends(@student_stats, records_by_student, sessions_by_week, @weekly_keys, policy)
 
     @reason_distribution = build_reason_distribution(selected_class, class_records, start_date, end_date)
   end
@@ -366,7 +367,7 @@ class ReportsController < ApplicationController
     end
   end
 
-  def build_weekly_rates(daily_rates, total_students)
+  def build_weekly_rates(daily_rates, total_students, policy)
     grouped = daily_rates.group_by { |row| row[:date].beginning_of_week(:monday) }
     grouped.map do |week_start, rows|
       totals = { present: 0, late: 0, excused: 0, early_leave: 0, absent: 0, missing: 0 }
@@ -379,7 +380,12 @@ class ReportsController < ApplicationController
         totals[:missing] += row[:missing]
       end
       expected = total_students * rows.size
-      rate = expected.zero? ? 0 : ((totals[:present] + totals[:late] + totals[:excused]) * 100.0 / expected).round
+      rate = policy.attendance_rate(
+        present: totals[:present],
+        late: totals[:late],
+        excused: totals[:excused],
+        expected: expected
+      )
 
       {
         week_start: week_start,
@@ -406,9 +412,14 @@ class ReportsController < ApplicationController
       end
 
       expected = session_dates.size
-      rate = expected.zero? ? 0 : ((counts[:present] + counts[:late] + counts[:excused]) * 100.0 / expected).round
+      rate = policy.attendance_rate(
+        present: counts[:present],
+        late: counts[:late],
+        excused: counts[:excused],
+        expected: expected
+      )
       absence_total = counts[:absent] + counts[:early_leave] + counts[:missing]
-      alert = absence_total >= policy.warning_absent_count || rate < policy.warning_rate_percent
+      alert = policy.warning?(absence_total: absence_total, attendance_rate: rate)
 
       {
         student: student,
@@ -422,12 +433,12 @@ class ReportsController < ApplicationController
         absence_total: absence_total,
         expected: expected,
         alert: alert,
-        alert_label: alert ? "要注意" : "正常"
+        alert_label: policy.warning_label(absence_total: absence_total, attendance_rate: rate)
       }
     end
   end
 
-  def build_student_trends(student_stats, records_by_student, sessions_by_week, week_keys)
+  def build_student_trends(student_stats, records_by_student, sessions_by_week, week_keys, policy)
     student_stats.map do |row|
       records_map = (records_by_student[row[:student].id] || []).index_by(&:date)
       weekly_rates = week_keys.map do |week_start|
@@ -449,7 +460,12 @@ class ReportsController < ApplicationController
           end
         end
 
-        rate = expected.zero? ? 0 : ((counts[:present] + counts[:late] + counts[:excused]) * 100.0 / expected).round
+        rate = policy.attendance_rate(
+          present: counts[:present],
+          late: counts[:late],
+          excused: counts[:excused],
+          expected: expected
+        )
         { week_start: week_start, rate: rate }
       end
 

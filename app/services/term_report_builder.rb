@@ -29,14 +29,13 @@ class TermReportBuilder
       end
 
       expected = session_dates.size
-      rate =
-        if expected.zero?
-          0
-        else
-          ((counts[:present].to_i + counts[:late].to_i + counts[:excused].to_i) * 100.0 / expected).round
-        end
+      rate = @policy.attendance_rate(
+        present: counts[:present],
+        late: counts[:late],
+        excused: counts[:excused],
+        expected: expected
+      )
       absence_total = counts[:absent].to_i + counts[:early_leave].to_i + counts[:missing].to_i
-      alert = absence_total >= @policy.warning_absent_count || rate < @policy.warning_rate_percent
 
       {
         student: student,
@@ -47,7 +46,7 @@ class TermReportBuilder
         early_leave: counts[:early_leave].to_i,
         absent: counts[:absent].to_i,
         missing: counts[:missing].to_i,
-        alert_label: alert ? "要注意" : "正常"
+        alert_label: @policy.warning_label(absence_total: absence_total, attendance_rate: rate)
       }
     end
 
