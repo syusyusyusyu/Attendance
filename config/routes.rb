@@ -34,7 +34,6 @@ Rails.application.routes.draw do
     resources :operation_requests, only: [:index, :update]
     resources :devices, only: [:index, :update]
     resources :api_keys, only: [:index, :create, :update]
-    resources :sso_providers, only: [:index, :create, :edit, :update]
   end
 
   get "/history", to: "attendance_history#show"

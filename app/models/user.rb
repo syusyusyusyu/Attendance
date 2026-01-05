@@ -35,7 +35,6 @@ class User < ApplicationRecord
   has_many :audit_saved_searches, dependent: :destroy
   has_many :api_keys, dependent: :destroy
   has_many :devices, dependent: :destroy
-  has_many :sso_identities, dependent: :destroy
   has_many :qr_sessions,
            foreign_key: :teacher_id,
            dependent: :destroy

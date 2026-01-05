@@ -9,7 +9,7 @@
         </svg>
       </div>
     </div>
-    <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">RoR出席システムログイン</h2>
+    <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">RoR出席管理システムログイン</h2>
     <p class="mt-2 text-center text-sm text-gray-600">メールアドレスとパスワードを入力してください</p>
   </div>
 
@@ -28,7 +28,7 @@
                 <path d="M3 7l9 6 9-6" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             </div>
-            <%= f.email_field :email, class: "input py-2 pl-10", required: true, autofocus: true, autocomplete: "email", placeholder: "student@example.com", data: { login_target: "email" } %>
+            <%= f.email_field :email, class: "input py-2 pl-10", required: true, autofocus: true, autocomplete: "username", inputmode: "email", autocapitalize: "off", autocorrect: "off", spellcheck: "false", maxlength: 255, placeholder: "student@example.com", data: { login_target: "email" } %>
           </div>
         </div>
 
@@ -41,7 +41,7 @@
                 <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             </div>
-            <%= f.password_field :password, class: "input py-2 pl-10 pr-10", required: true, autocomplete: "current-password", data: { login_target: "password" } %>
+            <%= f.password_field :password, class: "input py-2 pl-10 pr-10", required: true, autocomplete: "current-password", minlength: 8, maxlength: 72, autocapitalize: "off", autocorrect: "off", spellcheck: "false", data: { login_target: "password" } %>
             <button
               type="button"
               class="absolute inset-y-0 right-0 pr-3 flex items-center"

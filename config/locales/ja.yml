@@ -19,8 +19,6 @@ ja:
       qr_scan_event: "QRスキャンログ"
       role: "ロール"
       permission: "権限"
-      sso_provider: "SSOプロバイダ"
-      sso_identity: "SSO連携"
     attributes:
       user:
         name: "氏名"
@@ -104,11 +102,6 @@ ja:
       permission:
         key: "権限キー"
         label: "権限名"
-      sso_provider:
-        name: "プロバイダ名"
-        strategy: "方式"
-      sso_identity:
-        uid: "UID"
     errors:
       messages:
         record_invalid: "バリデーションに失敗しました: %{errors}"

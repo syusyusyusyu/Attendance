@@ -22,8 +22,6 @@ if Rails.env.test?
         audit_saved_searches
         api_keys
         devices
-        sso_providers
-        sso_identities
       ]
       ordered_fixture_set = fixture_set.sort_by do |table_name, _|
         table_order.index(table_name.to_s) || table_order.length

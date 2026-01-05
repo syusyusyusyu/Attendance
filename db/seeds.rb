@@ -42,7 +42,6 @@ permissions = [
   { key: "admin.operation.approve", label: "承認ワークフロー処理" },
   { key: "admin.devices.approve", label: "公認端末の承認" },
   { key: "admin.api.manage", label: "APIキー管理" },
-  { key: "admin.sso.manage", label: "SSO設定管理" },
   { key: "attendance.manage", label: "出席管理(閲覧/修正)" },
   { key: "attendance.import", label: "CSVインポート" },
   { key: "attendance.policy.manage", label: "出席ポリシー設定" },
