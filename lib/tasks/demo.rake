@@ -1,12 +1,114 @@
+require "pg"
+
 namespace :demo do
-  desc "履修科目・出席・申請データを生成します"
+  desc "デモデータを作成(同期/固定シード)"
   task seed: :environment do
-    CurriculumSeeder.new.run
+    DemoDataSyncer.new.seed!
   end
 
-  desc "履修科目・デモデータを削除します"
+  desc "デモデータを削除"
   task reset: :environment do
-    CurriculumSeeder.new.reset
+    DemoDataSyncer.new.reset!
+  end
+
+  desc "Render DBの内容をデモDBへ同期"
+  task sync: :environment do
+    DemoDataSyncer.new.sync_from_source!
+  end
+end
+
+class DemoDataSyncer
+  SOURCE_ENV_KEY = "DEMO_SOURCE_DATABASE_URL"
+  EXCLUDED_TABLES = %w[schema_migrations ar_internal_metadata].freeze
+
+  def seed!
+    if source_url?
+      sync_from_source!
+    else
+      CurriculumSeeder.new.run
+    end
+  end
+
+  def reset!
+    connection = ActiveRecord::Base.connection
+    truncate_tables!(connection, connection.tables - EXCLUDED_TABLES)
+  end
+
+  def sync_from_source!
+    source_url = ENV[SOURCE_ENV_KEY].to_s.strip
+    raise "#{SOURCE_ENV_KEY} is required" if source_url.empty?
+
+    connection = ActiveRecord::Base.connection
+    tables = sorted_tables(connection)
+
+    truncate_tables!(connection, tables)
+    copy_tables(source_url, connection.raw_connection, tables)
+    reset_sequences!(connection, tables)
+  end
+
+  private
+
+  def source_url?
+    ENV[SOURCE_ENV_KEY].to_s.strip.length.positive?
+  end
+
+  def sorted_tables(connection)
+    tables = connection.tables - EXCLUDED_TABLES
+    graph = tables.to_h { |table| [table, []] }
+
+    tables.each do |table|
+      connection.foreign_keys(table).each do |foreign_key|
+        to_table = foreign_key.to_table
+        graph[table] << to_table if graph.key?(to_table)
+      end
+    end
+
+    sorted = []
+    temporary = {}
+    permanent = {}
+
+    visit = lambda do |table|
+      return if permanent[table]
+      raise "Circular dependency detected for #{table}" if temporary[table]
+
+      temporary[table] = true
+      graph[table].each { |dep| visit.call(dep) }
+      permanent[table] = true
+      sorted << table
+    end
+
+    tables.each { |table| visit.call(table) }
+    sorted
+  end
+
+  def truncate_tables!(connection, tables)
+    return if tables.empty?
+
+    quoted = tables.map { |table| connection.quote_table_name(table) }.join(", ")
+    connection.execute("TRUNCATE TABLE #{quoted} RESTART IDENTITY CASCADE")
+  end
+
+  def copy_tables(source_url, target_raw, tables)
+    source = PG.connect(source_url)
+    source.exec("SET statement_timeout = 0")
+    target_raw.exec("SET statement_timeout = 0")
+
+    tables.each do |table|
+      quoted = PG::Connection.quote_ident(table)
+      source.copy_data("COPY #{quoted} TO STDOUT WITH CSV") do
+        target_raw.copy_data("COPY #{quoted} FROM STDIN WITH CSV") do
+          while (row = source.get_copy_data)
+            target_raw.put_copy_data(row)
+          end
+        end
+      end
+    end
+  ensure
+    source&.close
+  end
+
+  def reset_sequences!(connection, tables)
+    tables.each { |table| connection.reset_pk_sequence!(table) }
   end
 end
 
@@ -34,7 +136,7 @@ class CurriculumSeeder
       room: "2C教室",
       day_of_week: 1,
       period: 1,
-      description: "レポート作成や表計算、プレゼン資料を効率的に作成する基礎力を身に付ける。"
+      description: "レポート作成、表計算、プレゼン資料の基礎を学ぶ。"
     },
     {
       name: "ITリテラシー",
@@ -43,7 +145,7 @@ class CurriculumSeeder
       room: "3A教室",
       day_of_week: 2,
       period: 2,
-      description: "ITの基本概念とセキュリティ、個人情報保護の重要性を理解する。"
+      description: "ITの基本概念とセキュリティ、情報モラルを理解する。"
     },
     {
       name: "コンピュータシステム",
@@ -52,7 +154,7 @@ class CurriculumSeeder
       room: "3B教室",
       day_of_week: 3,
       period: 3,
-      description: "2進数やデータ表現、OSやネットワークなどの基礎を学ぶ。"
+      description: "2進数/OS/ネットワークなどの基礎を学ぶ。"
     },
     {
       name: "プログラミングⅠ",
@@ -61,7 +163,7 @@ class CurriculumSeeder
       room: "4A教室",
       day_of_week: 4,
       period: 4,
-      description: "C#の文法と構造化プログラミング、デバッグの基礎を習得する。"
+      description: "C#の構文と構造化プログラミング、デバッグの基礎。"
     },
     {
       name: "ビジネスアプリケーションⅡ",
@@ -70,7 +172,7 @@ class CurriculumSeeder
       room: "2C教室",
       day_of_week: 1,
       period: 2,
-      description: "Accessを使ったテーブル作成、リレーション設定、フォーム活用を学ぶ。"
+      description: "Accessでテーブル/リレーション/フォームの活用を学ぶ。"
     },
     {
       name: "プログラミングⅡ",
@@ -79,7 +181,7 @@ class CurriculumSeeder
       room: "4B教室",
       day_of_week: 2,
       period: 3,
-      description: "設計書の理解やテスト仕様の作成を含む実践的な演習で基礎力を固める。"
+      description: "設計書/テスト仕様を含む実践演習で基礎力を固める。"
     },
     {
       name: "PG実践Ⅰ",
@@ -88,7 +190,7 @@ class CurriculumSeeder
       room: "4C教室",
       day_of_week: 3,
       period: 4,
-      description: "基礎技術とデータベースを反復訓練し、実践力を養成する。"
+      description: "基礎技術を反復し、実装力を養う。"
     },
     {
       name: "テスト技法",
@@ -97,7 +199,7 @@ class CurriculumSeeder
       room: "4D教室",
       day_of_week: 4,
       period: 5,
-      description: "テスト理論とテストコード作成をツール演習で身に付ける。"
+      description: "テスト理論とテストコード作成を演習で学ぶ。"
     },
     {
       name: "コミュニケーション技法",
@@ -106,7 +208,7 @@ class CurriculumSeeder
       room: "6C教室",
       day_of_week: 1,
       period: 4,
-      description: "自己紹介やグループ演習を通じて適切な意思伝達を学ぶ。"
+      description: "自己紹介やグループ演習で伝達力を高める。"
     },
     {
       name: "ゼミナールⅠ",
@@ -115,7 +217,7 @@ class CurriculumSeeder
       room: "6D教室",
       day_of_week: 2,
       period: 5,
-      description: "学習・生活スタイルの確立と自己管理能力の向上を目指す。"
+      description: "学習/生活スタイルの確立と自己管理力の向上。"
     },
     {
       name: "システム設計Ⅰ",
@@ -124,7 +226,7 @@ class CurriculumSeeder
       room: "5C教室",
       day_of_week: 3,
       period: 5,
-      description: "要件定義から外部設計・内部設計までのタスクを学ぶ。"
+      description: "要件定義から外部/内部設計までの流れを学ぶ。"
     },
     {
       name: "SQLⅠ",
@@ -133,7 +235,7 @@ class CurriculumSeeder
       room: "5A教室",
       day_of_week: 1,
       period: 3,
-      description: "SQLの基本操作や検索条件、関数、結合を理解する。"
+      description: "SQLの基本操作や検索条件、結合を理解する。"
     },
     {
       name: "SQLⅡ",
@@ -142,7 +244,7 @@ class CurriculumSeeder
       room: "5B教室",
       day_of_week: 2,
       period: 4,
-      description: "データ操作や表作成など実践的なSQL活用を学ぶ。"
+      description: "実践的なSQLとテーブル設計の応用を学ぶ。"
     },
     {
       name: "キャリアデザイン",
@@ -151,7 +253,7 @@ class CurriculumSeeder
       room: "5D教室",
       day_of_week: 4,
       period: 1,
-      description: "就職活動に向けた自己理解と選考対応力を養う。"
+      description: "就職活動に向けた自己分析と選考準備を行う。"
     },
     {
       name: "CMSサイト構築",
@@ -160,7 +262,7 @@ class CurriculumSeeder
       room: "6A教室",
       day_of_week: 5,
       period: 2,
-      description: "CMSの構築とカスタマイズ、PHP基礎を演習で学ぶ。"
+      description: "CMSの構築とカスタマイズ、基礎的なWeb開発。"
     },
     {
       name: "モバイルアプリケーション開発",
@@ -169,7 +271,7 @@ class CurriculumSeeder
       room: "6B教室",
       day_of_week: 5,
       period: 3,
-      description: "Android開発環境の構築とGUI/DB/ネットワーク連携の基礎を学ぶ。"
+      description: "Android開発の環境構築とGUI/DB/連携の基礎。"
     },
     {
       name: "インターンシップⅠ",
@@ -178,7 +280,7 @@ class CurriculumSeeder
       room: "7B教室",
       day_of_week: 4,
       period: 2,
-      description: "就業体験を通じて業界理解を深め、キャリア形成に役立てる。"
+      description: "就業体験を通じて業界理解と職業観を深める。"
     },
     {
       name: "ITパスポート試験",
@@ -187,7 +289,7 @@ class CurriculumSeeder
       room: "8A教室",
       day_of_week: 1,
       period: 5,
-      description: "過去問題や模擬試験を通じて合格水準の知識を身に付ける。"
+      description: "過去問題演習で合格水準の知識を身に付ける。"
     },
     {
       name: "情報セキュリティマネジメント試験",
@@ -196,7 +298,7 @@ class CurriculumSeeder
       room: "8B教室",
       day_of_week: 2,
       period: 1,
-      description: "情報セキュリティの知識を演習で強化し合格水準を目指す。"
+      description: "情報セキュリティ分野の知識を強化する。"
     }
   ].freeze
 
@@ -211,7 +313,7 @@ class CurriculumSeeder
       classes = seed_classes(teachers)
       classes.each do |klass|
         enroll_students(klass, students)
-        seed_attendance_for_class(klass, students)
+        seed_attendance_for_class(klass)
       end
     end
   end
@@ -290,7 +392,13 @@ class CurriculumSeeder
         klass.schedule = schedule
         klass.is_active = true
         klass.save!
-        AttendancePolicy.find_or_create_by!(school_class: klass)
+
+        AttendancePolicy.find_or_initialize_by(school_class: klass).tap do |policy|
+          if policy.new_record?
+            policy.assign_attributes(AttendancePolicy.default_attributes)
+          end
+          policy.save!
+        end
       end
     end
   end
@@ -303,7 +411,7 @@ class CurriculumSeeder
     end
   end
 
-  def seed_attendance_for_class(klass, students)
+  def seed_attendance_for_class(klass)
     date_range = SEED_WEEKS.weeks.ago.to_date..Date.current
     date_range.each do |date|
       result = ClassSessionResolver.new(school_class: klass, date: date).resolve

@@ -40,6 +40,7 @@
 ## 9. デモ運用
 - `bin/rails demo:seed` でデモデータを作成します。
 - `bin/rails demo:reset` でデモデータを初期化します。
+- Render DB同期は `DEMO_SOURCE_DATABASE_URL=... bin/rails demo:sync` を使います。
 - 詳細は `DEMO.md` を参照します。
 
 ## 10. 通知チャネル設定

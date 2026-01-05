@@ -4,12 +4,19 @@
 1. `bin/rails db:setup`
 2. `bin/rails demo:seed`
 
+### Render DBの内容をデモとして使う場合
+- `DEMO_SOURCE_DATABASE_URL` を指定して同期します。
+  - 例: `DEMO_SOURCE_DATABASE_URL=... bin/rails demo:sync`
+- 同期は現在のDBを上書きするため、デモ用DBでのみ実行してください。
+
 ## デモ用アカウント
 - 管理者: `admin@example.com` / `password`
-- 教員: `demo_teacher@example.com` / `password`
-- 学生: `demo_student1@example.com` / `password`
+- 教員: `teacher@example.com` / `password`
+- 学生: `student@example.com` / `password`
 
-## デモ手順(約5分)
+※ `DEMO_SOURCE_DATABASE_URL` で同期した場合は、Render側のユーザー情報に依存します。
+
+## デモ手順
 1. 教員でログイン → 「QRコード生成」から授業を選択しQRを表示
 2. 学生でログイン → 「QRコードスキャン」で入室登録
 3. 同じ学生で再度スキャン → 退室登録(滞在時間/早退判定を確認)

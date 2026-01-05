@@ -39,6 +39,7 @@ bin/rails server
 ## 運用メモ
 - 定期確定: `bin/rails attendance:finalize`
 - デモデータ: `bin/rails demo:seed` / `bin/rails demo:reset`
+- Render DB同期: `DEMO_SOURCE_DATABASE_URL=... bin/rails demo:sync`
 - 運用ガイド: `OPERATION_GUIDE.md`
 - 運用保守: `MAINTENANCE_GUIDE.md`
 - デモ手順: `DEMO.md`
