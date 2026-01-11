@@ -399,7 +399,6 @@ class ClassAttendancesController < ApplicationController
       :close_after_minutes,
       :allow_early_checkin,
       :allowed_ip_ranges,
-      :allowed_user_agent_keywords,
       :max_scans_per_minute,
       :student_max_scans_per_minute,
       :minimum_attendance_rate,
@@ -410,16 +409,14 @@ class ClassAttendancesController < ApplicationController
       :geo_center_lat,
       :geo_center_lng,
       :geo_radius_m,
-      :geo_accuracy_max_m,
       :geo_postal_code,
-      :geo_address,
-      :fraud_failure_threshold,
-      :fraud_ip_burst_threshold,
-      :fraud_token_share_threshold
+      :geo_address
     )
     unless current_user.admin?
       permitted.delete(:geo_address)
       permitted.delete(:geo_postal_code)
+      permitted.delete(:geo_center_lat)
+      permitted.delete(:geo_center_lng)
     end
     permitted.merge(
       late_after_minutes: AttendancePolicy::DEFAULTS[:late_after_minutes],

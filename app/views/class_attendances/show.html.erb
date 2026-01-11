@@ -110,46 +110,23 @@
                     value: @policy.geo_address,
                     class: "input",
                     placeholder: "例: 大阪府大阪市北区○○",
-                    data: { postal_address_target: "address" } %>
+                    data: {
+                      postal_address_target: "address",
+                      action: "blur->postal-address#geocodeFromAddress"
+                    } %>
                 </div>
+                <%= f.hidden_field :geo_center_lat, value: @policy.geo_center_lat, data: { postal_address_target: "latitude" } %>
+                <%= f.hidden_field :geo_center_lng, value: @policy.geo_center_lng, data: { postal_address_target: "longitude" } %>
                 <p class="text-xs text-gray-500" data-postal-address-target="status"></p>
               </div>
             <% end %>
             <div>
-              <%= f.label :geo_center_lat, "教室中心(緯度)", class: "block text-sm font-medium text-gray-700 mb-2" %>
-              <%= f.number_field :geo_center_lat, value: @policy.geo_center_lat, step: 0.000001, class: "input" %>
-            </div>
-            <div>
-              <%= f.label :geo_center_lng, "教室中心(経度)", class: "block text-sm font-medium text-gray-700 mb-2" %>
-              <%= f.number_field :geo_center_lng, value: @policy.geo_center_lng, step: 0.000001, class: "input" %>
-            </div>
-            <div>
               <%= f.label :geo_radius_m, "許可半径(m)", class: "block text-sm font-medium text-gray-700 mb-2" %>
               <%= f.number_field :geo_radius_m, value: @policy.geo_radius_m, min: 1, class: "input" %>
-            </div>
-            <div>
-              <%= f.label :geo_accuracy_max_m, "位置情報精度上限(m)", class: "block text-sm font-medium text-gray-700 mb-2" %>
-              <%= f.number_field :geo_accuracy_max_m, value: @policy.geo_accuracy_max_m, min: 1, class: "input" %>
             </div>
             <div class="md:col-span-3">
               <%= f.label :allowed_ip_ranges, "許可IP(任意)", class: "block text-sm font-medium text-gray-700 mb-2" %>
               <%= f.text_area :allowed_ip_ranges, value: @policy.allowed_ip_ranges, rows: 2, class: "input", placeholder: "例: 192.168.0.0/24, 10.0.0.0/8" %>
-            </div>
-            <div class="md:col-span-3">
-              <%= f.label :allowed_user_agent_keywords, "許可ブラウザキーワード(任意)", class: "block text-sm font-medium text-gray-700 mb-2" %>
-              <%= f.text_area :allowed_user_agent_keywords, value: @policy.allowed_user_agent_keywords, rows: 2, class: "input", placeholder: "例: iPhone, Android, Chrome" %>
-            </div>
-            <div>
-              <%= f.label :fraud_failure_threshold, "連続失敗しきい値", class: "block text-sm font-medium text-gray-700 mb-2" %>
-              <%= f.number_field :fraud_failure_threshold, value: @policy.fraud_failure_threshold, min: 1, class: "input" %>
-            </div>
-            <div>
-              <%= f.label :fraud_ip_burst_threshold, "IP集中しきい値", class: "block text-sm font-medium text-gray-700 mb-2" %>
-              <%= f.number_field :fraud_ip_burst_threshold, value: @policy.fraud_ip_burst_threshold, min: 1, class: "input" %>
-            </div>
-            <div>
-              <%= f.label :fraud_token_share_threshold, "トークン共有しきい値", class: "block text-sm font-medium text-gray-700 mb-2" %>
-              <%= f.number_field :fraud_token_share_threshold, value: @policy.fraud_token_share_threshold, min: 1, class: "input" %>
             </div>
             <div class="md:col-span-3">
               <%= f.submit "ポリシー更新", class: "btn btn-secondary w-full" %>
@@ -159,13 +136,13 @@
             出席QRのスキャンは出席扱いです。授業開始20分以降は欠席として扱います。
           </p>
           <p class="text-xs text-gray-500">
-            IP/ブラウザ制限を設定すると条件に一致しないQRスキャンはブロックされます。
+            IP制限を設定すると条件に一致しないQRスキャンはブロックされます。
           </p>
           <p class="text-xs text-gray-500">
             位置情報を必須にすると、位置情報が取得できない端末は出席登録できません。
           </p>
           <p class="text-xs text-gray-500">
-            ジオフェンス有効時は、教室中心と半径の範囲外のスキャンは拒否されます。
+            ジオフェンス有効時は、教室住所の中心と半径の範囲外のスキャンは拒否されます。
           </p>
           <p class="text-xs text-gray-500">
             最低出席率は入室/退室の滞在時間に基づき早退判定に利用されます。
