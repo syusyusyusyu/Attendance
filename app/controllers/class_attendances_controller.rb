@@ -412,10 +412,12 @@ class ClassAttendancesController < ApplicationController
       :geo_center_lng,
       :geo_radius_m,
       :geo_accuracy_max_m,
+      :geo_address,
       :fraud_failure_threshold,
       :fraud_ip_burst_threshold,
       :fraud_token_share_threshold
     )
+    permitted.delete(:geo_address) unless current_user.admin?
     permitted.merge(
       late_after_minutes: AttendancePolicy::DEFAULTS[:late_after_minutes],
       close_after_minutes: AttendancePolicy::DEFAULTS[:close_after_minutes]

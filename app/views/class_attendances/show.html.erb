@@ -94,6 +94,12 @@
               <%= f.check_box :geo_fence_enabled, { checked: @policy.geo_fence_enabled }, true, false %>
               <%= f.label :geo_fence_enabled, "教室周辺のみ許可(ジオフェンス)", class: "text-sm text-gray-700" %>
             </div>
+            <% if current_user.admin? %>
+              <div class="md:col-span-3">
+                <%= f.label :geo_address, "教室住所(管理者のみ)", class: "block text-sm font-medium text-gray-700 mb-2" %>
+                <%= f.text_field :geo_address, value: @policy.geo_address, class: "input", placeholder: "例: 大阪府大阪市北区○○" %>
+              </div>
+            <% end %>
             <div>
               <%= f.label :geo_center_lat, "教室中心(緯度)", class: "block text-sm font-medium text-gray-700 mb-2" %>
               <%= f.number_field :geo_center_lat, value: @policy.geo_center_lat, step: 0.000001, class: "input" %>
