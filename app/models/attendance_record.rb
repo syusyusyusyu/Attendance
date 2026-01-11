@@ -1,34 +1,4 @@
 class AttendanceRecord < ApplicationRecord
-  STATUS_LABELS = {
-    "present" => "出席",
-    "late" => "遅刻",
-    "absent" => "欠席",
-    "excused" => "公欠",
-    "early_leave" => "早退"
-  }.freeze
-
-  STATUS_BADGE_CLASSES = {
-    "present" => "badge badge-success",
-    "late" => "badge badge-warning",
-    "absent" => "badge badge-error",
-    "excused" => "badge badge-info",
-    "early_leave" => "badge badge-warning"
-  }.freeze
-
-  CSV_STATUS_MAP = {
-    "出席" => "present",
-    "遅刻" => "late",
-    "欠席" => "absent",
-    "公欠" => "excused",
-    "早退" => "early_leave",
-    "未入力" => :skip,
-    "present" => "present",
-    "late" => "late",
-    "absent" => "absent",
-    "excused" => "excused",
-    "early_leave" => "early_leave"
-  }.freeze
-
   belongs_to :user
   belongs_to :school_class
   belongs_to :class_session, optional: true
@@ -58,18 +28,15 @@ class AttendanceRecord < ApplicationRecord
   after_commit :broadcast_attendance_update, on: [:create, :update]
 
   def self.normalize_status(value)
-    text = value.to_s.strip
-    return nil if text.blank?
-
-    CSV_STATUS_MAP[text]
+    AttendanceStatus.normalize(value)
   end
 
   def status_label
-    STATUS_LABELS[status]
+    AttendanceStatus.label(status)
   end
 
   def status_badge_class
-    STATUS_BADGE_CLASSES[status] || "badge"
+    AttendanceStatus.badge_class(status)
   end
 
   private

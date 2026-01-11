@@ -4,21 +4,21 @@ class OperationRequestProcessorTest < ActiveSupport::TestCase
   test "approves attendance correction and creates logs" do
     admin = User.create!(
       email: "admin-ops@example.com",
-      name: "管理者",
+      name: "Admin Ops",
       role: "admin",
       password: "password",
       password_confirmation: "password"
     )
     teacher = User.create!(
       email: "teacher-ops@example.com",
-      name: "担当教員",
+      name: "Teacher Ops",
       role: "teacher",
       password: "password",
       password_confirmation: "password"
     )
     student = User.create!(
       email: "student-ops@example.com",
-      name: "受講生",
+      name: "Student Ops",
       role: "student",
       student_id: "S9999",
       password: "password",
@@ -26,10 +26,10 @@ class OperationRequestProcessorTest < ActiveSupport::TestCase
     )
 
     school_class = SchoolClass.create!(
-      name: "運用演習",
+      name: "Operations",
       teacher: teacher,
-      room: "4B教室",
-      subject: "情報",
+      room: "Room 4B",
+      subject: "Operations",
       semester: "後期",
       year: 2024,
       capacity: 30,
@@ -52,10 +52,10 @@ class OperationRequestProcessorTest < ActiveSupport::TestCase
       school_class: school_class,
       kind: "attendance_correction",
       status: "pending",
+      reason: "体調不良",
       payload: {
         "date" => date.to_s,
-        "changes" => [{ "user_id" => student.id, "status" => "present" }],
-        "reason" => "体調不良"
+        "changes" => [{ "user_id" => student.id, "status" => "present" }]
       }
     )
 
