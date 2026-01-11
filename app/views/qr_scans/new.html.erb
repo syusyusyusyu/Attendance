@@ -1,116 +1,120 @@
-﻿<div class="max-w-2xl mx-auto">
-  <div class="card">
-    <div class="p-4 bg-google-grey border-b border-gray-200">
-      <h2 class="text-xl font-medium text-gray-800">
-        QRコードスキャン
+<div class="max-w-2xl mx-auto">
+  <div class="bg-white rounded-[24px] shadow-sm border border-gray-100 overflow-hidden">
+    <div class="p-6 border-b border-gray-100 flex items-center justify-between">
+      <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+        <%= lucide_icon "scan-line", class: "w-6 h-6 text-gray-900" %>
+        出席登録
       </h2>
+      <span class="text-xs font-medium text-gray-500 bg-gray-50 px-2 py-1 rounded-md">Camera / Location</span>
     </div>
 
-    <div class="p-6 space-y-6">
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2">
-          <%= form_with url: scan_path,
-            method: :post,
-            class: "space-y-6",
-            data: {
-              controller: "qr-scan",
-              action: "submit->qr-scan#prepareSubmit",
-              qr_scan_submit_on_scan_value: true,
-              qr_scan_location_required_value: true,
-              qr_scan_target: "form"
-            } do |f| %>
-        <div class="relative overflow-hidden rounded-lg mx-auto max-w-sm border-4 border-google-green mb-4 scan-frame">
+    <div class="p-6">
+      <%= form_with url: scan_path,
+        method: :post,
+        class: "space-y-6",
+        data: {
+          controller: "qr-scan",
+          action: "submit->qr-scan#prepareSubmit",
+          qr_scan_submit_on_scan_value: true,
+          qr_scan_location_required_value: true,
+          qr_scan_target: "form"
+        } do |f| %>
+
+        <!-- Camera Area -->
+        <div class="relative overflow-hidden rounded-2xl bg-black aspect-square max-w-sm mx-auto shadow-inner ring-1 ring-gray-200">
           <video
-            class="absolute inset-0 w-full h-full bg-gray-900 object-cover"
+            class="absolute inset-0 w-full h-full object-cover"
             data-qr-scan-target="video"
             playsinline
             muted
           ></video>
-          <div class="absolute top-0 left-0 right-0 bottom-0 border-2 border-google-green border-opacity-50 pointer-events-none"></div>
+          
+          <!-- Scanner Overlay -->
+          <div class="absolute inset-0 pointer-events-none flex items-center justify-center">
+             <div class="w-48 h-48 border-2 border-white/50 rounded-2xl relative">
+               <div class="absolute top-0 left-0 w-4 h-4 border-t-4 border-l-4 border-white -mt-1 -ml-1 rounded-tl-sm"></div>
+               <div class="absolute top-0 right-0 w-4 h-4 border-t-4 border-r-4 border-white -mt-1 -mr-1 rounded-tr-sm"></div>
+               <div class="absolute bottom-0 left-0 w-4 h-4 border-b-4 border-l-4 border-white -mb-1 -ml-1 rounded-bl-sm"></div>
+               <div class="absolute bottom-0 right-0 w-4 h-4 border-b-4 border-r-4 border-white -mb-1 -mr-1 rounded-br-sm"></div>
+             </div>
+          </div>
+          
+          <!-- Status Overlay -->
           <div
-            class="absolute bottom-2 left-2 right-2 text-xs text-center text-white bg-black bg-opacity-50 rounded px-2 py-1"
+            class="absolute bottom-4 left-4 right-4 text-xs text-center text-white/90 bg-gray-900/80 backdrop-blur-sm rounded-lg px-3 py-2 font-medium transition-all"
             data-qr-scan-target="status"
-            data-ready-message="カメラを開始してください。"
-            data-unsupported-message="この端末ではQRスキャンが使えません。手入力をご利用ください。"
-            data-scanning-message="QRコードを枠内に合わせてください。"
-            data-detected-message="QRコードを読み取りました。送信中..."
-            data-permission-message="カメラの許可が必要です。"
-            data-locating-message="位置情報を取得しています..."
-            data-location-unsupported-message="位置情報に対応していません。別の端末を利用してください。"
-            data-location-denied-message="位置情報が拒否されました。許可して再試行してください。"
-            data-location-unavailable-message="位置情報を取得できませんでした。電波の良い場所で再試行してください。"
-            data-location-timeout-message="位置情報の取得がタイムアウトしました。再試行してください。"
-            data-location-required-message="位置情報が取得できません。位置情報を許可してください。"
-            data-error-message="読み取りに失敗しました。手入力をご利用ください。"
+            data-ready-message="カメラを起動してください"
+            data-unsupported-message="この端末はカメラ非対応です"
+            data-scanning-message="QRコードをフレームに合わせてください"
+            data-detected-message="読み取り成功！送信中..."
+            data-permission-message="カメラの許可が必要です"
+            data-locating-message="位置情報を取得中..."
+            data-location-unsupported-message="位置情報非対応の端末です"
+            data-location-denied-message="位置情報が許可されていません"
+            data-location-unavailable-message="位置情報を取得できません"
+            data-location-timeout-message="位置情報の取得がタイムアウトしました"
+            data-location-required-message="位置情報が必要です"
+            data-error-message="読み取りエラー。手入力を試してください"
           >
-            カメラを開始してください。
+            待機中...
           </div>
         </div>
 
-        <div class="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-          <button type="button" class="btn btn-primary w-full sm:w-auto" data-action="qr-scan#start">
-            カメラを開始
+        <!-- Controls -->
+        <div class="flex flex-col gap-3 max-w-sm mx-auto">
+          <button type="button" class="w-full flex items-center justify-center py-3 px-4 rounded-xl text-white bg-gray-900 hover:bg-gray-800 font-bold text-sm shadow-sm transition-all active:scale-95" data-action="qr-scan#start">
+            <%= lucide_icon "camera", class: "w-4 h-4 mr-2" %>
+            カメラ起動
           </button>
-          <button type="button" class="btn btn-secondary w-full sm:w-auto" data-action="qr-scan#stop">
-            停止
-          </button>
-          <button type="button" class="btn btn-secondary w-full sm:w-auto" data-action="qr-scan#toggleManual">
-            手入力
-          </button>
-        </div>
-
-        <div class="w-full max-w-md space-y-2 mx-auto hidden" data-qr-scan-target="manual">
-          <%= f.label :token, "QRコードの文字列", class: "block text-sm font-medium text-gray-700" %>
-          <%= f.text_area :token, rows: 4, class: "input", required: true, data: { qr_scan_target: "tokenInput" } %>
-          <%= f.hidden_field :latitude, data: { qr_scan_target: "latitude" } %>
-          <%= f.hidden_field :longitude, data: { qr_scan_target: "longitude" } %>
-          <%= f.hidden_field :accuracy, data: { qr_scan_target: "accuracy" } %>
-          <%= f.hidden_field :location_source, data: { qr_scan_target: "locationSource" } %>
-          <%= f.submit "QRコードをスキャン", class: "btn btn-primary w-full" %>
-        </div>
-
-        <p class="text-sm text-gray-600 text-center">
-          カメラが使えない場合は、手入力ボタンからQRコード文字列を貼り付けてください。
-        </p>
-        <p class="text-sm text-gray-600 text-center">
-          出席登録には位置情報の許可が必要です。
-        </p>
-        <p class="text-xs text-gray-500 text-center">
-          対応ブラウザ例: Chrome / Edge / Brave / Opera (Chromium系)、iOS Safari 16以降。
-          アプリ内ブラウザや古い端末では手入力になる場合があります。
-        </p>
-          <% end %>
-        </div>
-
-        <div class="space-y-4">
-          <div class="border border-gray-200 rounded-lg p-4">
-            <h3 class="text-sm font-medium text-gray-900 mb-2">スキャン手順</h3>
-            <ol class="list-decimal list-inside text-sm text-gray-600 space-y-1">
-              <li>「カメラを開始」を押す</li>
-              <li>QRを枠内に合わせる</li>
-              <li>読み取り後は自動送信</li>
-            </ol>
-          </div>
-
-          <div class="border border-gray-200 rounded-lg p-4">
-            <h3 class="text-sm font-medium text-gray-900 mb-2">よくある原因</h3>
-            <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
-              <li>カメラ権限が許可されていない</li>
-              <li>QRが古い(更新済み/期限切れ)</li>
-              <li>授業が休講または確定済み</li>
-              <li>履修登録がない</li>
-            </ul>
-          </div>
-
-          <div class="border border-gray-200 rounded-lg p-4">
-            <h3 class="text-sm font-medium text-gray-900 mb-2">対応ブラウザ</h3>
-            <p class="text-sm text-gray-600">
-              Chromium系(Chrome/Edge/Brave/Opera/Samsung Internet)推奨。
-              iOS Safari 16以降はフォールバック対応です。
-            </p>
-            <p class="text-xs text-gray-500 mt-2">カメラが使えない場合は手入力をご利用ください。</p>
+          
+          <div class="flex gap-3">
+            <button type="button" class="flex-1 py-3 px-4 rounded-xl text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-100 font-medium text-sm transition-colors" data-action="qr-scan#stop">
+              停止
+            </button>
+            <button type="button" class="flex-1 py-3 px-4 rounded-xl text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-100 font-medium text-sm transition-colors" data-action="qr-scan#toggleManual">
+              手入力
+            </button>
           </div>
         </div>
+
+        <!-- Manual Input (Hidden by default) -->
+        <div class="hidden max-w-sm mx-auto pt-4 border-t border-gray-100" data-qr-scan-target="manual">
+          <div class="bg-gray-50 rounded-xl p-4 border border-gray-100">
+            <h3 class="text-sm font-bold text-gray-900 mb-3">コード手動入力</h3>
+            <div class="space-y-3">
+              <div>
+                <%= f.label :token, "QRコード文字列", class: "block text-xs font-medium text-gray-500 mb-1" %>
+                <%= f.text_area :token, rows: 2, class: "block w-full rounded-lg border-gray-200 focus:border-gray-900 focus:ring-gray-900 text-sm", placeholder: "ここにコードを貼り付け...", required: true, data: { qr_scan_target: "tokenInput" } %>
+              </div>
+              
+              <%= f.hidden_field :latitude, data: { qr_scan_target: "latitude" } %>
+              <%= f.hidden_field :longitude, data: { qr_scan_target: "longitude" } %>
+              <%= f.hidden_field :accuracy, data: { qr_scan_target: "accuracy" } %>
+              <%= f.hidden_field :location_source, data: { qr_scan_target: "locationSource" } %>
+              
+              <%= f.submit "送信する", class: "w-full py-2.5 rounded-lg bg-gray-900 text-white text-sm font-bold hover:bg-gray-800 transition-colors" %>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center space-y-2">
+          <p class="text-xs text-gray-400">
+            位置情報の許可が必要です。<br>
+            うまくいかない場合は手動入力をご利用ください。
+          </p>
+        </div>
+      <% end %>
+    </div>
+    
+    <!-- Info Footer -->
+    <div class="bg-gray-50 p-4 border-t border-gray-100 text-xs text-gray-500">
+      <div class="flex items-start gap-2 mb-2">
+        <%= lucide_icon "info", class: "w-4 h-4 flex-shrink-0 text-gray-400" %>
+        <p>カメラへのアクセスと位置情報の取得を許可してください。</p>
+      </div>
+      <div class="flex items-start gap-2">
+         <%= lucide_icon "alert-circle", class: "w-4 h-4 flex-shrink-0 text-gray-400" %>
+        <p>iOS Safari / Chrome / Edge 推奨。アプリ内ブラウザでは動作しない場合があります。</p>
       </div>
     </div>
   </div>
