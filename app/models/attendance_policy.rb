@@ -12,7 +12,7 @@ class AttendancePolicy < ApplicationRecord
     warning_rate_percent: 70,
     require_location: true,
     geo_fence_enabled: false,
-    geo_radius_m: 150,
+    geo_radius_m: 50,
     geo_accuracy_max_m: 150,
     fraud_failure_threshold: 4,
     fraud_ip_burst_threshold: 8,
