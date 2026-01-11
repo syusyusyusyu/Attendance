@@ -6,9 +6,17 @@ class QrScansController < ApplicationController
   end
 
   def create
+    location = {
+      latitude: params[:latitude].presence,
+      longitude: params[:longitude].presence,
+      accuracy: params[:accuracy].presence,
+      source: params[:location_source].presence
+    }.compact
+
     result = QrScanProcessor.new(
       user: current_user,
       token: params[:token],
+      location: location,
       ip: request.remote_ip,
       user_agent: request.user_agent,
       device: current_device

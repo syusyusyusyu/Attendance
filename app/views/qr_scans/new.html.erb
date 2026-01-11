@@ -12,7 +12,13 @@
           <%= form_with url: scan_path,
             method: :post,
             class: "space-y-6",
-            data: { controller: "qr-scan", qr_scan_submit_on_scan_value: true, qr_scan_target: "form" } do |f| %>
+            data: {
+              controller: "qr-scan",
+              action: "submit->qr-scan#prepareSubmit",
+              qr_scan_submit_on_scan_value: true,
+              qr_scan_location_required_value: true,
+              qr_scan_target: "form"
+            } do |f| %>
         <div class="relative overflow-hidden rounded-lg mx-auto max-w-sm border-4 border-google-green mb-4 scan-frame">
           <video
             class="absolute inset-0 w-full h-full bg-gray-900 object-cover"
@@ -29,6 +35,12 @@
             data-scanning-message="QRコードを枠内に合わせてください。"
             data-detected-message="QRコードを読み取りました。送信中..."
             data-permission-message="カメラの許可が必要です。"
+            data-locating-message="位置情報を取得しています..."
+            data-location-unsupported-message="位置情報に対応していません。別の端末を利用してください。"
+            data-location-denied-message="位置情報が拒否されました。許可して再試行してください。"
+            data-location-unavailable-message="位置情報を取得できませんでした。電波の良い場所で再試行してください。"
+            data-location-timeout-message="位置情報の取得がタイムアウトしました。再試行してください。"
+            data-location-required-message="位置情報が取得できません。位置情報を許可してください。"
             data-error-message="読み取りに失敗しました。手入力をご利用ください。"
           >
             カメラを開始してください。
@@ -50,11 +62,18 @@
         <div class="w-full max-w-md space-y-2 mx-auto hidden" data-qr-scan-target="manual">
           <%= f.label :token, "QRコードの文字列", class: "block text-sm font-medium text-gray-700" %>
           <%= f.text_area :token, rows: 4, class: "input", required: true, data: { qr_scan_target: "tokenInput" } %>
+          <%= f.hidden_field :latitude, data: { qr_scan_target: "latitude" } %>
+          <%= f.hidden_field :longitude, data: { qr_scan_target: "longitude" } %>
+          <%= f.hidden_field :accuracy, data: { qr_scan_target: "accuracy" } %>
+          <%= f.hidden_field :location_source, data: { qr_scan_target: "locationSource" } %>
           <%= f.submit "QRコードをスキャン", class: "btn btn-primary w-full" %>
         </div>
 
         <p class="text-sm text-gray-600 text-center">
           カメラが使えない場合は、手入力ボタンからQRコード文字列を貼り付けてください。
+        </p>
+        <p class="text-sm text-gray-600 text-center">
+          出席登録には位置情報の許可が必要です。
         </p>
         <p class="text-xs text-gray-500 text-center">
           対応ブラウザ例: Chrome / Edge / Brave / Opera (Chromium系)、iOS Safari 16以降。

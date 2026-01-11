@@ -2,18 +2,33 @@ import { Controller } from "@hotwired/stimulus"
 import "jsqr"
 
 export default class extends Controller {
-  static targets = ["video", "manual", "status", "tokenInput", "form"]
-  static values = { submitOnScan: Boolean }
+  static targets = [
+    "video",
+    "manual",
+    "status",
+    "tokenInput",
+    "form",
+    "latitude",
+    "longitude",
+    "accuracy",
+    "locationSource"
+  ]
+  static values = { submitOnScan: Boolean, locationRequired: { type: Boolean, default: true } }
 
   connect() {
     this.scanning = false
     this.scanBusy = false
+    this.submitting = false
     this.detectorSupported = "BarcodeDetector" in window
     this.jsQrSupported = typeof window.jsQR === "function"
     this.supported =
       navigator.mediaDevices &&
       navigator.mediaDevices.getUserMedia &&
       (this.detectorSupported || this.jsQrSupported)
+    this.locationSupported = "geolocation" in navigator
+    this.locationCapturedAt = null
+    this.locationPromise = null
+    this.locationMaxAgeMs = 60 * 1000
 
     if (!this.supported) {
       this.showManual()
@@ -38,6 +53,11 @@ export default class extends Controller {
           .catch(() => {})
       }
     }
+    if (this.locationRequiredValue && !this.locationSupported) {
+      this.updateStatus("locationUnsupported")
+      return
+    }
+
     this.updateStatus("ready")
   }
 
@@ -51,6 +71,14 @@ export default class extends Controller {
       this.showManual()
       this.updateStatus("unsupported")
       return
+    }
+    if (this.locationRequiredValue && !this.locationSupported) {
+      this.updateStatus("locationUnsupported")
+      return
+    }
+
+    if (this.locationRequiredValue) {
+      this.captureLocation()
     }
 
     const constraints = {
@@ -152,7 +180,122 @@ export default class extends Controller {
     this.stop()
 
     if (this.submitOnScanValue && this.hasFormTarget) {
-      this.formTarget.requestSubmit()
+      this.submitWithLocation()
+    }
+  }
+
+  prepareSubmit(event) {
+    if (!this.locationRequiredValue || this.submitting) return
+    if (this.locationReady()) return
+
+    event.preventDefault()
+    this.submitWithLocation()
+  }
+
+  async submitWithLocation() {
+    if (!this.hasFormTarget || this.submitting) return
+
+    const ready = await this.ensureLocation()
+    if (!ready) return
+
+    this.submitting = true
+    this.formTarget.requestSubmit()
+    this.submitting = false
+  }
+
+  locationReady() {
+    return (
+      this.hasLatitudeTarget &&
+      this.hasLongitudeTarget &&
+      this.latitudeTarget.value &&
+      this.longitudeTarget.value &&
+      !this.locationStale()
+    )
+  }
+
+  locationStale() {
+    if (!this.locationCapturedAt) return true
+    return Date.now() - this.locationCapturedAt > this.locationMaxAgeMs
+  }
+
+  async ensureLocation() {
+    if (!this.locationRequiredValue) return true
+    if (!this.locationSupported) {
+      this.updateStatus("locationUnsupported")
+      return false
+    }
+    if (this.locationReady()) return true
+
+    return this.captureLocation()
+  }
+
+  async captureLocation() {
+    if (this.locationPromise) return this.locationPromise
+    if (!this.locationSupported) return false
+
+    this.updateStatus("locating")
+
+    this.locationPromise = new Promise((resolve) => {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          this.setLocation(position)
+          this.locationPromise = null
+          if (this.scanning) {
+            this.updateStatus("scanning")
+          } else {
+            this.updateStatus("ready")
+          }
+          resolve(true)
+        },
+        (error) => {
+          this.locationPromise = null
+          this.handleLocationError(error)
+          resolve(false)
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        }
+      )
+    })
+
+    return this.locationPromise
+  }
+
+  setLocation(position) {
+    if (!position || !this.hasLatitudeTarget || !this.hasLongitudeTarget) return
+
+    const { latitude, longitude, accuracy } = position.coords
+    this.latitudeTarget.value = latitude
+    this.longitudeTarget.value = longitude
+    if (this.hasAccuracyTarget && accuracy !== undefined && accuracy !== null) {
+      this.accuracyTarget.value = accuracy
+    }
+    if (this.hasLocationSourceTarget) {
+      this.locationSourceTarget.value = "geolocation"
+    }
+    this.locationCapturedAt = Date.now()
+  }
+
+  handleLocationError(error) {
+    if (!error) {
+      this.updateStatus("locationRequired")
+      return
+    }
+
+    switch (error.code) {
+      case error.PERMISSION_DENIED:
+        this.updateStatus("locationDenied")
+        break
+      case error.POSITION_UNAVAILABLE:
+        this.updateStatus("locationUnavailable")
+        break
+      case error.TIMEOUT:
+        this.updateStatus("locationTimeout")
+        break
+      default:
+        this.updateStatus("locationRequired")
     }
   }
 

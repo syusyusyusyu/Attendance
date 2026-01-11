@@ -406,6 +406,12 @@ class ClassAttendancesController < ApplicationController
       :warning_absent_count,
       :warning_rate_percent,
       :require_registered_device,
+      :require_location,
+      :geo_fence_enabled,
+      :geo_center_lat,
+      :geo_center_lng,
+      :geo_radius_m,
+      :geo_accuracy_max_m,
       :fraud_failure_threshold,
       :fraud_ip_burst_threshold,
       :fraud_token_share_threshold

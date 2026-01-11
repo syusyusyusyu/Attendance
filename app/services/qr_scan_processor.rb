@@ -3,12 +3,13 @@ require "uri"
 class QrScanProcessor
   Result = Struct.new(:flash, :message, keyword_init: true)
 
-  def initialize(user:, token:, ip:, user_agent:, device:, now: Time.current)
+  def initialize(user:, token:, ip:, user_agent:, device:, location: {}, now: Time.current)
     @user = user
     @raw_token = token
     @ip = ip
     @user_agent = user_agent
     @device = device
+    @location = location || {}
     @now = now
     @logger = QrScanEventLogger.new(user: user, ip: ip, user_agent: user_agent)
   end
@@ -91,6 +92,13 @@ class QrScanProcessor
       @device.update(last_seen_at: @now, ip: @ip, user_agent: @user_agent)
     end
 
+    location_result = policy.geo_policy.validate(location: @location)
+    unless location_result[:allowed]
+      @logger.log(status: location_result[:status], token: token, qr_session: qr_session)
+      return alert(location_result[:message])
+    end
+    @location = location_result[:location] || {}
+
     window = school_class.schedule_window(qr_session.attendance_date)
     unless window
       @logger.log(status: "no_schedule", token: token, qr_session: qr_session)
@@ -145,12 +153,20 @@ class QrScanProcessor
     record.verification_method = "qrcode"
     record.timestamp = @now
     record.checked_in_at ||= @now
+    checkin_location = {
+      "checkin_latitude" => @location[:latitude],
+      "checkin_longitude" => @location[:longitude],
+      "checkin_accuracy" => @location[:accuracy],
+      "checkin_source" => @location[:source],
+      "checkin_location_at" => @now.iso8601
+    }.compact
+
     record.location = (record.location || {}).merge(
       "ip" => @ip,
       "user_agent" => @user_agent,
       "qr_session_id" => qr_session.id,
       "checked_in_at" => @now.iso8601
-    )
+    ).merge(checkin_location)
 
     begin
       if record.save
@@ -176,12 +192,20 @@ class QrScanProcessor
     end
 
     record.checked_out_at = @now
+    checkout_location = {
+      "checkout_latitude" => @location[:latitude],
+      "checkout_longitude" => @location[:longitude],
+      "checkout_accuracy" => @location[:accuracy],
+      "checkout_source" => @location[:source],
+      "checkout_location_at" => @now.iso8601
+    }.compact
+
     record.location = (record.location || {}).merge(
       "ip" => @ip,
       "user_agent" => @user_agent,
       "qr_session_id" => qr_session.id,
       "checked_out_at" => @now.iso8601
-    )
+    ).merge(checkout_location)
 
     if policy.early_leave?(
       checked_in_at: record.checked_in_at,

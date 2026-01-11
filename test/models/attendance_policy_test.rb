@@ -123,4 +123,35 @@ class AttendancePolicyTest < ActiveSupport::TestCase
       session_end_at: end_at
     )
   end
+
+  test "geofence requires center when enabled" do
+    teacher = build_teacher
+    school_class = build_class(teacher)
+    policy = AttendancePolicy.new(
+      AttendancePolicy.default_attributes.merge(
+        school_class: school_class,
+        geo_fence_enabled: true,
+        geo_radius_m: 100
+      )
+    )
+
+    assert_not policy.valid?
+    assert_includes policy.errors[:geo_fence_enabled], "位置情報の中心と半径を設定してください"
+  end
+
+  test "geofence allows center coordinates" do
+    teacher = build_teacher
+    school_class = build_class(teacher)
+    policy = AttendancePolicy.new(
+      AttendancePolicy.default_attributes.merge(
+        school_class: school_class,
+        geo_fence_enabled: true,
+        geo_center_lat: 34.7025,
+        geo_center_lng: 135.4959,
+        geo_radius_m: 100
+      )
+    )
+
+    assert policy.valid?
+  end
 end

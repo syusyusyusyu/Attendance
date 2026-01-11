@@ -23,7 +23,11 @@ class QrScanEvent < ApplicationRecord
     manual_override: "manual_override",
     ip_blocked: "ip_blocked",
     device_blocked: "device_blocked",
-    class_canceled: "class_canceled"
+    class_canceled: "class_canceled",
+    location_required: "location_required",
+    location_invalid: "location_invalid",
+    location_inaccurate: "location_inaccurate",
+    location_outside: "location_outside"
   }, prefix: true
 
   validates :status, :token_digest, :scanned_at, presence: true

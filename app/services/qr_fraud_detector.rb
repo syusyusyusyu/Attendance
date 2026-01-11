@@ -7,6 +7,10 @@ class QrFraudDetector
     session_missing
     rate_limited
     manual_override
+    location_required
+    location_invalid
+    location_inaccurate
+    location_outside
   ].freeze
 
   def initialize(event:)

@@ -11,6 +11,10 @@ class AttendancePolicy < ApplicationRecord
     warning_absent_count: 3,
     warning_rate_percent: 70,
     require_registered_device: false,
+    require_location: true,
+    geo_fence_enabled: false,
+    geo_radius_m: 150,
+    geo_accuracy_max_m: 150,
     fraud_failure_threshold: 4,
     fraud_ip_burst_threshold: 8,
     fraud_token_share_threshold: 2
@@ -29,10 +33,18 @@ class AttendancePolicy < ApplicationRecord
   validates :warning_absent_count,
             numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validates :allow_early_checkin, :require_registered_device, inclusion: { in: [true, false] }
+  validates :require_location, :geo_fence_enabled, inclusion: { in: [true, false] }
   validates :fraud_failure_threshold, :fraud_ip_burst_threshold, :fraud_token_share_threshold,
             numericality: { only_integer: true, greater_than_or_equal_to: 1 }
+  validates :geo_radius_m, :geo_accuracy_max_m,
+            numericality: { only_integer: true, greater_than: 0 }, allow_nil: true
+  validates :geo_center_lat,
+            numericality: { greater_than_or_equal_to: -90, less_than_or_equal_to: 90 }, allow_nil: true
+  validates :geo_center_lng,
+            numericality: { greater_than_or_equal_to: -180, less_than_or_equal_to: 180 }, allow_nil: true
   validate :close_after_is_after_late
   validate :allowed_ip_ranges_format
+  validate :geo_fence_requires_center
 
   def self.default_attributes
     DEFAULTS
@@ -56,6 +68,10 @@ class AttendancePolicy < ApplicationRecord
 
   def rate_limit_policy
     @rate_limit_policy ||= AttendancePolicy::RateLimit.new(self)
+  end
+
+  def geo_policy
+    @geo_policy ||= AttendancePolicy::Geo.new(self)
   end
 
   def fraud_policy
@@ -128,6 +144,14 @@ class AttendancePolicy < ApplicationRecord
       rescue IPAddr::InvalidAddressError
         errors.add(:allowed_ip_ranges, "許可IPの形式が正しくありません")
       end
+    end
+  end
+
+  def geo_fence_requires_center
+    return unless geo_fence_enabled
+
+    if geo_center_lat.blank? || geo_center_lng.blank? || geo_radius_m.blank?
+      errors.add(:geo_fence_enabled, "位置情報の中心と半径を設定してください")
     end
   end
 end

@@ -46,6 +46,12 @@ class QrScanProcessorTest < ActiveSupport::TestCase
       warning_absent_count: 3,
       warning_rate_percent: 70
     )
+    @location = {
+      latitude: 34.7025,
+      longitude: 135.4959,
+      accuracy: 15,
+      source: "geolocation"
+    }
     @issued_at = Time.zone.parse("2026-01-05 09:10")
     @qr_session = QrSession.create!(
       school_class: @school_class,
@@ -61,6 +67,7 @@ class QrScanProcessorTest < ActiveSupport::TestCase
       QrScanProcessor.new(
         user: @student,
         token: nil,
+        location: @location,
         ip: "203.0.113.10",
         user_agent: "Browser",
         device: nil,
@@ -127,6 +134,7 @@ class QrScanProcessorTest < ActiveSupport::TestCase
       QrScanProcessor.new(
         user: @student,
         token: "token",
+        location: @location,
         ip: "203.0.113.10",
         user_agent: "Browser",
         device: nil,
@@ -163,6 +171,36 @@ class QrScanProcessorTest < ActiveSupport::TestCase
 
     assert_equal :alert, result.flash
     assert_equal "device_blocked", QrScanEvent.last.status
+  end
+
+  test "missing location logs location_required" do
+    result = call_processor(location: {})
+
+    assert_equal :alert, result.flash
+    assert_equal "location_required", QrScanEvent.last.status
+  end
+
+  test "inaccurate location logs location_inaccurate" do
+    @policy.update!(geo_accuracy_max_m: 5)
+
+    result = call_processor(location: { latitude: 34.7, longitude: 135.49, accuracy: 50 })
+
+    assert_equal :alert, result.flash
+    assert_equal "location_inaccurate", QrScanEvent.last.status
+  end
+
+  test "outside geofence logs location_outside" do
+    @policy.update!(
+      geo_fence_enabled: true,
+      geo_center_lat: 34.7025,
+      geo_center_lng: 135.4959,
+      geo_radius_m: 10
+    )
+
+    result = call_processor(location: { latitude: 34.699, longitude: 135.49, accuracy: 10 })
+
+    assert_equal :alert, result.flash
+    assert_equal "location_outside", QrScanEvent.last.status
   end
 
   test "no schedule logs no_schedule" do
@@ -275,12 +313,13 @@ class QrScanProcessorTest < ActiveSupport::TestCase
     }
   end
 
-  def call_processor(token_result: ok_payload, token: "token", user: @student, ip: "203.0.113.10", user_agent: "Browser", device: nil, now: @issued_at + 1.minute)
+  def call_processor(token_result: ok_payload, token: "token", user: @student, location: @location, ip: "203.0.113.10", user_agent: "Browser", device: nil, now: @issued_at + 1.minute)
     with_limiter(NullLimiter.new) do
       AttendanceToken.stub(:verify, token_result) do
         QrScanProcessor.new(
           user: user,
           token: token,
+          location: location,
           ip: ip,
           user_agent: user_agent,
           device: device,
