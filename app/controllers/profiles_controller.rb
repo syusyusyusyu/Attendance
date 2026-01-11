@@ -3,7 +3,6 @@ class ProfilesController < ApplicationController
 
   def show
     @user = current_user
-    @devices = current_user.devices.order(last_seen_at: :desc)
     @notification_preferences = current_user.notification_preferences
     @push_subscriptions = current_user.push_subscriptions
   end

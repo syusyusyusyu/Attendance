@@ -14,11 +14,6 @@ class AdminDashboardController < ApplicationController
                           .where(status: "pending")
                           .order(created_at: :desc)
                           .limit(10)
-    @pending_devices = Device
-                       .includes(:user)
-                       .where(approved: false)
-                       .order(created_at: :desc)
-                       .limit(10)
     @recent_changes = AttendanceChange
                       .includes(:user, :modified_by, :school_class)
                       .order(changed_at: :desc)

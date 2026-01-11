@@ -20,8 +20,6 @@ if Rails.env.test?
         push_subscriptions
         operation_requests
         audit_saved_searches
-        api_keys
-        devices
       ]
       ordered_fixture_set = fixture_set.sort_by do |table_name, _|
         table_order.index(table_name.to_s) || table_order.length

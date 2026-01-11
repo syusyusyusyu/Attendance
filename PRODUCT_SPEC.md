@@ -31,7 +31,7 @@
 - `/reports`: 集計/期末レポート
 - `/notifications`: 通知
 - `/school_classes`: クラス/名簿/特別日程
-- `/profile`: プロフィール/端末/通知設定
+- `/profile`: プロフィール/通知設定
 - `/admin`: 管理ダッシュボード(管理者)
 
 ## 5. 機能仕様(要点)
@@ -41,11 +41,9 @@
 - 監査ログ: 変更理由必須、CSV出力、条件保存
 - 申請承認: 欠席/遅刻/公欠の申請と承認/却下
 - 承認ワークフロー: 出席修正/確定/解除/CSV反映
-- 不正検知: 失敗多発/異常IP/端末制限違反を通知
+- 不正検知: 失敗多発/異常IP/ブラウザ制限違反を通知
 - 通知配信: メール/LINE/Pushをユーザー設定に応じて実配信
 - レポート: 週次/日次推移、要注意者、期末PDF/CSV
-- 連携: APIキー + スコープ認可
-- 端末管理: 公認端末の登録/承認
 - CSV処理: BOM除去や列名解決を共通化し、出席ステータスの正規化を統一
 
 ## 6. データモデル(代表)
@@ -53,7 +51,7 @@
 - `attendance_records`, `attendance_requests`, `attendance_changes`
 - `attendance_policies`, `qr_sessions`, `qr_scan_events`
 - `notifications`, `operation_requests`, `audit_saved_searches`, `push_subscriptions`
-- `roles`, `permissions`, `role_permissions`, `devices`, `api_keys`
+- `roles`, `permissions`, `role_permissions`, `devices`
 
 ## 7. 非機能要件
 - 日本語UI、モバイル対応、監査性重視
@@ -78,9 +76,9 @@
 - 監査ログ: `/attendance-logs`, `/scan-logs`
 
 ## 11. 完成版の機能一覧(業務用 + 作品展)
-- 学生: QRスキャン/手入力、履修/出席履歴、申請(欠席/遅刻/公欠)、通知、端末登録
+- 学生: QRスキャン/手入力、履修/出席履歴、申請(欠席/遅刻/公欠)、通知
 - 教員: QR発行/失効、授業回管理、出席確認/修正/確定、申請承認、CSV入出力、レポート
-- 管理者: ユーザー/ロール/権限、監査ログ、操作申請、端末/APIキー管理
-- 不正対策: QRローテーション、IP/端末制限、レート制限、異常検知アラート
+- 管理者: ユーザー/ロール/権限、監査ログ、操作申請
+- 不正対策: QRローテーション、IP/ブラウザ制限、レート制限、異常検知アラート
 - 分析: 出席率推移、要注意者抽出、理由分布、期末PDF/CSV
 - 運用: 監視/バックアップ/復旧、手順書、性能/セキュリティ検証

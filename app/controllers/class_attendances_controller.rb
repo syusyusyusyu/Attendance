@@ -405,7 +405,6 @@ class ClassAttendancesController < ApplicationController
       :minimum_attendance_rate,
       :warning_absent_count,
       :warning_rate_percent,
-      :require_registered_device,
       :require_location,
       :geo_fence_enabled,
       :geo_center_lat,

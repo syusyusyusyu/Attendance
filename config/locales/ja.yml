@@ -13,8 +13,6 @@ ja:
       notification: "通知"
       audit_saved_search: "保存条件"
       operation_request: "操作申請"
-      api_key: "APIキー"
-      device: "端末"
       qr_session: "QRセッション"
       qr_scan_event: "QRスキャンログ"
       role: "ロール"
@@ -56,13 +54,12 @@ ja:
         close_after_minutes: "締切(分)"
         allow_early_checkin: "開始前許可"
         allowed_ip_ranges: "許可IP"
-        allowed_user_agent_keywords: "許可端末"
+        allowed_user_agent_keywords: "許可ブラウザ"
         max_scans_per_minute: "分間スキャン上限"
         student_max_scans_per_minute: "学生スキャン上限"
         minimum_attendance_rate: "最低出席率"
         warning_absent_count: "警告欠席回数"
         warning_rate_percent: "警告出席率"
-        require_registered_device: "公認端末のみ"
         fraud_failure_threshold: "不正検知(失敗)"
         fraud_ip_burst_threshold: "不正検知(IP)"
         fraud_token_share_threshold: "不正検知(QR共有)"
@@ -83,11 +80,6 @@ ja:
       operation_request:
         kind: "種別"
         status: "状況"
-      api_key:
-        name: "名称"
-        token_digest: "トークン"
-      device:
-        device_id: "端末ID"
       qr_session:
         attendance_date: "日付"
         issued_at: "発行時刻"

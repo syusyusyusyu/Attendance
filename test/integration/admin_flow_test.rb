@@ -53,34 +53,6 @@ class AdminFlowTest < ActionDispatch::IntegrationTest
     assert_equal [permission.id], role.permission_ids
   end
 
-  test "admin can manage api keys" do
-    sign_in_as(@admin)
-    owner = create_user(role: "teacher")
-
-    assert_difference("ApiKey.count", 1) do
-      post admin_api_keys_path, params: {
-        user_id: owner.id,
-        name: "Key",
-        scopes: ["classes:read"]
-      }
-    end
-
-    key = ApiKey.last
-    patch admin_api_key_path(key), params: { revoke: "1" }
-
-    assert_not_nil key.reload.revoked_at
-  end
-
-  test "admin can approve devices" do
-    sign_in_as(@admin)
-    user = create_user(role: "student")
-    device = Device.create!(user: user, device_id: SecureRandom.uuid, name: "Phone", approved: false)
-
-    patch admin_device_path(device), params: { approved: "1" }
-
-    assert device.reload.approved?
-  end
-
   test "admin approves operation requests" do
     sign_in_as(@admin)
 

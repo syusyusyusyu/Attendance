@@ -34,7 +34,7 @@ class QrFraudDetector
   def notify_blocked_access
     return unless @event.status_ip_blocked? || @event.status_device_blocked?
 
-    reason = @event.status_ip_blocked? ? "IP制限" : "端末制限"
+    reason = @event.status_ip_blocked? ? "IP制限" : "ブラウザ制限"
     key = "qr_fraud:block:#{@event.status}:#{@event.school_class_id}:#{minute_key}"
     notify_once!(
       key,

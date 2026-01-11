@@ -18,8 +18,7 @@ class QrScansController < ApplicationController
       token: params[:token],
       location: location,
       ip: request.remote_ip,
-      user_agent: request.user_agent,
-      device: current_device
+      user_agent: request.user_agent
     ).call
 
     redirect_to scan_path, result.flash => result.message

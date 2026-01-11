@@ -70,7 +70,6 @@ class QrScanProcessorTest < ActiveSupport::TestCase
         location: @location,
         ip: "203.0.113.10",
         user_agent: "Browser",
-        device: nil,
         now: @issued_at
       ).call
     end
@@ -137,7 +136,6 @@ class QrScanProcessorTest < ActiveSupport::TestCase
         location: @location,
         ip: "203.0.113.10",
         user_agent: "Browser",
-        device: nil,
         now: @issued_at
       ).call
     end
@@ -155,19 +153,10 @@ class QrScanProcessorTest < ActiveSupport::TestCase
     assert_equal "ip_blocked", QrScanEvent.last.status
   end
 
-  test "device blocked logs device_blocked when user agent denied" do
+  test "browser blocked logs device_blocked when user agent denied" do
     @policy.update!(allowed_user_agent_keywords: "Allowed")
 
     result = call_processor(user_agent: "Unknown")
-
-    assert_equal :alert, result.flash
-    assert_equal "device_blocked", QrScanEvent.last.status
-  end
-
-  test "registered device requirement blocks unapproved" do
-    @policy.update!(require_registered_device: true)
-
-    result = call_processor(device: nil)
 
     assert_equal :alert, result.flash
     assert_equal "device_blocked", QrScanEvent.last.status
@@ -313,7 +302,7 @@ class QrScanProcessorTest < ActiveSupport::TestCase
     }
   end
 
-  def call_processor(token_result: ok_payload, token: "token", user: @student, location: @location, ip: "203.0.113.10", user_agent: "Browser", device: nil, now: @issued_at + 1.minute)
+  def call_processor(token_result: ok_payload, token: "token", user: @student, location: @location, ip: "203.0.113.10", user_agent: "Browser", now: @issued_at + 1.minute)
     with_limiter(NullLimiter.new) do
       AttendanceToken.stub(:verify, token_result) do
         QrScanProcessor.new(
@@ -322,7 +311,6 @@ class QrScanProcessorTest < ActiveSupport::TestCase
           location: location,
           ip: ip,
           user_agent: user_agent,
-          device: device,
           now: now
         ).call
       end

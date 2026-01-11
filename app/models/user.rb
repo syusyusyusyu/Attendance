@@ -33,8 +33,6 @@ class User < ApplicationRecord
            foreign_key: :processed_by_id,
            dependent: :nullify
   has_many :audit_saved_searches, dependent: :destroy
-  has_many :api_keys, dependent: :destroy
-  has_many :devices, dependent: :destroy
   has_many :qr_sessions,
            foreign_key: :teacher_id,
            dependent: :destroy

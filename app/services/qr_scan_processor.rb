@@ -3,12 +3,11 @@ require "uri"
 class QrScanProcessor
   Result = Struct.new(:flash, :message, keyword_init: true)
 
-  def initialize(user:, token:, ip:, user_agent:, device:, location: {}, now: Time.current)
+  def initialize(user:, token:, ip:, user_agent:, location: {}, now: Time.current)
     @user = user
     @raw_token = token
     @ip = ip
     @user_agent = user_agent
-    @device = device
     @location = location || {}
     @now = now
     @logger = QrScanEventLogger.new(user: user, ip: ip, user_agent: user_agent)
@@ -80,16 +79,7 @@ class QrScanProcessor
 
     if policy.allowed_user_agent_keywords_list.any? && !policy.user_agent_allowed?(@user_agent)
       @logger.log(status: "device_blocked", token: token, qr_session: qr_session)
-      return alert("許可されていない端末からのアクセスです。別の端末で再試行してください。")
-    end
-
-    if policy.require_registered_device && (@device.blank? || !@device.approved?)
-      @logger.log(status: "device_blocked", token: token, qr_session: qr_session)
-      return alert("公認端末のみ出席登録できます。端末登録を申請してください。")
-    end
-
-    if @device.present?
-      @device.update(last_seen_at: @now, ip: @ip, user_agent: @user_agent)
+      return alert("許可されていないブラウザからのアクセスです。別のブラウザで再試行してください。")
     end
 
     location_result = policy.geo_policy.validate(location: @location)

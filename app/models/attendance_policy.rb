@@ -10,7 +10,6 @@ class AttendancePolicy < ApplicationRecord
     minimum_attendance_rate: 80,
     warning_absent_count: 3,
     warning_rate_percent: 70,
-    require_registered_device: false,
     require_location: true,
     geo_fence_enabled: false,
     geo_radius_m: 150,
@@ -32,7 +31,7 @@ class AttendancePolicy < ApplicationRecord
             numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }
   validates :warning_absent_count,
             numericality: { only_integer: true, greater_than_or_equal_to: 0 }
-  validates :allow_early_checkin, :require_registered_device, inclusion: { in: [true, false] }
+  validates :allow_early_checkin, inclusion: { in: [true, false] }
   validates :require_location, :geo_fence_enabled, inclusion: { in: [true, false] }
   validates :fraud_failure_threshold, :fraud_ip_burst_threshold, :fraud_token_share_threshold,
             numericality: { only_integer: true, greater_than_or_equal_to: 1 }

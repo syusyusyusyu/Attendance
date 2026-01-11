@@ -5,8 +5,7 @@
   before_action :require_login
   before_action :set_unread_notifications_count
   before_action :set_pending_requests_count
-  before_action :ensure_device_id
-  helper_method :current_user, :current_device
+  helper_method :current_user
 
   private
 
@@ -16,20 +15,6 @@
     @current_user = User.find_by(id: session[:user_id])
   end
 
-  def current_device
-    return nil unless current_user
-
-    device_id = cookies.signed[:device_id]
-    return nil if device_id.blank?
-
-    @current_device ||= current_user.devices.find_or_create_by!(device_id: device_id) do |device|
-      device.name = "未登録端末"
-      device.user_agent = request.user_agent
-      device.ip = request.remote_ip
-      device.last_seen_at = Time.current
-      device.approved = false
-    end
-  end
 
   def require_login
     return if current_user
@@ -76,16 +61,4 @@
     end
   end
 
-  def ensure_device_id
-    return unless current_user
-
-    return if cookies.signed[:device_id].present?
-
-    cookies.signed[:device_id] = {
-      value: SecureRandom.uuid,
-      expires: 1.year.from_now,
-      httponly: true,
-      same_site: :lax
-    }
-  end
 end
