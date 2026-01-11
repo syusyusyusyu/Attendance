@@ -55,6 +55,8 @@ ja:
         allow_early_checkin: "開始前許可"
         allowed_ip_ranges: "許可IP"
         allowed_user_agent_keywords: "許可ブラウザ"
+        geo_postal_code: "郵便番号"
+        geo_address: "教室住所"
         max_scans_per_minute: "分間スキャン上限"
         student_max_scans_per_minute: "学生スキャン上限"
         minimum_attendance_rate: "最低出席率"

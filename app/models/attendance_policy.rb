@@ -37,6 +37,7 @@ class AttendancePolicy < ApplicationRecord
             numericality: { only_integer: true, greater_than_or_equal_to: 1 }
   validates :geo_radius_m, :geo_accuracy_max_m,
             numericality: { only_integer: true, greater_than: 0 }, allow_nil: true
+  validates :geo_postal_code, format: { with: /\A\d{3}-?\d{4}\z/ }, allow_blank: true
   validates :geo_center_lat,
             numericality: { greater_than_or_equal_to: -90, less_than_or_equal_to: 90 }, allow_nil: true
   validates :geo_center_lng,
