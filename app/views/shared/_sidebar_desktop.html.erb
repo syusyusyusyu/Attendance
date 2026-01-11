@@ -1,0 +1,91 @@
+<aside class="hidden lg:flex flex-col w-64 h-screen fixed inset-y-0 left-0 border-r border-gray-100 bg-white z-50">
+  <!-- Logo Area -->
+  <div class="h-14 flex items-center px-6 border-b border-gray-50">
+    <div class="flex items-center gap-2 text-gray-900 font-semibold tracking-tight">
+      <div class="w-5 h-5 bg-gray-900 rounded-md flex items-center justify-center text-white text-xs">A</div>
+      <span>Attendance</span>
+    </div>
+  </div>
+
+  <!-- User Profile (Mini) -->
+  <div class="px-4 py-4">
+    <div class="flex items-center gap-3 px-2 py-2 rounded-xl bg-gray-50 border border-gray-100">
+      <% avatar_url = current_user.profile_image.presence || "https://ui-avatars.com/api/?name=#{ERB::Util.url_encode(current_user.name)}&background=random" %>
+      <img src="<%= avatar_url %>" class="w-8 h-8 rounded-full border border-gray-200" alt="">
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-medium text-gray-900 truncate"><%= current_user.name %></p>
+        <p class="text-xs text-gray-500 truncate"><%= current_user.email %></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="flex-1 overflow-y-auto px-4 space-y-0.5 py-2">
+    <% 
+      nav_items = if current_user.staff?
+        items = [
+          { name: "ホーム", path: root_path, icon: "home" },
+          { name: "クラス管理", path: school_classes_path, icon: "graduation-cap" },
+          { name: "出席確認", path: attendance_path, icon: "check-circle-2" },
+          { name: "出席申請", path: attendance_requests_path, icon: "inbox", badge: @pending_requests_count },
+          { name: "出席変更ログ", path: attendance_logs_path, icon: "history" },
+          { name: "スキャンログ", path: scan_logs_path, icon: "scan-line" },
+          { name: "レポート", path: reports_path, icon: "bar-chart-3" },
+          { name: "通知", path: notifications_path, icon: "bell" },
+          { name: "QRコード生成", path: generate_qr_path, icon: "qr-code" }
+        ]
+        if current_user.admin?
+          items.unshift({ name: "ダッシュボード", path: admin_path, icon: "layout-dashboard" })
+          items.insert(2, { name: "ユーザー管理", path: admin_users_path, icon: "users" })
+          items.insert(3, { name: "ロール/権限", path: admin_roles_path, icon: "shield" })
+          items.insert(4, { name: "操作申請", path: admin_operation_requests_path, icon: "file-key-2" })
+        end
+        items
+      else
+        [
+          { name: "ホーム", path: root_path, icon: "home" },
+          { name: "スキャン", path: scan_path, icon: "scan-line" },
+          { name: "出席履歴", path: history_path, icon: "calendar" },
+          { name: "申請", path: attendance_requests_path, icon: "inbox", badge: @pending_requests_count },
+          { name: "通知", path: notifications_path, icon: "bell" }
+        ]
+      end 
+    %>
+
+    <% nav_items.each do |item| %>
+      <% 
+        is_active = if item[:path] == root_path
+          request.path == item[:path]
+        else
+          request.path == item[:path] || request.path.start_with?("#{item[:path]}/")
+        end
+        
+        base_classes = "group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200"
+        active_classes = "bg-gray-100 text-gray-900"
+        inactive_classes = "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+      %>
+      
+      <%= link_to item[:path], class: "#{base_classes} #{is_active ? active_classes : inactive_classes}" do %>
+        <%= lucide_icon(item[:icon], class: "mr-3 h-5 w-5 #{is_active ? 'text-gray-900' : 'text-gray-400 group-hover:text-gray-500'}") %>
+        <%= item[:name] %>
+        <% if item[:badge].to_i.positive? %>
+          <span class="ml-auto bg-gray-900 text-white py-0.5 px-2 rounded-full text-xs font-medium">
+            <%= item[:badge] %>
+          </span>
+        <% end %>
+      <% end %>
+    <% end %>
+  </nav>
+
+  <!-- Bottom Actions -->
+  <div class="p-4 border-t border-gray-100">
+    <%= link_to profile_path, class: "flex items-center px-3 py-2 text-sm font-medium text-gray-500 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors" do %>
+      <%= lucide_icon("user-circle", class: "mr-3 h-5 w-5 text-gray-400") %>
+      プロフィール
+    <% end %>
+    <%= link_to logout_path, data: { turbo_method: :delete }, class: "flex items-center px-3 py-2 text-sm font-medium text-gray-500 rounded-lg hover:bg-red-50 hover:text-red-600 transition-colors" do %>
+      <%= lucide_icon("log-out", class: "mr-3 h-5 w-5 text-gray-400 group-hover:text-red-500") %>
+      ログアウト
+    <% end %>
+  </div>
+</aside>
