@@ -70,3 +70,5 @@ group :test do
   gem "minitest", "~> 5.25"
   gem "selenium-webdriver"
 end
+
+gem "lucide-rails", "~> 0.7.3"
