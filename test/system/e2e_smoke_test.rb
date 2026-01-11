@@ -1,4 +1,4 @@
-require "application_system_test_case"
+﻿require "application_system_test_case"
 require "securerandom"
 
 class E2eSmokeTest < ApplicationSystemTestCase
@@ -9,9 +9,9 @@ class E2eSmokeTest < ApplicationSystemTestCase
     @school_class = SchoolClass.create!(
       teacher: @admin,
       name: "Demo Class",
-      room: "2C教室",
+      room: SchoolClass::ROOM_OPTIONS.first,
       subject: "Demo Subject",
-      semester: "前期",
+      semester: SchoolClass::SEMESTER_OPTIONS.first,
       year: 2026,
       capacity: 30
     )
@@ -38,7 +38,7 @@ class E2eSmokeTest < ApplicationSystemTestCase
     fill_in "email", with: email
     fill_in "password", with: password
     click_button "ログイン"
-    assert_text "ログインしました。"
+    assert_current_path root_path, ignore_query: true
   end
 
   def create_user(role:)
@@ -62,3 +62,4 @@ class E2eSmokeTest < ApplicationSystemTestCase
     RolePermission.find_or_create_by!(role: role, permission: permission)
   end
 end
+

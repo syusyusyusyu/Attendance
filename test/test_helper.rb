@@ -1,6 +1,7 @@
 ENV["RAILS_ENV"] ||= "test"
 require_relative "../config/environment"
 require "rails/test_help"
+require_relative "support/test_data_helper"
 
 ActiveRecord.verify_foreign_keys_for_fixtures = false
 
@@ -13,5 +14,6 @@ module ActiveSupport
     fixtures :all
 
     # Add more helper methods to be used by all tests here...
+    include TestDataHelper
   end
 end
