@@ -1,0 +1,5 @@
+<%= turbo_stream.prepend "school_classes_list",
+  partial: "school_classes/card",
+  locals: { klass: @school_class } %>
+<%= turbo_stream.remove "school_classes_empty" %>
+<%= turbo_stream.replace "school_class_form", partial: "school_classes/form_frame" %>

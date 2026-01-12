@@ -1,0 +1,20 @@
+<%= turbo_frame_tag "admin_user_form",
+  class: "drawer-panel",
+  data: { controller: "drawer", drawer_open_value: true } do %>
+  <div class="card p-6 space-y-4">
+    <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+      <div>
+        <h2 class="text-xl font-semibold text-gray-900"><%= title %></h2>
+        <% if subtitle.present? %>
+          <p class="text-sm text-gray-500 mt-1"><%= subtitle %></p>
+        <% end %>
+      </div>
+      <button type="button" class="text-sm text-gray-500 hover:text-gray-700" data-action="drawer#close">
+        閉じる
+      </button>
+    </div>
+    <div>
+      <%= render "form", user: user %>
+    </div>
+  </div>
+<% end %>

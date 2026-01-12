@@ -1,0 +1,5 @@
+<%= turbo_stream.prepend "admin_users_rows",
+  partial: "admin/users/row",
+  locals: { user: @user } %>
+<%= turbo_stream.remove "admin_users_empty" %>
+<%= turbo_stream.replace "admin_user_form", partial: "admin/users/form_frame" %>

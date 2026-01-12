@@ -1,0 +1,21 @@
+<tr id="<%= dom_id(user) %>">
+  <td class="px-4 py-2 text-sm text-gray-700"><%= user.name %></td>
+  <td class="px-4 py-2 text-sm text-gray-500"><%= user.email %></td>
+  <td class="px-4 py-2 text-sm text-gray-500"><%= user.student_id || "-" %></td>
+  <td class="px-4 py-2 text-sm text-gray-700"><%= user.role %></td>
+  <td class="px-4 py-2 text-sm text-gray-500"><%= user.last_login&.strftime("%Y-%m-%d %H:%M") || "-" %></td>
+  <td class="px-4 py-2 text-right">
+    <div class="flex items-center justify-end gap-3">
+      <%= link_to "編集",
+        edit_admin_user_path(user),
+        class: "text-google-green text-sm",
+        data: { turbo_frame: "admin_user_form" } %>
+      <% if user != current_user %>
+        <%= link_to "削除",
+          admin_user_path(user),
+          data: { turbo_method: :delete, turbo_confirm: "本当に削除しますか？" },
+          class: "text-red-600 text-sm" %>
+      <% end %>
+    </div>
+  </td>
+</tr>

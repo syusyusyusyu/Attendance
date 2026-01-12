@@ -28,6 +28,10 @@
   <p class="text-xs text-gray-500">学生は未入力の場合、学籍IDが初期パスワードになります。</p>
   <div class="flex gap-2">
     <%= f.submit class: "btn btn-primary" %>
-    <%= link_to "戻る", admin_users_path, class: "btn btn-secondary" %>
+    <% if turbo_frame_request? %>
+      <button type="button" class="btn btn-secondary" data-action="drawer#close">閉じる</button>
+    <% else %>
+      <%= link_to "戻る", admin_users_path, class: "btn btn-secondary" %>
+    <% end %>
   </div>
 <% end %>

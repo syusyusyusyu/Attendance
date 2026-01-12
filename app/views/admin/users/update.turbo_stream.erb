@@ -1,0 +1,4 @@
+<%= turbo_stream.replace @user,
+  partial: "admin/users/row",
+  locals: { user: @user } %>
+<%= turbo_stream.replace "admin_user_form", partial: "admin/users/form_frame" %>

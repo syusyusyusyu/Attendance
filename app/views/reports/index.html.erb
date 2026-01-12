@@ -1,4 +1,5 @@
 ﻿<div class="max-w-6xl mx-auto space-y-6">
+  <%= turbo_frame_tag "reports_results" do %>
   <div class="card p-6">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <div>
@@ -340,10 +341,12 @@
       <div class="flex flex-col sm:flex-row gap-2">
         <%= link_to "CSV出力",
           reports_path(format: :csv, class_id: @selected_class.id, start_date: @start_date, end_date: @end_date),
-          class: "btn btn-secondary" %>
+          class: "btn btn-secondary",
+          data: { turbo: false } %>
         <%= link_to "PDF出力",
           reports_path(format: :pdf, class_id: @selected_class.id, start_date: @start_date, end_date: @end_date),
-          class: "btn btn-primary" %>
+          class: "btn btn-primary",
+          data: { turbo: false } %>
       </div>
       <p class="text-xs text-gray-500 mt-2">出力対象は授業回が存在する日付のみです。</p>
     </div>
@@ -351,5 +354,6 @@
     <div class="card p-6 text-sm text-gray-500">
       クラスを選択すると詳細分析と期末レポートが表示されます。
     </div>
+  <% end %>
   <% end %>
 </div>

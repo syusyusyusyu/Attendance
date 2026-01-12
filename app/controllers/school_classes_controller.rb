@@ -35,7 +35,10 @@ class SchoolClassesController < ApplicationController
 
     if @school_class.save
       AttendancePolicy.find_or_create_by!(school_class: @school_class, **AttendancePolicy.default_attributes)
-      redirect_to school_class_path(@school_class), notice: "クラスを作成しました。"
+      respond_to do |format|
+        format.turbo_stream
+        format.html { redirect_to school_class_path(@school_class), notice: "クラスを作成しました。" }
+      end
     else
       render :new, status: :unprocessable_entity
     end

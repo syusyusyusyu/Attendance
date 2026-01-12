@@ -31,7 +31,10 @@ class Admin::UsersController < Admin::BaseController
 
     @user = User.new(attrs)
     if @user.save
-      redirect_to admin_users_path, notice: "ユーザーを作成しました。"
+      respond_to do |format|
+        format.turbo_stream
+        format.html { redirect_to admin_users_path, notice: "ユーザーを作成しました。" }
+      end
     else
       render :new, status: :unprocessable_entity
     end
@@ -48,7 +51,10 @@ class Admin::UsersController < Admin::BaseController
     end
 
     if @user.update(attrs)
-      redirect_to admin_users_path, notice: "ユーザーを更新しました。"
+      respond_to do |format|
+        format.turbo_stream
+        format.html { redirect_to admin_users_path, notice: "ユーザーを更新しました。" }
+      end
     else
       render :edit, status: :unprocessable_entity
     end
@@ -66,7 +72,10 @@ class Admin::UsersController < Admin::BaseController
     end
 
     @user.destroy!
-    redirect_to admin_users_path, notice: "ユーザーを削除しました。"
+    respond_to do |format|
+      format.turbo_stream
+      format.html { redirect_to admin_users_path, notice: "ユーザーを削除しました。" }
+    end
   end
 
   private
