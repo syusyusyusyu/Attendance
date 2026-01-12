@@ -42,6 +42,8 @@
         <% nav_items.each do |item| %>
           <% active = if item[:path] == root_path
             request.path == item[:path]
+          elsif item[:path] == admin_path
+            request.path == item[:path]
           else
             request.path == item[:path] || request.path.start_with?("#{item[:path]}/")
           end %>
