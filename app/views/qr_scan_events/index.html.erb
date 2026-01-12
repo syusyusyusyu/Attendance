@@ -124,6 +124,11 @@
         </div>
         <div class="md:col-span-4 flex flex-col sm:flex-row gap-2">
           <%= f.submit "絞り込む", class: "btn btn-primary w-full sm:w-auto" %>
+          <% if session[:qr_scan_events_last_filter].present? %>
+            <%= link_to "前回条件",
+              scan_logs_path(session[:qr_scan_events_last_filter]),
+              class: "btn btn-secondary w-full sm:w-auto" %>
+          <% end %>
           <%= link_to "CSV出力",
             scan_logs_path(format: :csv, class_id: @selected_class&.id, date: @date, status: @status, attendance_status: @attendance_status),
             class: "btn btn-secondary w-full sm:w-auto",

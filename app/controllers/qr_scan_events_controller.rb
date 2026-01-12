@@ -10,6 +10,13 @@ class QrScanEventsController < ApplicationController
     @date = params[:date].present? ? Date.parse(params[:date]) : nil
     @status = params[:status].presence
     @attendance_status = params[:attendance_status].presence
+    @last_filter = {
+      class_id: params[:class_id],
+      date: params[:date],
+      status: params[:status],
+      attendance_status: params[:attendance_status]
+    }.compact_blank
+    session[:qr_scan_events_last_filter] = @last_filter if @last_filter.present?
 
     scope = QrScanEvent.includes(:user, :school_class, :qr_session).order(scanned_at: :desc)
     scope = scope.where(school_class: @selected_class) if @selected_class

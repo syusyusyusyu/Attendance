@@ -25,6 +25,9 @@ class AttendanceChangesController < ApplicationController
       filter_params = filter_params.merge(default_search&.filters || {}) if default_search
     end
 
+    @last_filter = filter_params.compact_blank
+    session[:attendance_changes_last_filter] = @last_filter if @last_filter.present?
+
     @selected_class = @classes.find_by(id: filter_params["class_id"])
     @start_date = filter_params["start_date"].present? ? Date.parse(filter_params["start_date"]) : nil
     @end_date = filter_params["end_date"].present? ? Date.parse(filter_params["end_date"]) : nil

@@ -165,6 +165,40 @@
     @apply bottom-0 right-0 border-t-0 border-l-0;
   }
 
+  .scan-success {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.35);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 200ms ease;
+  }
+
+  .scan-success.is-active {
+    opacity: 1;
+  }
+
+  .scan-success-circle {
+    width: 84px;
+    height: 84px;
+    border-radius: 9999px;
+    background: rgba(52, 168, 83, 0.2);
+    border: 2px solid rgba(52, 168, 83, 0.7);
+    animation: scanPulse 0.8s ease;
+  }
+
+  .scan-success-icon {
+    position: absolute;
+    width: 44px;
+    height: 44px;
+    color: #ffffff;
+    animation: scanCheck 0.6s ease;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.35));
+  }
+
   .qr-code svg,
   .qr-code img {
     @apply w-full h-auto;
@@ -275,6 +309,32 @@ details summary {
   }
   to {
     transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes scanPulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes scanCheck {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
     opacity: 1;
   }
 }

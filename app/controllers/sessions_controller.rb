@@ -27,7 +27,14 @@ class SessionsController < ApplicationController
       session[:user_id] = user.id
       user.update!(last_login: Time.current)
       session[:show_onboarding] = true if first_login
-      redirect_path = session.delete(:return_to).presence || root_path
+      redirect_path = session.delete(:return_to).presence
+      if redirect_path.blank?
+        if params[:redirect_to].to_s == "scan" && user.student?
+          redirect_path = scan_path
+        else
+          redirect_path = root_path
+        end
+      end
       redirect_to redirect_path, notice: "ログインしました。"
     else
       register_failed_login(ip, email)

@@ -10,12 +10,17 @@ export default class extends Controller {
     "editButton",
     "saveButton",
     "cancelButton",
-    "reasonBlock"
+    "reasonBlock",
+    "changeBanner",
+    "changeCount",
+    "changeList"
   ]
   static values = { editing: Boolean }
 
   connect() {
+    this.initializeRowOrder()
     this.updateState()
+    this.updateChangeSummary()
   }
 
   edit() {
@@ -96,7 +101,9 @@ export default class extends Controller {
     })
     this.rowTargets.forEach((row) => {
       row.classList.remove("bg-yellow-50")
+      row.dataset.changed = ""
     })
+    this.updateChangeSummary()
   }
 
   markChanged(event) {
@@ -106,6 +113,8 @@ export default class extends Controller {
 
     const changed = field.value !== field.dataset.initialValue
     row.classList.toggle("bg-yellow-50", changed)
+    row.dataset.changed = changed ? "true" : ""
+    this.updateChangeSummary()
   }
 
   submitEnd(event) {
@@ -118,5 +127,69 @@ export default class extends Controller {
 
   drawerFor(element) {
     return this.application.getControllerForElementAndIdentifier(element, "drawer")
+  }
+
+  updateChangeSummary() {
+    if (!this.hasChangeBannerTarget || !this.hasChangeCountTarget || !this.hasChangeListTarget) {
+      return
+    }
+
+    this.ensureRowOrder()
+    const changedRows = this.rowTargets.filter((row) => row.dataset.changed === "true")
+    const count = changedRows.length
+    this.changeCountTarget.textContent = count.toString()
+
+    if (count === 0) {
+      this.changeBannerTarget.classList.add("hidden")
+      this.changeListTarget.textContent = ""
+      this.reorderRows()
+      return
+    }
+
+    const names = changedRows.map((row) => row.dataset.name || "").filter((name) => name.length > 0)
+    const sample = names.slice(0, 3)
+    const extra = names.length - sample.length
+    const label = extra > 0 ? `${sample.join("、")} 他${extra}件` : sample.join("、")
+    this.changeListTarget.textContent = label
+    this.changeBannerTarget.classList.remove("hidden")
+    this.reorderRows()
+  }
+
+  initializeRowOrder() {
+    this.rowTargets.forEach((row, index) => {
+      if (!row.dataset.order) {
+        row.dataset.order = index.toString()
+      }
+    })
+  }
+
+  ensureRowOrder() {
+    let updated = false
+    this.rowTargets.forEach((row, index) => {
+      if (!row.dataset.order) {
+        row.dataset.order = index.toString()
+        updated = true
+      }
+    })
+    if (updated) {
+      this.rowTargets.forEach((row, index) => {
+        row.dataset.order ||= index.toString()
+      })
+    }
+  }
+
+  reorderRows() {
+    const rows = [...this.rowTargets]
+    const parent = rows[0]?.parentElement
+    if (!parent) return
+
+    rows.sort((a, b) => {
+      const aChanged = a.dataset.changed === "true" ? 0 : 1
+      const bChanged = b.dataset.changed === "true" ? 0 : 1
+      if (aChanged !== bChanged) return aChanged - bChanged
+      return Number(a.dataset.order) - Number(b.dataset.order)
+    })
+
+    rows.forEach((row) => parent.appendChild(row))
   }
 }

@@ -71,6 +71,11 @@
         <div class="md:col-span-6 grid grid-cols-1 md:grid-cols-6 gap-2">
           <div class="md:col-span-3 flex flex-col sm:flex-row gap-2">
             <%= f.submit "絞り込む", class: "btn btn-primary w-full sm:w-auto" %>
+            <% if session[:attendance_changes_last_filter].present? %>
+              <%= link_to "前回条件",
+                attendance_logs_path(session[:attendance_changes_last_filter]),
+                class: "btn btn-secondary w-full sm:w-auto" %>
+            <% end %>
             <%= link_to "CSV出力",
               attendance_logs_path(format: :csv, class_id: @selected_class&.id, start_date: @start_date, end_date: @end_date, status: @status, source: @source, q: @query),
               class: "btn btn-secondary w-full sm:w-auto",
@@ -112,41 +117,31 @@
         <table class="min-w-full divide-y divide-gray-200 text-sm">
           <thead class="bg-gray-50">
             <tr>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">時刻</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">クラス</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">学生</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">内容</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">理由</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作者</th>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">概要</th>
               <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">種別</th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
             <% if @changes.any? %>
               <% @changes.each do |change| %>
+                <% timestamp = change.changed_at&.strftime("%Y-%m-%d %H:%M") || "-" %>
+                <% actor = change.modified_by&.name || "-" %>
+                <% student_name = change.user&.name || "-" %>
+                <% student_id = change.user&.student_id || "-" %>
+                <% klass_name = change.school_class&.name || "-" %>
+                <% change_label = "#{status_labels[change.previous_status] || "-"}→#{status_labels[change.new_status] || change.new_status}" %>
+                <% reason = change.reason.presence || "-" %>
+                <% summary = "#{timestamp} / 操作者: #{actor} / 学生: #{student_name}(#{student_id}) / クラス: #{klass_name} / 内容: #{change_label} / 理由: #{reason}" %>
                 <tr>
-                  <td class="px-4 py-2 text-sm text-gray-500">
-                    <div><%= change.changed_at&.strftime("%Y-%m-%d") %></div>
-                    <div class="text-xs text-gray-400"><%= change.changed_at&.strftime("%H:%M:%S") %></div>
-                  </td>
-                  <td class="px-4 py-2 text-sm text-gray-700"><%= change.school_class&.name || "-" %></td>
                   <td class="px-4 py-2 text-sm text-gray-700">
-                    <div><%= change.user&.name || "-" %></div>
-                    <div class="text-xs text-gray-400"><%= change.user&.student_id || "-" %></div>
+                    <div class="max-w-[720px] truncate" title="<%= summary %>"><%= summary %></div>
                   </td>
-                  <td class="px-4 py-2 text-sm text-gray-700">
-                    <span class="<%= status_badges[change.previous_status] || "badge" %>"><%= status_labels[change.previous_status] || "-" %></span>
-                    →
-                    <span class="<%= status_badges[change.new_status] || "badge" %>"><%= status_labels[change.new_status] || change.new_status %></span>
-                  </td>
-                  <td class="px-4 py-2 text-sm text-gray-500"><%= change.reason.presence || "-" %></td>
-                  <td class="px-4 py-2 text-sm text-gray-500"><%= change.modified_by&.name || "-" %></td>
                   <td class="px-4 py-2 text-sm text-gray-500"><%= source_labels[change.source] || change.source %></td>
                 </tr>
               <% end %>
             <% else %>
               <tr>
-                <td colspan="7" class="px-4 py-6 text-center text-sm text-gray-500">該当なし</td>
+                <td colspan="2" class="px-4 py-6 text-center text-sm text-gray-500">該当なし</td>
               </tr>
             <% end %>
           </tbody>

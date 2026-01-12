@@ -182,7 +182,10 @@ end %>
                   <div class="text-xs text-gray-500"><%= klass.room %> / <%= klass.schedule_label %></div>
                 </div>
                 <div class="flex flex-col items-end gap-2">
-                  <%= link_to "QR発行", generate_qr_path(class_id: klass.id), class: "btn btn-primary text-xs" %>
+                  <div class="flex flex-wrap items-center justify-end gap-2">
+                    <%= link_to "QR発行", generate_qr_path(class_id: klass.id), class: "btn btn-primary text-xs" %>
+                    <%= link_to "出席確認", attendance_path(class_id: klass.id, date: Time.zone.today), class: "btn btn-secondary text-xs" %>
+                  </div>
                   <div class="text-xs text-gray-500"><%= stats[:total] %>名</div>
                 </div>
               </div>

@@ -11,7 +11,8 @@ export default class extends Controller {
     "latitude",
     "longitude",
     "accuracy",
-    "locationSource"
+    "locationSource",
+    "successOverlay"
   ]
   static values = { submitOnScan: Boolean, locationRequired: { type: Boolean, default: true } }
 
@@ -63,6 +64,7 @@ export default class extends Controller {
 
   disconnect() {
     this.stop()
+    clearTimeout(this.successTimer)
   }
 
   start() {
@@ -177,6 +179,7 @@ export default class extends Controller {
     }
 
     this.updateStatus("detected")
+    this.showSuccessOverlay()
     this.vibrateSuccess()
     this.stop()
 
@@ -347,5 +350,15 @@ export default class extends Controller {
     if (navigator.vibrate) {
       navigator.vibrate([60])
     }
+  }
+
+  showSuccessOverlay() {
+    if (!this.hasSuccessOverlayTarget) return
+    const overlay = this.successOverlayTarget
+    overlay.classList.add("is-active")
+    clearTimeout(this.successTimer)
+    this.successTimer = setTimeout(() => {
+      overlay.classList.remove("is-active")
+    }, 900)
   }
 }

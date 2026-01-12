@@ -59,14 +59,6 @@
               <%= f.hidden_field :close_after_minutes, value: AttendancePolicy::DEFAULTS[:close_after_minutes] %>
             </div>
             <div>
-              <%= f.label :max_scans_per_minute, "分間スキャン上限", class: "block text-sm font-medium text-gray-700 mb-2" %>
-              <%= f.number_field :max_scans_per_minute, value: @policy.max_scans_per_minute, min: 1, class: "input" %>
-            </div>
-            <div>
-              <%= f.label :student_max_scans_per_minute, "学生単位の分間上限", class: "block text-sm font-medium text-gray-700 mb-2" %>
-              <%= f.number_field :student_max_scans_per_minute, value: @policy.student_max_scans_per_minute, min: 1, class: "input" %>
-            </div>
-            <div>
               <%= f.label :minimum_attendance_rate, "最低出席率(%)", class: "block text-sm font-medium text-gray-700 mb-2" %>
               <%= f.number_field :minimum_attendance_rate, value: @policy.minimum_attendance_rate, min: 0, max: 100, class: "input" %>
             </div>
@@ -255,6 +247,15 @@
                 </svg>
                 編集
               </button>
+            </div>
+          </div>
+
+          <div class="sticky top-[calc(var(--app-header-height)+0.5rem)] z-10 hidden" data-attendance-target="changeBanner">
+            <div class="rounded-lg border border-yellow-200 bg-yellow-50 px-4 py-2 text-sm text-gray-800 shadow-sm">
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div class="font-medium">変更中: <span data-attendance-target="changeCount">0</span>件</div>
+                <div class="text-xs text-gray-600 truncate" data-attendance-target="changeList"></div>
+              </div>
             </div>
           </div>
 

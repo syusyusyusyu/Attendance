@@ -1,12 +1,14 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["item", "toggle"]
+  static targets = ["item", "toggle", "floating", "count"]
   static values = { formId: String }
 
   connect() {
     this.handleKeydown = this.handleKeydown.bind(this)
     window.addEventListener("keydown", this.handleKeydown)
+    this.syncToggle()
+    this.updateFloating()
   }
 
   disconnect() {
@@ -16,8 +18,10 @@ export default class extends Controller {
   toggleAll() {
     const checked = this.toggleTarget.checked
     this.itemTargets.forEach((item) => {
+      if (item.disabled) return
       item.checked = checked
     })
+    this.updateFloating()
   }
 
   syncToggle() {
@@ -27,6 +31,7 @@ export default class extends Controller {
       this.toggleTarget.checked = total > 0 && checked === total
       this.toggleTarget.indeterminate = checked > 0 && checked < total
     }
+    this.updateFloating()
   }
 
   handleKeydown(event) {
@@ -65,6 +70,14 @@ export default class extends Controller {
     }
   }
 
+  approveSelected() {
+    this.submitBulk("approved")
+  }
+
+  rejectSelected() {
+    this.submitBulk("rejected")
+  }
+
   isTyping(event) {
     const target = event.target
     if (!target) {
@@ -72,5 +85,12 @@ export default class extends Controller {
     }
     const tagName = target.tagName?.toLowerCase()
     return tagName === "input" || tagName === "textarea" || tagName === "select" || target.isContentEditable
+  }
+
+  updateFloating() {
+    if (!this.hasFloatingTarget || !this.hasCountTarget) return
+    const selected = this.itemTargets.filter((item) => item.checked && !item.disabled)
+    this.countTarget.textContent = selected.length.toString()
+    this.floatingTarget.classList.toggle("hidden", selected.length === 0)
   }
 }
