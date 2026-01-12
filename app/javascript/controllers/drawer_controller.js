@@ -2,6 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static values = { open: { type: Boolean, default: false } }
+  static openCount = 0
 
   connect() {
     this.isOpen = false
@@ -15,12 +16,17 @@ export default class extends Controller {
   disconnect() {
     clearTimeout(this.openTimer)
     clearTimeout(this.closeTimer)
+    if (this.isOpen) {
+      this.unlockScroll()
+      this.isOpen = false
+    }
     this.element.removeEventListener("turbo:frame-load", this.handleFrameLoad)
   }
 
   open() {
     if (this.isOpen) return
     this.isOpen = true
+    this.lockScroll()
     this.element.classList.remove("hidden")
     this.animateOpen()
   }
@@ -88,12 +94,27 @@ export default class extends Controller {
       el.style.transition = ""
       el.style.overflow = ""
       this.isOpen = false
+      this.unlockScroll()
     }, 240)
   }
 
   handleFrameLoad() {
     if (this.element.classList.contains("hidden")) {
       this.open()
+    }
+  }
+
+  lockScroll() {
+    if (DrawerController.openCount === 0) {
+      document.body.classList.add("drawer-open")
+    }
+    DrawerController.openCount += 1
+  }
+
+  unlockScroll() {
+    DrawerController.openCount = Math.max(0, DrawerController.openCount - 1)
+    if (DrawerController.openCount === 0) {
+      document.body.classList.remove("drawer-open")
     }
   }
 

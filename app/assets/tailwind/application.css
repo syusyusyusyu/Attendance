@@ -30,6 +30,11 @@
     text-orientation: mixed;
   }
 
+  body.drawer-open {
+    overflow: hidden;
+    height: 100%;
+  }
+
   img,
   svg,
   video,
