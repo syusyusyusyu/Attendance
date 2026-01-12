@@ -16,7 +16,7 @@
       </div>
     </div>
     <div class="p-6">
-      <%= form_with model: school_class, class: "space-y-6" do |f| %>
+      <%= form_with model: school_class, class: "space-y-6", multipart: true do |f| %>
         <%= render "form", f: f %>
         <div class="flex justify-end">
           <%= f.submit submit_label, class: "btn btn-primary" %>

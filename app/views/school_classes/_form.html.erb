@@ -1,6 +1,9 @@
 <% schedule = @school_class.schedule || {} %>
 <% day_names = %w[日 月 火 水 木 金 土] %>
 <% period_value = schedule["period"] || SchoolClass.period_for_times(schedule["start_time"], schedule["end_time"]) %>
+<% schedule_start_time = schedule["start_time"] || schedule[:start_time] %>
+<% schedule_end_time = schedule["end_time"] || schedule[:end_time] %>
+<% use_custom_time = schedule["period"].blank? && period_value.blank? && schedule_start_time.present? && schedule_end_time.present? %>
 <% room_options = SchoolClass::ROOM_OPTIONS %>
 <% semester_options = SchoolClass::SEMESTER_OPTIONS %>
 
@@ -69,8 +72,35 @@
           class: "input" %>
       </div>
     </div>
-    <p class="text-xs text-gray-500 mt-2">授業時間は大阪情報コンピュータ専門学校の時限に固定されています。</p>
+    <div class="mt-4 rounded-lg bg-gray-50 p-4">
+      <div class="flex items-center gap-2">
+        <%= check_box_tag "school_class[schedule_use_custom_time]", "1", use_custom_time, id: "schedule_use_custom_time" %>
+        <%= label_tag "schedule_use_custom_time", "デモ用: 時限を使わず時間を指定", class: "text-sm text-gray-700" %>
+      </div>
+      <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <%= label_tag :schedule_start_time, "開始時刻", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= time_field_tag "school_class[schedule_start_time]", (use_custom_time ? schedule_start_time : nil), class: "input", step: 60 %>
+        </div>
+        <div>
+          <%= label_tag :schedule_end_time, "終了時刻", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= time_field_tag "school_class[schedule_end_time]", (use_custom_time ? schedule_end_time : nil), class: "input", step: 60 %>
+        </div>
+      </div>
+      <p class="text-xs text-gray-500 mt-2">チェック時のみ「開始/終了時刻」が反映されます。</p>
+    </div>
+    <p class="text-xs text-gray-500 mt-2">授業時間は大阪情報コンピュータ専門学校の時限に固定されています（デモ用時間指定を有効にした場合は上書き）。</p>
   </div>
+
+  <% if current_user.admin? %>
+    <div class="border border-gray-200 rounded-lg p-4">
+      <h3 class="text-sm font-medium text-gray-700 mb-2">履修者CSVインポート（任意）</h3>
+      <%= file_field_tag :roster_csv_file, accept: ".csv", class: "input" %>
+      <p class="text-xs text-gray-500 mt-2">
+        必須列: 学生ID / 氏名 / メール。パスワードは任意です（未入力の場合は学生IDが初期パスワードになります）。
+      </p>
+    </div>
+  <% end %>
 
   <div class="flex items-center space-x-2">
     <%= f.check_box :is_active %>

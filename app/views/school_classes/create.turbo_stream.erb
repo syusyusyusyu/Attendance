@@ -3,3 +3,4 @@
   locals: { klass: @school_class } %>
 <%= turbo_stream.remove "school_classes_empty" %>
 <%= turbo_stream.replace "school_class_form", partial: "school_classes/form_frame" %>
+<%= turbo_stream.replace "flash", partial: "shared/flash" %>
