@@ -73,34 +73,34 @@ end %>
   </div>
 
   <% if @user.staff? %>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <%= link_to school_classes_path, class: "bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 cursor-pointer transition hover:-translate-y-1 hover:shadow-md" do %>
-        <div class="mb-4 text-google-blue">
-          <svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <div class="grid grid-cols-4 gap-2 sm:gap-4">
+      <%= link_to school_classes_path, class: "bg-white min-w-0 p-3 sm:p-6 rounded-lg shadow-sm border border-gray-200 cursor-pointer transition hover:-translate-y-1 hover:shadow-md" do %>
+        <div class="mb-2 sm:mb-4 text-google-blue">
+          <svg class="h-6 w-6 sm:h-8 sm:w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="8" cy="8" r="3" />
             <circle cx="17" cy="8" r="3" />
             <path d="M2 20a6 6 0 0 1 12 0" stroke-linecap="round" stroke-linejoin="round" />
             <path d="M13 20a6 6 0 0 1 9 0" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
         </div>
-        <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-1">クラス管理</h3>
-        <p class="text-sm text-gray-500">クラス/名簿</p>
+        <h3 class="text-xs sm:text-lg font-medium text-gray-900 mb-1 truncate">クラス管理</h3>
+        <p class="text-xs sm:text-sm text-gray-500 truncate">クラス/名簿</p>
       <% end %>
 
-      <%= link_to attendance_path, class: "bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 cursor-pointer transition hover:-translate-y-1 hover:shadow-md" do %>
-        <div class="mb-4 text-google-red">
-          <svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <%= link_to attendance_path, class: "bg-white min-w-0 p-3 sm:p-6 rounded-lg shadow-sm border border-gray-200 cursor-pointer transition hover:-translate-y-1 hover:shadow-md" do %>
+        <div class="mb-2 sm:mb-4 text-google-red">
+          <svg class="h-6 w-6 sm:h-8 sm:w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="9" />
             <path d="M12 7v5l3 3" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
         </div>
-        <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-1">出席確認</h3>
-        <p class="text-sm text-gray-500">出席一覧</p>
+        <h3 class="text-xs sm:text-lg font-medium text-gray-900 mb-1 truncate">出席確認</h3>
+        <p class="text-xs sm:text-sm text-gray-500 truncate">出席一覧</p>
       <% end %>
 
-      <%= link_to generate_qr_path, class: "bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 cursor-pointer transition hover:-translate-y-1 hover:shadow-md" do %>
-        <div class="mb-4 text-google-green">
-          <svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <%= link_to generate_qr_path, class: "bg-white min-w-0 p-3 sm:p-6 rounded-lg shadow-sm border border-gray-200 cursor-pointer transition hover:-translate-y-1 hover:shadow-md" do %>
+        <div class="mb-2 sm:mb-4 text-google-green">
+          <svg class="h-6 w-6 sm:h-8 sm:w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="3" width="6" height="6" />
             <rect x="15" y="3" width="6" height="6" />
             <rect x="3" y="15" width="6" height="6" />
@@ -108,19 +108,19 @@ end %>
             <path d="M11 11h2v2h-2z" />
           </svg>
         </div>
-        <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-1">QRコード生成</h3>
-        <p class="text-sm text-gray-500">授業QR</p>
+        <h3 class="text-xs sm:text-lg font-medium text-gray-900 mb-1 truncate">QRコード生成</h3>
+        <p class="text-xs sm:text-sm text-gray-500 truncate">授業QR</p>
       <% end %>
 
-      <%= link_to reports_path, class: "bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 cursor-pointer transition hover:-translate-y-1 hover:shadow-md" do %>
-        <div class="mb-4 text-google-yellow">
-          <svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <%= link_to reports_path, class: "bg-white min-w-0 p-3 sm:p-6 rounded-lg shadow-sm border border-gray-200 cursor-pointer transition hover:-translate-y-1 hover:shadow-md" do %>
+        <div class="mb-2 sm:mb-4 text-google-yellow">
+          <svg class="h-6 w-6 sm:h-8 sm:w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M3 3v18h18" stroke-linecap="round" stroke-linejoin="round" />
             <path d="M7 14l3-3 3 3 5-6" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
         </div>
-        <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-1">レポート</h3>
-        <p class="text-sm text-gray-500">集計</p>
+        <h3 class="text-xs sm:text-lg font-medium text-gray-900 mb-1 truncate">レポート</h3>
+        <p class="text-xs sm:text-sm text-gray-500 truncate">集計</p>
       <% end %>
     </div>
   <% else %>
