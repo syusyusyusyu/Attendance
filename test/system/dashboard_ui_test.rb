@@ -6,7 +6,7 @@ class DashboardUiTest < ApplicationSystemTestCase
 
     sign_in(student.email)
 
-    assert_text "出席登録"
+    assert_text "QRスキャン"
   end
 
   test "teacher dashboard shows attendance card" do
@@ -16,7 +16,7 @@ class DashboardUiTest < ApplicationSystemTestCase
     sign_in(teacher.email)
 
     assert_text "出席確認"
-    assert_text "本日の出席状況"
+    assert_text "今日の授業"
   end
 
   private

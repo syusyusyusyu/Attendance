@@ -20,6 +20,10 @@ class DashboardController < ApplicationController
         absent = status_counts[[class_id, "absent"]].to_i
         recorded = present + late + excused + early_leave + absent
         missing = [total - recorded, 0].max
+        @overall_total ||= 0
+        @overall_present_equiv ||= 0
+        @overall_total += total
+        @overall_present_equiv += present + late + excused
         rate =
           if total.zero?
             0
@@ -38,6 +42,13 @@ class DashboardController < ApplicationController
           rate: rate
         }
       end
+
+      @staff_attendance_rate =
+        if @overall_total.to_i.zero?
+          0
+        else
+          ((@overall_present_equiv.to_i * 100.0) / @overall_total.to_i).round
+        end
 
       recent_range = 30.days.ago.to_date..today
       absents = AttendanceRecord
@@ -95,6 +106,15 @@ class DashboardController < ApplicationController
         }
       end
 
+      total_expected = @student_summary.sum { |row| row[:total].to_i }
+      present_equiv = @student_summary.sum { |row| row[:present].to_i + row[:late].to_i + row[:excused].to_i }
+      @student_attendance_rate =
+        if total_expected.zero?
+          0
+        else
+          ((present_equiv * 100.0) / total_expected).round
+        end
+
       @student_warnings = @student_summary.select do |row|
         policy = row[:policy]
         absence_count = row[:absent] + row[:early_leave]
@@ -107,5 +127,7 @@ class DashboardController < ApplicationController
       result = ClassSessionResolver.new(school_class: klass, date: today).resolve
       memo[klass.id] = result&.dig(:session)
     end
+
+    @today_classes = @user.staff? ? @classes.select { |klass| @today_sessions[klass.id].present? } : []
   end
 end

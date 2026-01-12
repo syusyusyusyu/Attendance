@@ -24,26 +24,65 @@ end %>
   <% if @user.student? && @show_onboarding %>
     <div class="bg-white rounded-lg shadow-sm border border-green-200 p-4 sm:p-6">
       <h2 class="text-lg font-semibold text-gray-900 mb-2">初回ガイド</h2>
-      <ol class="list-decimal list-inside text-sm text-gray-600 space-y-1">
-        <li>「出席登録」からQRをスキャン</li>
-        <li>QRをもう一度スキャンすると退室が記録されます</li>
-        <li>欠席/遅刻の時は「出席申請」から理由を送信</li>
-      </ol>
-      <div class="mt-4 grid grid-cols-1 gap-3 text-sm text-gray-600">
-        <div class="border border-gray-200 rounded-lg p-3">
-          <h3 class="text-sm font-medium text-gray-900 mb-2">FAQ</h3>
-          <ul class="list-disc list-inside space-y-1 text-xs">
-            <li>カメラが起動しない場合は手入力を利用</li>
-            <li>表示されるQRは1分ごとに更新</li>
-            <li>遅刻・欠席は申請が必要</li>
-          </ul>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm text-gray-700">
+        <div class="flex items-center gap-2">
+          <span class="w-6 h-6 rounded-full bg-google-green text-white text-xs flex items-center justify-center">1</span>
+          <span>QRを開く</span>
         </div>
+        <div class="flex items-center gap-2">
+          <span class="w-6 h-6 rounded-full bg-google-green text-white text-xs flex items-center justify-center">2</span>
+          <span>スキャンで出席</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="w-6 h-6 rounded-full bg-google-green text-white text-xs flex items-center justify-center">3</span>
+          <span>再スキャンで退室</span>
+        </div>
+      </div>
+      <div class="mt-3 text-xs text-gray-500">困ったら: 手入力 / 出席申請</div>
+    </div>
+  <% end %>
+
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <% if @user.staff? %>
+      <div class="bg-white p-4 sm:p-5 rounded-lg shadow-sm border border-gray-200">
+        <div class="text-xs text-gray-500">出席率</div>
+        <div class="mt-1 text-2xl font-semibold text-gray-900"><%= @staff_attendance_rate %>%</div>
+      </div>
+      <div class="bg-white p-4 sm:p-5 rounded-lg shadow-sm border border-gray-200">
+        <div class="text-xs text-gray-500">承認待ち</div>
+        <div class="mt-1 text-2xl font-semibold text-gray-900"><%= @pending_requests_count %>件</div>
+      </div>
+      <div class="bg-white p-4 sm:p-5 rounded-lg shadow-sm border border-gray-200">
+        <div class="text-xs text-gray-500">注意学生</div>
+        <div class="mt-1 text-2xl font-semibold text-gray-900"><%= @attention_students.size %>名</div>
+      </div>
+    <% else %>
+      <div class="bg-white p-4 sm:p-5 rounded-lg shadow-sm border border-gray-200">
+        <div class="text-xs text-gray-500">出席率</div>
+        <div class="mt-1 text-2xl font-semibold text-gray-900"><%= @student_attendance_rate %>%</div>
+      </div>
+      <div class="bg-white p-4 sm:p-5 rounded-lg shadow-sm border border-gray-200">
+        <div class="text-xs text-gray-500">申請待ち</div>
+        <div class="mt-1 text-2xl font-semibold text-gray-900"><%= @pending_requests_count %>件</div>
+      </div>
+      <div class="bg-white p-4 sm:p-5 rounded-lg shadow-sm border border-gray-200">
+        <div class="text-xs text-gray-500">注意</div>
+        <div class="mt-1 text-2xl font-semibold text-gray-900"><%= @student_warnings.size %>件</div>
+      </div>
+    <% end %>
+  </div>
+
+  <% if @user.student? %>
+    <div class="bg-white p-4 sm:p-5 rounded-lg shadow-sm border border-gray-200">
+      <div class="flex flex-col sm:flex-row gap-3">
+        <%= link_to "QRスキャン", scan_path, class: "btn btn-primary w-full sm:w-auto" %>
+        <%= link_to "出席申請", attendance_requests_path, class: "btn btn-secondary w-full sm:w-auto" %>
       </div>
     </div>
   <% end %>
 
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-    <% if @user.staff? %>
+  <% if @user.staff? %>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <%= link_to school_classes_path, class: "bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 cursor-pointer transition hover:-translate-y-1 hover:shadow-md" do %>
         <div class="mb-4 text-google-blue">
           <svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -54,7 +93,7 @@ end %>
           </svg>
         </div>
         <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-1">クラス管理</h3>
-        <p class="text-sm text-gray-500">クラスの作成・名簿管理を行います。</p>
+        <p class="text-sm text-gray-500">クラス/名簿</p>
       <% end %>
 
       <%= link_to attendance_path, class: "bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 cursor-pointer transition hover:-translate-y-1 hover:shadow-md" do %>
@@ -65,7 +104,7 @@ end %>
           </svg>
         </div>
         <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-1">出席確認</h3>
-        <p class="text-sm text-gray-500">クラスごとの出席状況を確認します。</p>
+        <p class="text-sm text-gray-500">出席一覧</p>
       <% end %>
 
       <%= link_to generate_qr_path, class: "bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 cursor-pointer transition hover:-translate-y-1 hover:shadow-md" do %>
@@ -79,7 +118,7 @@ end %>
           </svg>
         </div>
         <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-1">QRコード生成</h3>
-        <p class="text-sm text-gray-500">授業用のQRコードを生成します。</p>
+        <p class="text-sm text-gray-500">授業QR</p>
       <% end %>
 
       <%= link_to reports_path, class: "bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 cursor-pointer transition hover:-translate-y-1 hover:shadow-md" do %>
@@ -90,10 +129,12 @@ end %>
           </svg>
         </div>
         <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-1">レポート</h3>
-        <p class="text-sm text-gray-500">出席傾向を分析します。</p>
+        <p class="text-sm text-gray-500">集計</p>
       <% end %>
-    <% else %>
-      <%= link_to scan_path, class: "bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 cursor-pointer transition hover:-translate-y-1 hover:shadow-md" do %>
+    </div>
+  <% else %>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <%= link_to scan_path, class: "bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 cursor-pointer transition hover:-translate-y-1 hover:shadow-md sm:col-span-2" do %>
         <div class="mb-4 text-google-green">
           <svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="3" width="6" height="6" />
@@ -103,8 +144,8 @@ end %>
             <path d="M11 11h2v2h-2z" />
           </svg>
         </div>
-        <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-1">出席登録</h3>
-        <p class="text-sm text-gray-500">QRコードをスキャンして出席登録します。</p>
+        <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-1">QRスキャン</h3>
+        <p class="text-sm text-gray-500">ここから出席</p>
       <% end %>
 
       <%= link_to history_path, class: "bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 cursor-pointer transition hover:-translate-y-1 hover:shadow-md" do %>
@@ -115,7 +156,7 @@ end %>
           </svg>
         </div>
         <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-1">出席履歴</h3>
-        <p class="text-sm text-gray-500">これまでの出席状況を確認します。</p>
+        <p class="text-sm text-gray-500">履歴</p>
       <% end %>
 
       <%= link_to attendance_requests_path, class: "bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 cursor-pointer transition hover:-translate-y-1 hover:shadow-md" do %>
@@ -127,37 +168,32 @@ end %>
           </svg>
         </div>
         <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-1">出席申請</h3>
-        <p class="text-sm text-gray-500">欠席/遅刻/公欠を申請します。</p>
+        <p class="text-sm text-gray-500">欠席/遅刻</p>
       <% end %>
-
-      <%= link_to notifications_path, class: "bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 cursor-pointer transition hover:-translate-y-1 hover:shadow-md" do %>
-        <div class="mb-4 text-google-yellow">
-          <svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" stroke-linecap="round" stroke-linejoin="round" />
-            <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
-        </div>
-        <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-1">通知</h3>
-        <p class="text-sm text-gray-500">承認結果や更新を確認します。</p>
-      <% end %>
-    <% end %>
-  </div>
+    </div>
+  <% end %>
 
   <% if @user.staff? %>
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
-        <h2 class="text-lg sm:text-xl font-semibold">本日の出席状況</h2>
+        <h2 class="text-lg sm:text-xl font-semibold">今日の授業</h2>
         <span class="text-sm text-gray-500"><%= Time.zone.today.strftime("%Y/%m/%d") %></span>
       </div>
 
-      <% if @classes.any? %>
+      <% if @today_classes.any? %>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <% @classes.each do |klass| %>
+          <% @today_classes.each do |klass| %>
             <% stats = @today_stats[klass.id] %>
             <div class="border border-gray-200 rounded-lg p-4">
-              <div class="flex items-center justify-between">
-                <div class="font-medium text-gray-900"><%= klass.name %></div>
-                <div class="text-xs text-gray-500"><%= stats[:total] %>名</div>
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <div class="font-medium text-gray-900"><%= klass.name %></div>
+                  <div class="text-xs text-gray-500"><%= klass.room %> / <%= klass.schedule_label %></div>
+                </div>
+                <div class="flex flex-col items-end gap-2">
+                  <%= link_to "QR発行", generate_qr_path(class_id: klass.id), class: "btn btn-primary text-xs" %>
+                  <div class="text-xs text-gray-500"><%= stats[:total] %>名</div>
+                </div>
               </div>
               <% if @today_sessions[klass.id] %>
                 <div class="mt-2">
@@ -173,22 +209,22 @@ end %>
                   <div class="h-2 rounded-full bg-google-green" style="width: <%= stats[:rate] %>%"></div>
                 </div>
                 <div class="mt-2 text-xs text-gray-600">
-                  出席 <%= stats[:present] %> / 遅刻 <%= stats[:late] %> / 公欠 <%= stats[:excused] %> / 早退 <%= stats[:early_leave] %> / 欠席 <%= stats[:absent] %> / 未入力 <%= stats[:missing] %>
+                  出席 <%= stats[:present] %> / 欠席 <%= stats[:absent] %> / 未入力 <%= stats[:missing] %>
                 </div>
               </div>
             </div>
           <% end %>
         </div>
       <% else %>
-        <div class="text-sm text-gray-500">担当クラスがありません。</div>
+        <div class="text-sm text-gray-500">今日の授業はありません。</div>
       <% end %>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
       <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg sm:text-xl font-semibold">欠席・早退が多い学生</h2>
-          <%= link_to "出席変更ログ", attendance_logs_path, class: "text-sm text-google-green hover:underline" %>
+          <h2 class="text-lg sm:text-xl font-semibold">注意学生</h2>
+          <%= link_to "ログ", attendance_logs_path, class: "text-sm text-google-green hover:underline" %>
         </div>
         <% if @attention_students.any? %>
           <div class="space-y-3">
@@ -198,7 +234,7 @@ end %>
                   <div class="text-sm font-medium text-gray-900"><%= row[:student].name %></div>
                   <div class="text-xs text-gray-500"><%= row[:student].student_id %></div>
                 </div>
-                <div class="text-sm text-gray-600">欠席/早退 <%= row[:absences] %> 回</div>
+                <div class="text-sm text-gray-600">欠席/早退 <%= row[:absences] %></div>
               </div>
             <% end %>
           </div>
@@ -209,8 +245,8 @@ end %>
 
       <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg sm:text-xl font-semibold">申請待ち</h2>
-          <%= link_to "出席申請", attendance_requests_path(status: "pending"), class: "text-sm text-google-green hover:underline" %>
+          <h2 class="text-lg sm:text-xl font-semibold">承認待ち</h2>
+          <%= link_to "申請一覧", attendance_requests_path(status: "pending"), class: "text-sm text-google-green hover:underline" %>
         </div>
         <% if @pending_requests.any? %>
           <div class="space-y-3">
@@ -228,7 +264,7 @@ end %>
 
       <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg sm:text-xl font-semibold">最新の通知</h2>
+          <h2 class="text-lg sm:text-xl font-semibold">通知</h2>
           <%= link_to "通知一覧", notifications_path, class: "text-sm text-google-green hover:underline" %>
         </div>
         <% if @recent_notifications.any? %>
@@ -250,7 +286,7 @@ end %>
   <% if @user.student? %>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
       <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
-        <h2 class="text-lg sm:text-xl font-semibold mb-4">最近30日の出席傾向</h2>
+        <h2 class="text-lg sm:text-xl font-semibold mb-4">出席傾向(30日)</h2>
         <% if @student_summary.any? %>
           <div class="space-y-3">
             <% @student_summary.each do |row| %>
@@ -263,7 +299,7 @@ end %>
                   <div class="h-2 rounded-full bg-google-green" style="width: <%= row[:rate] %>%"></div>
                 </div>
                 <div class="text-xs text-gray-500 mt-2">
-                  出席 <%= row[:present] %> / 遅刻 <%= row[:late] %> / 公欠 <%= row[:excused] %> / 早退 <%= row[:early_leave] %> / 欠席 <%= row[:absent] %>
+                  出席 <%= row[:present] %> / 欠席 <%= row[:absent] %> / 遅刻 <%= row[:late] %>
                 </div>
               </div>
             <% end %>
@@ -275,7 +311,7 @@ end %>
 
       <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg sm:text-xl font-semibold">注意アラート</h2>
+          <h2 class="text-lg sm:text-xl font-semibold">注意</h2>
           <%= link_to "通知一覧", notifications_path, class: "text-sm text-google-green hover:underline" %>
         </div>
         <% if @student_warnings.any? %>
@@ -318,7 +354,7 @@ end %>
                   <%= link_to "出席確認", attendance_path(class_id: klass.id), class: "btn btn-secondary text-sm w-full sm:w-auto" %>
                 <% else %>
                   <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                    <%= link_to "出席登録", scan_path, class: "btn btn-primary text-sm w-full sm:w-auto" %>
+                    <%= link_to "QRスキャン", scan_path, class: "btn btn-primary text-sm w-full sm:w-auto" %>
                     <%= link_to "履歴", history_path, class: "btn btn-secondary text-sm w-full sm:w-auto" %>
                   </div>
                 <% end %>
