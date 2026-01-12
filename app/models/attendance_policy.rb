@@ -1,6 +1,14 @@
 require "ipaddr"
 
 class AttendancePolicy < ApplicationRecord
+  OIC_GEO = {
+    postal_code: "543-0001",
+    address: "大阪府大阪市天王寺区上本町6-8-4",
+    lat: 34.663692,
+    lng: 135.518692,
+    radius_m: 50
+  }.freeze
+
   DEFAULTS = {
     late_after_minutes: 20,
     close_after_minutes: 20,
@@ -11,15 +19,21 @@ class AttendancePolicy < ApplicationRecord
     warning_absent_count: 3,
     warning_rate_percent: 70,
     require_location: true,
-    geo_fence_enabled: false,
-    geo_radius_m: 50,
+    geo_fence_enabled: true,
+    geo_radius_m: OIC_GEO[:radius_m],
     geo_accuracy_max_m: 150,
+    geo_postal_code: OIC_GEO[:postal_code],
+    geo_address: OIC_GEO[:address],
+    geo_center_lat: OIC_GEO[:lat],
+    geo_center_lng: OIC_GEO[:lng],
     fraud_failure_threshold: 4,
     fraud_ip_burst_threshold: 8,
     fraud_token_share_threshold: 2
   }.freeze
 
   belongs_to :school_class
+
+  before_validation :apply_oic_geo
 
   validates :late_after_minutes, :close_after_minutes,
             numericality: { only_integer: true, greater_than_or_equal_to: 0 }
@@ -128,6 +142,16 @@ class AttendancePolicy < ApplicationRecord
   end
 
   private
+
+  def apply_oic_geo
+    self.require_location = true
+    self.geo_fence_enabled = true
+    self.geo_radius_m = OIC_GEO[:radius_m]
+    self.geo_postal_code = OIC_GEO[:postal_code]
+    self.geo_address = OIC_GEO[:address]
+    self.geo_center_lat = OIC_GEO[:lat]
+    self.geo_center_lng = OIC_GEO[:lng]
+  end
 
   def close_after_is_after_late
     return if late_after_minutes.blank? || close_after_minutes.blank?

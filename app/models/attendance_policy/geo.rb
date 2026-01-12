@@ -32,7 +32,7 @@ class AttendancePolicy
         )
 
         if distance > @policy.geo_radius_m.to_f
-          return failure("location_outside", "教室付近でスキャンしてください。")
+          return failure("location_outside", "大阪情報コンピュータ専門学校の校内でスキャンしてください。")
         end
       end
 

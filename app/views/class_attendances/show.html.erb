@@ -83,46 +83,25 @@
               <%= f.label :allow_early_checkin, "開始前の出席登録を許可", class: "text-sm text-gray-700" %>
             </div>
             <div class="flex items-center space-x-2">
-              <%= f.check_box :require_location, { checked: @policy.require_location }, true, false %>
-              <%= f.label :require_location, "位置情報の取得を必須にする", class: "text-sm text-gray-700" %>
+              <%= f.check_box :require_location, { checked: true, disabled: true }, true, false %>
+              <%= f.label :require_location, "位置情報の取得は必須（OIC校内限定）", class: "text-sm text-gray-700" %>
             </div>
             <div class="flex items-center space-x-2">
-              <%= f.check_box :geo_fence_enabled, { checked: @policy.geo_fence_enabled }, true, false %>
-              <%= f.label :geo_fence_enabled, "教室周辺のみ許可(ジオフェンス)", class: "text-sm text-gray-700" %>
+              <%= f.check_box :geo_fence_enabled, { checked: true, disabled: true }, true, false %>
+              <%= f.label :geo_fence_enabled, "校内ジオフェンスを固定", class: "text-sm text-gray-700" %>
             </div>
             <% if current_user.admin? %>
-              <div class="md:col-span-3 space-y-3" data-controller="postal-address">
-                <div>
-                  <%= f.label :geo_postal_code, "郵便番号(管理者のみ)", class: "block text-sm font-medium text-gray-700 mb-2" %>
-                  <%= f.text_field :geo_postal_code,
-                    value: @policy.geo_postal_code,
-                    class: "input",
-                    placeholder: "例: 5300001",
-                    data: {
-                      postal_address_target: "postalCode",
-                      action: "input->postal-address#normalize input->postal-address#lookup blur->postal-address#lookup"
-                    } %>
-                  <p class="text-xs text-gray-500 mt-1">ハイフンなし7桁で入力すると住所を自動入力します。</p>
+              <div class="md:col-span-3">
+                <div class="surface-card rounded-lg p-4 text-sm text-gray-700">
+                  <div class="font-medium text-gray-900">位置情報は大阪情報コンピュータ専門学校に固定</div>
+                  <div class="mt-2">〒543-0001 大阪府大阪市天王寺区上本町6-8-4</div>
+                  <div class="text-xs text-gray-500 mt-1">校内半径50mで判定します。</div>
                 </div>
-                <div>
-                  <%= f.label :geo_address, "教室住所(管理者のみ)", class: "block text-sm font-medium text-gray-700 mb-2" %>
-                  <%= f.text_field :geo_address,
-                    value: @policy.geo_address,
-                    class: "input",
-                    placeholder: "例: 大阪府大阪市北区○○",
-                    data: {
-                      postal_address_target: "address",
-                      action: "blur->postal-address#geocodeFromAddress"
-                    } %>
-                </div>
-                <%= f.hidden_field :geo_center_lat, value: @policy.geo_center_lat, data: { postal_address_target: "latitude" } %>
-                <%= f.hidden_field :geo_center_lng, value: @policy.geo_center_lng, data: { postal_address_target: "longitude" } %>
-                <p class="text-xs text-gray-500" data-postal-address-target="status"></p>
               </div>
             <% end %>
             <div>
               <%= f.label :geo_radius_m, "許可半径(m)", class: "block text-sm font-medium text-gray-700 mb-2" %>
-              <%= f.number_field :geo_radius_m, value: @policy.geo_radius_m, min: 1, class: "input" %>
+              <%= f.number_field :geo_radius_m, value: @policy.geo_radius_m, min: 1, class: "input", disabled: true %>
             </div>
             <div class="md:col-span-3">
               <%= f.label :allowed_ip_ranges, "許可IP(任意)", class: "block text-sm font-medium text-gray-700 mb-2" %>
@@ -139,10 +118,10 @@
             IP制限を設定すると条件に一致しないQRスキャンはブロックされます。
           </p>
           <p class="text-xs text-gray-500">
-            位置情報を必須にすると、位置情報が取得できない端末は出席登録できません。
+            位置情報は必須のため、取得できない端末は出席登録できません。
           </p>
           <p class="text-xs text-gray-500">
-            ジオフェンス有効時は、教室住所の中心と半径の範囲外のスキャンは拒否されます。
+            校内の中心と半径の範囲外のスキャンは拒否されます。
           </p>
           <p class="text-xs text-gray-500">
             最低出席率は入室/退室の滞在時間に基づき早退判定に利用されます。
@@ -363,4 +342,3 @@
     </div>
   </div>
 </div>
-
