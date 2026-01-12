@@ -4,7 +4,10 @@
       <div>
         <h1 class="text-2xl font-semibold text-gray-900">ユーザー管理</h1>
       </div>
-      <%= link_to "新規ユーザー", new_admin_user_path, class: "btn btn-primary", data: { turbo_frame: "admin_user_form" } %>
+      <%= link_to "新規ユーザー",
+        new_admin_user_path,
+        class: "btn btn-primary",
+        data: { turbo_frame: "admin_user_form", turbo_action: "advance" } %>
     </div>
   </div>
 
