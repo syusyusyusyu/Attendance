@@ -3,7 +3,7 @@ class Admin::RolesController < Admin::BaseController
 
   def index
     @roles = Role.includes(:permissions).order(:name)
-    @permissions = Permission.where.not(key: "admin.sso.manage").order(:key)
+    @permissions = Permission.order(:key)
   end
 
   def update

@@ -115,7 +115,6 @@ end
 class CurriculumSeeder
   STUDENT_COUNT = 18
   SEED_WEEKS = 2
-  SEED_YEAR = Time.zone.today.year
   BASE_STUDENT_EMAIL = "student@example.com"
   BASE_STUDENT_ID = "S12345"
   BASE_STUDENT_NAME = "生徒"
@@ -404,7 +403,7 @@ class CurriculumSeeder
         klass.room = attrs[:room]
         klass.subject = attrs[:subject]
         klass.semester = attrs[:semester]
-        klass.year = SEED_YEAR
+        klass.year = seed_year
         klass.capacity = 40
         klass.description = attrs[:description]
         klass.schedule = schedule
@@ -570,5 +569,9 @@ class CurriculumSeeder
 
   def extra_student_emails
     (1..STUDENT_COUNT).map { |index| format("student%02d@example.com", index) }
+  end
+
+  def seed_year
+    Time.zone ? Time.zone.today.year : Time.now.year
   end
 end
