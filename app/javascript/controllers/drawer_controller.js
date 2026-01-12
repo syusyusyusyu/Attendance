@@ -5,6 +5,8 @@ export default class extends Controller {
 
   connect() {
     this.isOpen = false
+    this.handleFrameLoad = this.handleFrameLoad.bind(this)
+    this.element.addEventListener("turbo:frame-load", this.handleFrameLoad)
     if (this.openValue) {
       this.open()
     }
@@ -13,6 +15,7 @@ export default class extends Controller {
   disconnect() {
     clearTimeout(this.openTimer)
     clearTimeout(this.closeTimer)
+    this.element.removeEventListener("turbo:frame-load", this.handleFrameLoad)
   }
 
   open() {
@@ -76,5 +79,11 @@ export default class extends Controller {
       el.style.overflow = ""
       this.isOpen = false
     }, 240)
+  }
+
+  handleFrameLoad() {
+    if (this.element.classList.contains("hidden")) {
+      this.open()
+    }
   }
 }
