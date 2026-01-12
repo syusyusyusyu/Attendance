@@ -1,7 +1,7 @@
 ﻿<% avatar_url = current_user.profile_image.presence || "https://ui-avatars.com/api/?name=#{ERB::Util.url_encode(current_user.name)}&background=random" %>
 
 <header class="bg-white shadow-sm border-b border-gray-200 fixed top-0 inset-x-0 z-40">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div class="px-4 sm:px-6 lg:px-8 w-full">
     <div class="flex justify-between h-[var(--app-header-height)]">
       <div class="flex items-center">
         <button
@@ -14,7 +14,7 @@
             <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
         </button>
-        <%= link_to root_path, class: "flex items-center ml-2 lg:ml-0" do %>
+        <%= link_to root_path, class: "flex items-center gap-2" do %>
           <span class="text-google-green font-bold text-lg">RoR出席管理システム</span>
         <% end %>
       </div>
