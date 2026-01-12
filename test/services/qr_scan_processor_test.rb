@@ -46,9 +46,10 @@ class QrScanProcessorTest < ActiveSupport::TestCase
       warning_absent_count: 3,
       warning_rate_percent: 70
     )
+    oic_geo = AttendancePolicy::OIC_GEO
     @location = {
-      latitude: 34.7025,
-      longitude: 135.4959,
+      latitude: oic_geo[:lat],
+      longitude: oic_geo[:lng],
       accuracy: 15,
       source: "geolocation"
     }
@@ -172,21 +173,14 @@ class QrScanProcessorTest < ActiveSupport::TestCase
   test "inaccurate location logs location_inaccurate" do
     @policy.update!(geo_accuracy_max_m: 5)
 
-    result = call_processor(location: { latitude: 34.7, longitude: 135.49, accuracy: 50 })
+    result = call_processor(location: { latitude: @location[:latitude], longitude: @location[:longitude], accuracy: 50 })
 
     assert_equal :alert, result.flash
     assert_equal "location_inaccurate", QrScanEvent.last.status
   end
 
   test "outside geofence logs location_outside" do
-    @policy.update!(
-      geo_fence_enabled: true,
-      geo_center_lat: 34.7025,
-      geo_center_lng: 135.4959,
-      geo_radius_m: 10
-    )
-
-    result = call_processor(location: { latitude: 34.699, longitude: 135.49, accuracy: 10 })
+    result = call_processor(location: { latitude: 34.673, longitude: 135.53, accuracy: 10 })
 
     assert_equal :alert, result.flash
     assert_equal "location_outside", QrScanEvent.last.status
@@ -323,4 +317,3 @@ class QrScanProcessorTest < ActiveSupport::TestCase
     end
   end
 end
-

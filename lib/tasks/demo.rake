@@ -115,7 +115,7 @@ end
 class CurriculumSeeder
   STUDENT_COUNT = 18
   SEED_WEEKS = 2
-  SEED_YEAR = 2025
+  SEED_YEAR = Time.zone.today.year
   BASE_STUDENT_EMAIL = "student@example.com"
   BASE_STUDENT_ID = "S12345"
   BASE_STUDENT_NAME = "生徒"
@@ -299,6 +299,24 @@ class CurriculumSeeder
       day_of_week: 2,
       period: 1,
       description: "情報セキュリティ分野の知識を強化する。"
+    },
+    {
+      name: "クラウド基盤演習",
+      subject: "クラウド",
+      semester: "後期",
+      room: "9D-1教室",
+      day_of_week: 3,
+      period: 2,
+      description: "クラウド基盤の設計と運用を実践で学ぶ。"
+    },
+    {
+      name: "AIシステム開発",
+      subject: "AI",
+      semester: "後期",
+      room: "9D-2教室",
+      day_of_week: 4,
+      period: 3,
+      description: "機械学習の基礎と業務適用を学ぶ。"
     }
   ].freeze
 

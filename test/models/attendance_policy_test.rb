@@ -87,7 +87,7 @@ class AttendancePolicyTest < ActiveSupport::TestCase
     )
 
     assert_not policy.valid?
-    assert_includes policy.errors[:close_after_minutes], "は遅刻判定時間以上に設定してください"
+    assert_includes policy.errors[:close_after_minutes], "締切は遅刻判定より後に設定してください"
   end
 
   test "invalid ip range is rejected" do
@@ -124,34 +124,38 @@ class AttendancePolicyTest < ActiveSupport::TestCase
     )
   end
 
-  test "geofence requires center when enabled" do
+  test "oic geofence is enforced" do
     teacher = build_teacher
     school_class = build_class(teacher)
-    policy = AttendancePolicy.new(
+    policy = AttendancePolicy.create!(
       AttendancePolicy.default_attributes.merge(
         school_class: school_class,
-        geo_fence_enabled: true,
-        geo_radius_m: 100
+        require_location: false,
+        geo_fence_enabled: false,
+        geo_radius_m: 10,
+        geo_center_lat: 0,
+        geo_center_lng: 0,
+        geo_postal_code: "0000000",
+        geo_address: "変更前"
       )
     )
 
-    assert_not policy.valid?
-    assert_includes policy.errors[:geo_fence_enabled], "位置情報の中心と半径を設定してください"
+    assert policy.require_location
+    assert policy.geo_fence_enabled
+    assert_equal AttendancePolicy::OIC_GEO[:radius_m], policy.geo_radius_m
+    assert_equal AttendancePolicy::OIC_GEO[:postal_code], policy.geo_postal_code
+    assert_equal AttendancePolicy::OIC_GEO[:address], policy.geo_address
+    assert_in_delta AttendancePolicy::OIC_GEO[:lat], policy.geo_center_lat, 0.00001
+    assert_in_delta AttendancePolicy::OIC_GEO[:lng], policy.geo_center_lng, 0.00001
   end
 
-  test "geofence allows center coordinates" do
+  test "oic geofence defaults are applied" do
     teacher = build_teacher
     school_class = build_class(teacher)
-    policy = AttendancePolicy.new(
-      AttendancePolicy.default_attributes.merge(
-        school_class: school_class,
-        geo_fence_enabled: true,
-        geo_center_lat: 34.7025,
-        geo_center_lng: 135.4959,
-        geo_radius_m: 100
-      )
-    )
+    policy = AttendancePolicy.create!(school_class: school_class)
 
-    assert policy.valid?
+    assert policy.require_location
+    assert policy.geo_fence_enabled
+    assert_equal AttendancePolicy::OIC_GEO[:radius_m], policy.geo_radius_m
   end
 end
