@@ -24,6 +24,28 @@
   "location_inaccurate" => "位置情報精度低",
   "location_outside" => "位置情報範囲外"
 } %>
+<% reason_labels = {
+  "invalid" => "無効",
+  "expired" => "期限切れ",
+  "revoked" => "失効",
+  "not_enrolled" => "未履修",
+  "session_missing" => "セッション不明",
+  "no_schedule" => "予定なし",
+  "session_locked" => "確定済み",
+  "wrong_date" => "日付不一致",
+  "error" => "エラー",
+  "early" => "開始前",
+  "outside_window" => "時間外",
+  "rate_limited" => "レート制限",
+  "manual_override" => "手動確定",
+  "ip_blocked" => "IP制限",
+  "device_blocked" => "ブラウザ制限",
+  "class_canceled" => "休講",
+  "location_required" => "位置情報なし",
+  "location_invalid" => "位置情報不正",
+  "location_inaccurate" => "精度不足",
+  "location_outside" => "校外"
+} %>
 <% status_badges = {
   "success" => "badge badge-success",
   "checkout" => "badge badge-info",
@@ -155,6 +177,7 @@
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">クラス</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">学生</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">結果</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">理由</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">出席判定</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">IP</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ブラウザ</th>
@@ -183,6 +206,9 @@
                       <%= status_labels[event.status] || event.status %>
                     </span>
                   </td>
+                  <td class="px-6 py-4 whitespace-normal text-sm text-gray-600">
+                    <%= reason_labels[event.status] || "-" %>
+                  </td>
                   <td class="px-6 py-4 whitespace-normal">
                     <% if event.attendance_status.present? %>
                       <span class="<%= attendance_badges[event.attendance_status] || "badge" %>">
@@ -200,7 +226,7 @@
               <% end %>
             <% else %>
               <tr>
-                <td colspan="7" class="px-6 py-6 text-center text-sm text-gray-500">
+                <td colspan="8" class="px-6 py-6 text-center text-sm text-gray-500">
                   該当なし
                 </td>
               </tr>

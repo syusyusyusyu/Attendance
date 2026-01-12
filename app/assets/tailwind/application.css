@@ -62,7 +62,7 @@
 
 @layer components {
   .btn {
-    @apply px-4 py-2 rounded-md font-medium transition-all duration-200 flex items-center justify-center gap-2 min-h-[44px];
+    @apply px-5 py-2.5 rounded-md font-medium text-sm sm:text-base transition-all duration-200 flex items-center justify-center gap-2 min-h-[44px];
   }
 
   .btn.is-loading {
@@ -88,7 +88,7 @@
   }
 
   .input {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--google-green)] focus:border-transparent min-h-[44px] text-base;
+    @apply w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--google-green)] focus:border-transparent min-h-[44px] text-base;
   }
 
   .badge {
@@ -116,6 +116,12 @@
     max-width: 100%;
   }
 
+  .dashboard-masonry {
+    @apply grid grid-cols-1 gap-4 lg:grid-cols-3;
+    grid-auto-flow: dense;
+    align-items: start;
+  }
+
   .table-container th,
   .table-container td {
     @apply break-words whitespace-normal;
@@ -129,6 +135,30 @@
   .scan-frame {
     aspect-ratio: 1 / 1;
     width: 100%;
+  }
+
+  .scan-target {
+    @apply absolute inset-6 pointer-events-none;
+  }
+
+  .scan-corner {
+    @apply absolute h-6 w-6 border-2 border-white/80;
+  }
+
+  .scan-corner.tl {
+    @apply top-0 left-0 border-b-0 border-r-0;
+  }
+
+  .scan-corner.tr {
+    @apply top-0 right-0 border-b-0 border-l-0;
+  }
+
+  .scan-corner.bl {
+    @apply bottom-0 left-0 border-t-0 border-r-0;
+  }
+
+  .scan-corner.br {
+    @apply bottom-0 right-0 border-t-0 border-l-0;
   }
 
   .qr-code svg,

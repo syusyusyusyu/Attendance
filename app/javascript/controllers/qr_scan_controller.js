@@ -177,6 +177,7 @@ export default class extends Controller {
     }
 
     this.updateStatus("detected")
+    this.vibrateSuccess()
     this.stop()
 
     if (this.submitOnScanValue && this.hasFormTarget) {
@@ -339,6 +340,12 @@ export default class extends Controller {
     const message = this.statusTarget.dataset[key]
     if (message) {
       this.statusTarget.textContent = message
+    }
+  }
+
+  vibrateSuccess() {
+    if (navigator.vibrate) {
+      navigator.vibrate([60])
     }
   }
 }

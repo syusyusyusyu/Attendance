@@ -48,13 +48,24 @@ class AttendanceRecord < ApplicationRecord
   end
 
   def broadcast_attendance_update
-    return unless verification_method_qrcode?
+    pending_request = AttendanceRequest.find_by(
+      school_class_id: school_class_id,
+      user_id: user_id,
+      date: date,
+      status: "pending"
+    )
 
     Turbo::StreamsChannel.broadcast_replace_to(
       "attendance_class_#{school_class_id}_#{date}",
       target: "attendance_row_#{user_id}",
       partial: "class_attendances/attendance_row",
-      locals: { student: user, record: self }
+      locals: {
+        student: user,
+        record: self,
+        request: pending_request,
+        class_session: class_session,
+        policy: school_class&.attendance_policy
+      }
     )
   end
 end

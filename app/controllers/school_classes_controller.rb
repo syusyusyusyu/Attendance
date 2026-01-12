@@ -49,9 +49,17 @@ class SchoolClassesController < ApplicationController
     @school_class.schedule = schedule_params
 
     if @school_class.save
-      redirect_to school_class_path(@school_class), notice: "クラス情報を更新しました。"
+      if turbo_frame_request?
+        render partial: "school_classes/card", locals: { klass: @school_class }
+      else
+        redirect_to school_class_path(@school_class), notice: "クラス情報を更新しました。"
+      end
     else
-      render :edit, status: :unprocessable_entity
+      if turbo_frame_request?
+        render partial: "school_classes/inline_form", locals: { school_class: @school_class }, status: :unprocessable_entity
+      else
+        render :edit, status: :unprocessable_entity
+      end
     end
   end
 

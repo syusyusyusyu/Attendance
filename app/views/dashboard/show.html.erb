@@ -42,7 +42,7 @@ end %>
     </div>
   <% end %>
 
-  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+  <div class="dashboard-masonry sm:grid-cols-3">
     <% if @user.staff? %>
       <div class="bg-white p-4 sm:p-5 rounded-lg shadow-sm border border-gray-200">
         <div class="text-xs text-gray-500">出席率</div>
@@ -211,7 +211,7 @@ end %>
       <% end %>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div class="dashboard-masonry">
       <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-lg sm:text-xl font-semibold">注意学生</h2>
