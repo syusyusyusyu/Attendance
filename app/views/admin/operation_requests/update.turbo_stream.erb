@@ -1,0 +1,3 @@
+<%= turbo_stream.replace dom_id(@operation_request), partial: "admin/operation_requests/row", locals: { operation_request: @operation_request } %>
+<%= turbo_stream.update "flash", partial: "shared/flash" %>
+

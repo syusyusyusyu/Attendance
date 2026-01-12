@@ -92,6 +92,14 @@ class AttendanceChangesController < ApplicationController
     redirect_to attendance_logs_path, alert: "日付の形式が正しくありません。"
   end
 
+  def show
+    @change = AttendanceChange.includes(:user, :school_class, :modified_by).find(params[:id])
+
+    unless current_user.manageable_classes.where(id: @change.school_class_id).exists?
+      redirect_to attendance_logs_path, alert: "アクセス権限がありません。" and return
+    end
+  end
+
   private
 
   def save_search!(filters)

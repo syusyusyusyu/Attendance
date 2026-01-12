@@ -1,0 +1,89 @@
+<% status_labels = {
+  "present" => "出席",
+  "late" => "遅刻",
+  "absent" => "欠席",
+  "excused" => "公欠",
+  "early_leave" => "早退"
+} %>
+
+<% source_labels = {
+  "manual" => "手動",
+  "csv" => "CSV",
+  "system" => "自動"
+} %>
+
+<%= turbo_frame_tag "attendance_change_detail",
+  class: "drawer-panel",
+  data: { controller: "drawer", drawer_open_value: true } do %>
+  <div class="card p-6 space-y-4">
+    <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+      <div>
+        <h2 class="text-xl font-semibold text-gray-900">変更詳細</h2>
+        <p class="text-sm text-gray-500 mt-1">監査: 誰が / いつ / 何を / 理由</p>
+      </div>
+      <button type="button" class="text-sm text-gray-500 hover:text-gray-700" data-action="drawer#close">
+        閉じる
+      </button>
+    </div>
+
+    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+      <div class="rounded-lg border border-gray-200 p-4">
+        <dt class="text-xs text-gray-500">変更日時</dt>
+        <dd class="mt-1 font-medium text-gray-900"><%= l(@change.changed_at, format: :short) %></dd>
+      </div>
+
+      <div class="rounded-lg border border-gray-200 p-4">
+        <dt class="text-xs text-gray-500">日付</dt>
+        <dd class="mt-1 font-medium text-gray-900"><%= @change.date.strftime("%Y-%m-%d") %></dd>
+      </div>
+
+      <div class="rounded-lg border border-gray-200 p-4">
+        <dt class="text-xs text-gray-500">クラス</dt>
+        <dd class="mt-1 font-medium text-gray-900"><%= @change.school_class&.name || "-" %></dd>
+      </div>
+
+      <div class="rounded-lg border border-gray-200 p-4">
+        <dt class="text-xs text-gray-500">学生</dt>
+        <dd class="mt-1 font-medium text-gray-900">
+          <%= @change.user&.name || "-" %>
+          <span class="text-xs text-gray-500 ml-2"><%= @change.user&.student_id || "-" %></span>
+        </dd>
+      </div>
+
+      <div class="rounded-lg border border-gray-200 p-4">
+        <dt class="text-xs text-gray-500">変更</dt>
+        <dd class="mt-1 font-medium text-gray-900">
+          <%= status_labels[@change.previous_status] || @change.previous_status || "-" %>
+          →
+          <%= status_labels[@change.new_status] || @change.new_status %>
+        </dd>
+      </div>
+
+      <div class="rounded-lg border border-gray-200 p-4">
+        <dt class="text-xs text-gray-500">種別</dt>
+        <dd class="mt-1 font-medium text-gray-900"><%= source_labels[@change.source] || @change.source %></dd>
+      </div>
+
+      <div class="rounded-lg border border-gray-200 p-4 sm:col-span-2">
+        <dt class="text-xs text-gray-500">理由</dt>
+        <dd class="mt-1 text-gray-900 whitespace-pre-wrap"><%= @change.reason.presence || "-" %></dd>
+      </div>
+
+      <div class="rounded-lg border border-gray-200 p-4">
+        <dt class="text-xs text-gray-500">操作者</dt>
+        <dd class="mt-1 font-medium text-gray-900"><%= @change.modified_by&.name || "-" %></dd>
+      </div>
+
+      <div class="rounded-lg border border-gray-200 p-4">
+        <dt class="text-xs text-gray-500">IP</dt>
+        <dd class="mt-1 font-medium text-gray-900"><%= @change.ip.presence || "-" %></dd>
+      </div>
+
+      <div class="rounded-lg border border-gray-200 p-4 sm:col-span-2">
+        <dt class="text-xs text-gray-500">ブラウザ</dt>
+        <dd class="mt-1 text-gray-900 break-words"><%= @change.user_agent.presence || "-" %></dd>
+      </div>
+    </dl>
+  </div>
+<% end %>
+

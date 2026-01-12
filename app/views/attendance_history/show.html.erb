@@ -10,7 +10,8 @@
   "excused" => "bg-blue-100 text-blue-800"
 } %>
 
-<%= turbo_frame_tag "attendance_history" do %>
+<%= turbo_frame_tag "attendance_history", class: "relative" do %>
+  <%= render "shared/frame_loader" %>
   <div class="max-w-5xl mx-auto">
     <div class="card">
       <div class="p-4 bg-google-grey border-b border-gray-200">

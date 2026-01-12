@@ -1,0 +1,4 @@
+<% Array(@processed_requests).each do |request| %>
+  <%= turbo_stream.replace dom_id(request, :row), partial: "attendance_requests/row", locals: { request: request } %>
+<% end %>
+<%= turbo_stream.update "flash", partial: "shared/flash" %>

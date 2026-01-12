@@ -23,8 +23,11 @@ Rails.application.routes.draw do
   get "/generate-qr", to: "qr_codes#show"
   get "/scan-logs", to: "qr_scan_events#index"
   get "/attendance-logs", to: "attendance_changes#index", as: :attendance_logs
+  get "/attendance-logs/:id", to: "attendance_changes#show", as: :attendance_log
+  get "/scan-logs/:id", to: "qr_scan_events#show", as: :qr_scan_event
   get "/reports", to: "reports#index"
   get "/notifications", to: "notifications#index"
+  patch "/notifications/:id/mark-read", to: "notifications#mark_read", as: :notification_mark_read
   patch "/notifications/mark-all", to: "notifications#mark_all"
   get "/admin", to: "admin_dashboard#index"
 

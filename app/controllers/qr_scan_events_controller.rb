@@ -50,4 +50,12 @@ class QrScanEventsController < ApplicationController
   rescue ArgumentError
     redirect_to scan_logs_path, alert: "日付の形式が正しくありません。"
   end
+
+  def show
+    @event = QrScanEvent.includes(:user, :school_class, :qr_session).find(params[:id])
+
+    unless current_user.manageable_classes.where(id: @event.school_class_id).exists?
+      redirect_to scan_logs_path, alert: "アクセス権限がありません。" and return
+    end
+  end
 end

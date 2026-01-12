@@ -10,23 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_01_008000) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_12_142000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
-
-  create_table "api_keys", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.string "name", null: false
-    t.string "token_digest", null: false
-    t.jsonb "scopes", default: [], null: false
-    t.datetime "last_used_at"
-    t.datetime "revoked_at"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["revoked_at"], name: "index_api_keys_on_revoked_at"
-    t.index ["token_digest"], name: "index_api_keys_on_token_digest", unique: true
-    t.index ["user_id"], name: "index_api_keys_on_user_id"
-  end
 
   create_table "attendance_changes", force: :cascade do |t|
     t.bigint "attendance_record_id"
@@ -64,10 +50,17 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_008000) do
     t.integer "warning_absent_count", default: 3, null: false
     t.integer "warning_rate_percent", default: 70, null: false
     t.integer "student_max_scans_per_minute", default: 6, null: false
-    t.boolean "require_registered_device", default: false, null: false
     t.integer "fraud_failure_threshold", default: 4, null: false
     t.integer "fraud_ip_burst_threshold", default: 8, null: false
     t.integer "fraud_token_share_threshold", default: 2, null: false
+    t.boolean "require_location", default: true, null: false
+    t.boolean "geo_fence_enabled", default: false, null: false
+    t.decimal "geo_center_lat", precision: 10, scale: 6
+    t.decimal "geo_center_lng", precision: 10, scale: 6
+    t.integer "geo_radius_m", default: 50, null: false
+    t.integer "geo_accuracy_max_m", default: 150, null: false
+    t.string "geo_address"
+    t.string "geo_postal_code"
     t.index ["school_class_id"], name: "index_attendance_policies_on_school_class_id", unique: true
   end
 
@@ -160,21 +153,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_008000) do
     t.index ["school_class_id", "date"], name: "index_class_sessions_on_school_class_id_and_date", unique: true
     t.index ["school_class_id"], name: "index_class_sessions_on_school_class_id"
     t.index ["status"], name: "index_class_sessions_on_status"
-  end
-
-  create_table "devices", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.string "device_id", null: false
-    t.string "name"
-    t.string "user_agent"
-    t.string "ip"
-    t.boolean "approved", default: false, null: false
-    t.datetime "last_seen_at"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["approved"], name: "index_devices_on_approved"
-    t.index ["user_id", "device_id"], name: "index_devices_on_user_id_and_device_id", unique: true
-    t.index ["user_id"], name: "index_devices_on_user_id"
   end
 
   create_table "enrollments", force: :cascade do |t|
@@ -312,32 +290,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_008000) do
     t.index ["teacher_id"], name: "index_school_classes_on_teacher_id"
   end
 
-  create_table "sso_identities", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.bigint "sso_provider_id", null: false
-    t.string "uid", null: false
-    t.string "email"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["sso_provider_id", "uid"], name: "index_sso_identities_on_sso_provider_id_and_uid", unique: true
-    t.index ["sso_provider_id"], name: "index_sso_identities_on_sso_provider_id"
-    t.index ["user_id"], name: "index_sso_identities_on_user_id"
-  end
-
-  create_table "sso_providers", force: :cascade do |t|
-    t.string "name", null: false
-    t.string "strategy", null: false
-    t.string "client_id"
-    t.string "client_secret"
-    t.string "authorize_url"
-    t.string "token_url"
-    t.string "issuer"
-    t.boolean "enabled", default: false, null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["name"], name: "index_sso_providers_on_name", unique: true
-  end
-
   create_table "users", force: :cascade do |t|
     t.string "email", null: false
     t.string "name", null: false
@@ -353,7 +305,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_008000) do
     t.index ["student_id"], name: "index_users_on_student_id", unique: true
   end
 
-  add_foreign_key "api_keys", "users"
   add_foreign_key "attendance_changes", "attendance_records"
   add_foreign_key "attendance_changes", "school_classes"
   add_foreign_key "attendance_changes", "users"
@@ -370,7 +321,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_008000) do
   add_foreign_key "audit_saved_searches", "users"
   add_foreign_key "class_session_overrides", "school_classes"
   add_foreign_key "class_sessions", "school_classes"
-  add_foreign_key "devices", "users"
   add_foreign_key "enrollments", "school_classes"
   add_foreign_key "enrollments", "users", column: "student_id"
   add_foreign_key "notifications", "users"
@@ -386,6 +336,4 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_008000) do
   add_foreign_key "role_permissions", "permissions"
   add_foreign_key "role_permissions", "roles"
   add_foreign_key "school_classes", "users", column: "teacher_id"
-  add_foreign_key "sso_identities", "sso_providers"
-  add_foreign_key "sso_identities", "users"
 end

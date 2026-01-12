@@ -15,7 +15,7 @@
 
   <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
     <div class="bg-white py-8 px-4 shadow-google sm:rounded-lg sm:px-10" data-controller="login">
-      <%= render "shared/flash" %>
+      <div id="flash"><%= render "shared/flash" %></div>
 
       <%= form_with url: login_path, method: :post, class: "space-y-6" do |f| %>
         <%= hidden_field_tag :role, "student", data: { login_target: "roleInput" } %>

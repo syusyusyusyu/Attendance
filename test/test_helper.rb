@@ -1,6 +1,7 @@
 ENV["RAILS_ENV"] ||= "test"
 require_relative "../config/environment"
 require "rails/test_help"
+require "minitest/mock"
 require_relative "support/test_data_helper"
 
 ActiveRecord.verify_foreign_keys_for_fixtures = false
@@ -8,7 +9,7 @@ ActiveRecord.verify_foreign_keys_for_fixtures = false
 module ActiveSupport
   class TestCase
     # Run tests in parallel with specified workers
-    parallelize(workers: :number_of_processors, with: :threads)
+    parallelize(workers: ENV.fetch("TEST_WORKERS", "1").to_i, with: :threads)
 
     # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
     fixtures :all

@@ -28,7 +28,7 @@ class OperationRequestProcessorTest < ActiveSupport::TestCase
     school_class = SchoolClass.create!(
       name: "Operations",
       teacher: teacher,
-      room: "Room 4B",
+      room: "4B教室",
       subject: "Operations",
       semester: "後期",
       year: 2024,

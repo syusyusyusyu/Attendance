@@ -43,10 +43,7 @@ class QrScanProcessor
       return alert("このQRコードは更新済みです。新しいQRを読み取ってください。")
     end
 
-    if qr_session.expires_at <= @now
-      @logger.log(status: "expired", token: token, qr_session: qr_session)
-      return alert("QRコードの有効期限が切れています。教員に再表示を依頼してください。")
-    end
+    session_expired = qr_session.expires_at <= @now
 
     if result[:attendance_date] != qr_session.attendance_date
       @logger.log(status: "wrong_date", token: token, qr_session: qr_session)
@@ -124,6 +121,11 @@ class QrScanProcessor
 
     if record.persisted? && record.verification_method_qrcode? && record.checked_in_at.present?
       return handle_checkout(record, previous_status, window, qr_session, token, school_class, policy)
+    end
+
+    if session_expired
+      @logger.log(status: "expired", token: token, qr_session: qr_session)
+      return alert("QRコードの有効期限が切れています。教員に再表示を依頼してください。")
     end
 
     checkin_start_at = qr_session.issued_at || window[:start_at]

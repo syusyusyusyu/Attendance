@@ -16,13 +16,20 @@
 } %>
 
 <div class="max-w-6xl mx-auto space-y-6">
-  <%= turbo_frame_tag "operation_requests_results" do %>
+  <%= turbo_frame_tag "operation_requests_results", class: "relative" do %>
+  <%= render "shared/frame_loader" %>
   <div class="card p-6">
     <h1 class="text-2xl font-semibold text-gray-900">操作申請</h1>
   </div>
 
   <div class="card p-6">
-    <%= form_with url: admin_operation_requests_path, method: :get, class: "grid grid-cols-1 md:grid-cols-3 gap-4 items-end" do |f| %>
+    <%= form_with url: admin_operation_requests_path,
+      method: :get,
+      class: "grid grid-cols-1 md:grid-cols-3 gap-4 items-end",
+      data: {
+        controller: "request-filter",
+        action: "change->request-filter#submit input->request-filter#submitDebounced"
+      } do |f| %>
       <div>
         <%= f.label :status, "状態", class: "block text-sm font-medium text-gray-700 mb-2" %>
         <%= f.select :status,
@@ -37,8 +44,13 @@
           { include_blank: "すべて" },
           class: "input" %>
       </div>
-      <div>
+      <div class="flex flex-col gap-2">
         <%= f.submit "絞り込む", class: "btn btn-secondary w-full" %>
+        <% if session[:admin_operation_requests_last_filter].present? %>
+          <%= link_to "前回条件",
+            admin_operation_requests_path(session[:admin_operation_requests_last_filter]),
+            class: "btn btn-secondary w-full" %>
+        <% end %>
       </div>
     <% end %>
   </div>
@@ -58,41 +70,7 @@
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
-          <% @requests.each do |request| %>
-            <tr>
-              <td class="px-4 py-2 text-sm text-gray-500"><%= request.created_at.strftime("%Y-%m-%d %H:%M") %></td>
-              <td class="px-4 py-2 text-sm text-gray-700"><%= kind_labels[request.kind] || request.kind %></td>
-              <td class="px-4 py-2 text-sm text-gray-700"><%= request.school_class&.name || "-" %></td>
-              <td class="px-4 py-2 text-sm text-gray-700"><%= request.user&.name || "-" %></td>
-              <td class="px-4 py-2 text-sm text-gray-500"><%= request.reason.presence || "-" %></td>
-              <td class="px-4 py-2">
-                <span class="<%= status_badges[request.status] || "badge" %>">
-                  <%= status_labels[request.status] || request.status %>
-                </span>
-              </td>
-              <td class="px-4 py-2 text-right">
-                <% if request.status_pending? %>
-                  <div class="flex flex-col sm:flex-row gap-2 justify-end">
-                    <%= form_with url: admin_operation_request_path(request), method: :patch do %>
-                      <input type="hidden" name="decision" value="approve" />
-                      <input type="text" name="decision_reason" class="input mb-2" placeholder="コメント任意" />
-                      <button type="submit" class="btn btn-primary w-full">承認</button>
-                    <% end %>
-                    <%= form_with url: admin_operation_request_path(request), method: :patch do %>
-                      <input type="hidden" name="decision" value="reject" />
-                      <input type="text" name="decision_reason" class="input mb-2" placeholder="却下理由" />
-                      <button type="submit" class="btn btn-secondary w-full">却下</button>
-                    <% end %>
-                  </div>
-                <% else %>
-                  <div class="text-xs text-gray-500">
-                    <div><%= request.processed_at&.strftime("%Y-%m-%d %H:%M") || "-" %></div>
-                    <div><%= request.decision_reason.presence || "コメントなし" %></div>
-                  </div>
-                <% end %>
-              </td>
-            </tr>
-          <% end %>
+          <%= render partial: "row", collection: @requests, as: :operation_request %>
           <% if @requests.empty? %>
             <tr>
               <td colspan="7" class="px-4 py-6 text-center text-sm text-gray-500">該当なし</td>

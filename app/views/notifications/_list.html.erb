@@ -1,0 +1,10 @@
+<% if notifications.any? %>
+  <div class="space-y-3">
+    <%= render partial: "notifications/notification", collection: notifications, as: :notification %>
+  </div>
+<% else %>
+  <div class="card p-6 text-center text-gray-500">
+    通知はありません。
+  </div>
+<% end %>
+

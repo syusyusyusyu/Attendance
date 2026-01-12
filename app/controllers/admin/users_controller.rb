@@ -3,8 +3,21 @@ class Admin::UsersController < Admin::BaseController
   before_action :load_user, only: [:edit, :update, :destroy]
 
   def index
-    @query = params[:q].to_s.strip
-    @role = params[:role].presence
+    stored = session[:admin_users_last_filter].is_a?(Hash) ? session[:admin_users_last_filter] : {}
+
+    @query =
+      if params.key?(:q)
+        params[:q].to_s.strip
+      else
+        stored["q"].to_s.strip
+      end
+    @role =
+      if params.key?(:role)
+        params[:role].presence
+      else
+        stored["role"].presence
+      end
+    session[:admin_users_last_filter] = { "q" => @query, "role" => @role }.compact_blank
 
     scope = User.order(:role, :name)
     scope = scope.where(role: @role) if @role
@@ -32,7 +45,7 @@ class Admin::UsersController < Admin::BaseController
     @user = User.new(attrs)
     if @user.save
       respond_to do |format|
-        format.turbo_stream
+        format.turbo_stream { flash.now[:notice] = "ユーザーを作成しました。" }
         format.html { redirect_to admin_users_path, notice: "ユーザーを作成しました。" }
       end
     else
@@ -52,7 +65,7 @@ class Admin::UsersController < Admin::BaseController
 
     if @user.update(attrs)
       respond_to do |format|
-        format.turbo_stream
+        format.turbo_stream { flash.now[:notice] = "ユーザーを更新しました。" }
         format.html { redirect_to admin_users_path, notice: "ユーザーを更新しました。" }
       end
     else
@@ -73,7 +86,7 @@ class Admin::UsersController < Admin::BaseController
 
     @user.destroy!
     respond_to do |format|
-      format.turbo_stream
+      format.turbo_stream { flash.now[:notice] = "ユーザーを削除しました。" }
       format.html { redirect_to admin_users_path, notice: "ユーザーを削除しました。" }
     end
   end

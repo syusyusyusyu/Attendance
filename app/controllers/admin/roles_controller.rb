@@ -19,17 +19,21 @@ class Admin::RolesController < Admin::BaseController
     end
 
     respond_to do |format|
-      format.turbo_stream
+      format.turbo_stream { flash.now[:notice] = "権限を更新しました。" }
       format.html { redirect_to admin_roles_path, notice: "権限を更新しました。" }
     end
   rescue StandardError => e
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: turbo_stream.replace(
-          dom_id(@role),
-          partial: "admin/roles/card",
-          locals: { role: @role, permissions: @permissions, error_message: e.message }
-        ), status: :unprocessable_entity
+        flash.now[:alert] = "権限の更新に失敗しました。"
+        render turbo_stream: [
+          turbo_stream.replace(
+            dom_id(@role),
+            partial: "admin/roles/card",
+            locals: { role: @role, permissions: @permissions, error_message: e.message }
+          ),
+          turbo_stream.update("flash", partial: "shared/flash")
+        ], status: :unprocessable_entity
       end
       format.html { redirect_to admin_roles_path, alert: "権限の更新に失敗しました: #{e.message}" }
     end

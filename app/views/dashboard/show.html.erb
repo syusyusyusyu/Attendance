@@ -42,6 +42,30 @@ end %>
     </div>
   <% end %>
 
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div>
+        <h2 class="text-lg font-semibold text-gray-900">クイック操作</h2>
+        <p class="text-sm text-gray-500 mt-1">
+          <%= @user.staff? ? "今日の運用フローを最短で。" : "最短でスキャンへ。" %>
+        </p>
+      </div>
+      <div class="grid grid-cols-2 sm:flex gap-2 w-full sm:w-auto">
+        <% if @user.staff? %>
+          <%= link_to "QR発行", generate_qr_path, class: "btn btn-primary w-full sm:w-auto" %>
+          <%= link_to "出席管理", attendance_path, class: "btn btn-secondary w-full sm:w-auto" %>
+          <%= link_to "申請一覧", attendance_requests_path(status: "pending"), class: "btn btn-secondary w-full sm:w-auto" %>
+          <%= link_to "レポート", reports_path, class: "btn btn-secondary w-full sm:w-auto" %>
+        <% else %>
+          <%= link_to "QRスキャン", scan_path, class: "btn btn-primary w-full sm:w-auto" %>
+          <%= link_to "履歴", history_path, class: "btn btn-secondary w-full sm:w-auto" %>
+          <%= link_to "申請", attendance_requests_path, class: "btn btn-secondary w-full sm:w-auto" %>
+          <%= link_to "通知", notifications_path, class: "btn btn-secondary w-full sm:w-auto" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
   <div class="dashboard-masonry sm:grid-cols-3">
     <% if @user.staff? %>
       <div class="bg-white p-4 sm:p-5 rounded-lg shadow-sm border border-gray-200">

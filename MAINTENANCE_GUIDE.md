@@ -34,3 +34,9 @@
 - Turbo Frameで部分更新する画面（出席履歴/レポート/申請/ログ/管理画面）は、HTMLレスポンスではなくturbo_streamを優先して実装
 - ドロワー（`drawer`コントローラ）でフォームを開閉する場合、閉じるボタンは必ず配置し、成功時はフレームを閉じて一覧を置き換える
 - ボタン/リンクは最小44px、入力は16px以上を維持し、モバイルでのズーム発生を防ぐ
+
+## 8. テスト
+- 事前: `DATABASE_PASSWORD` を設定して `bin/rails db:prepare RAILS_ENV=test` を実行
+- 実行（mac/linux）: `DATABASE_PASSWORD=<password> RAILS_ENV=test TEST_WORKERS=1 bundle exec rails test`
+- 実行（PowerShell）: `$env:DATABASE_PASSWORD='<password>'; $env:RAILS_ENV='test'; $env:TEST_WORKERS='1'; bundle exec rails test`
+- 注意: fixtureロード時に主要テーブルをTRUNCATEするため、テストDBにseedが残ってもテスト結果に影響しない

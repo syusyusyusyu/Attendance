@@ -28,7 +28,7 @@ if Rails.env.test?
       statements = []
 
       if tables_to_delete.present?
-        table_names = tables_to_delete.map { |table| quote_table_name(table) }.join(", ")
+        table_names = table_order.select { |table| data_source_exists?(table) }.map { |table| quote_table_name(table) }.join(", ")
         statements << "TRUNCATE #{table_names} CASCADE"
       end
 

@@ -25,9 +25,16 @@
       <p class="text-sm text-gray-500 mt-1">直近200件まで表示します。</p>
     </div>
 
-    <%= turbo_frame_tag "attendance_changes_results", class: "drawer-panel", data: { controller: "drawer", drawer_open_value: true } do %>
+    <%= turbo_frame_tag "attendance_changes_results", class: "drawer-panel relative", data: { controller: "drawer", drawer_open_value: true } do %>
+    <%= render "shared/frame_loader" %>
     <div class="p-6 space-y-6">
-      <%= form_with url: attendance_logs_path, method: :get, class: "grid grid-cols-1 md:grid-cols-6 gap-4 items-end" do |f| %>
+      <%= form_with url: attendance_logs_path,
+        method: :get,
+        class: "grid grid-cols-1 md:grid-cols-6 gap-4 items-end",
+        data: {
+          controller: "request-filter",
+          action: "change->request-filter#submit input->request-filter#submitDebounced"
+        } do |f| %>
         <div>
           <%= f.label :saved_search_id, "保存済み条件", class: "block text-sm font-medium text-gray-700 mb-2" %>
           <%= f.select :saved_search_id,
@@ -134,7 +141,12 @@
                 <% summary = "#{timestamp} / 操作者: #{actor} / 学生: #{student_name}(#{student_id}) / クラス: #{klass_name} / 内容: #{change_label} / 理由: #{reason}" %>
                 <tr>
                   <td class="px-4 py-2 text-sm text-gray-700">
-                    <div class="max-w-[720px] truncate" title="<%= summary %>"><%= summary %></div>
+                    <%= link_to attendance_log_path(change),
+                      data: { turbo_frame: "attendance_change_detail" },
+                      class: "block max-w-[720px] truncate hover:underline",
+                      title: summary do %>
+                      <%= summary %>
+                    <% end %>
                   </td>
                   <td class="px-4 py-2 text-sm text-gray-500"><%= source_labels[change.source] || change.source %></td>
                 </tr>
@@ -152,4 +164,8 @@
   </div>
 </div>
 
-
+<%= turbo_frame_tag "attendance_change_detail",
+  class: "drawer-panel hidden",
+  data: { controller: "drawer", drawer_open_value: false } do %>
+  <div class="hidden"></div>
+<% end %>

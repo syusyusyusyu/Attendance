@@ -1,0 +1,4 @@
+<%= turbo_stream.update "notifications_list", partial: "notifications/list", locals: { notifications: @notifications } %>
+<%= turbo_stream.replace "nav_unread_notifications_count", partial: "shared/unread_notifications_badge", locals: { count: @unread_notifications_count } %>
+<%= turbo_stream.update "flash", partial: "shared/flash" %>
+

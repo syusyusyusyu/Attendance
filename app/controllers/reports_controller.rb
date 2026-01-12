@@ -12,7 +12,7 @@ class ReportsController < ApplicationController
       else
         session[:reports_class_id]
       end
-    selected_class_id = @classes.first.id if selected_class_id.blank? && @classes.one?
+    selected_class_id = @classes.first.id if selected_class_id.blank? && @classes.one? && request.format.html?
     @selected_class = selected_class_id.present? ? @classes.find { |klass| klass.id == selected_class_id.to_i } : nil
 
     if params.key?(:class_id)

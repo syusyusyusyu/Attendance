@@ -103,7 +103,7 @@ class QrScanProcessorTest < ActiveSupport::TestCase
   end
 
   test "expired session logs expired" do
-    @qr_session.update!(expires_at: @issued_at - 1.minute)
+    @qr_session.update!(expires_at: @issued_at + 10.seconds)
 
     result = call_processor
 

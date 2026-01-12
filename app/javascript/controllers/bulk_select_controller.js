@@ -5,14 +5,33 @@ export default class extends Controller {
   static values = { formId: String }
 
   connect() {
+    this.pendingRows = []
+
     this.handleKeydown = this.handleKeydown.bind(this)
     window.addEventListener("keydown", this.handleKeydown)
+
+    this.handleBeforeStreamRender = this.handleBeforeStreamRender.bind(this)
+    document.addEventListener("turbo:before-stream-render", this.handleBeforeStreamRender)
+
+    this.form = this.hasFormIdValue ? document.getElementById(this.formIdValue) : null
+    if (this.form) {
+      this.handleSubmitStart = this.handleSubmitStart.bind(this)
+      this.handleSubmitEnd = this.handleSubmitEnd.bind(this)
+      this.form.addEventListener("turbo:submit-start", this.handleSubmitStart)
+      this.form.addEventListener("turbo:submit-end", this.handleSubmitEnd)
+    }
+
     this.syncToggle()
     this.updateFloating()
   }
 
   disconnect() {
     window.removeEventListener("keydown", this.handleKeydown)
+    document.removeEventListener("turbo:before-stream-render", this.handleBeforeStreamRender)
+    if (this.form) {
+      this.form.removeEventListener("turbo:submit-start", this.handleSubmitStart)
+      this.form.removeEventListener("turbo:submit-end", this.handleSubmitEnd)
+    }
   }
 
   toggleAll() {
@@ -76,6 +95,42 @@ export default class extends Controller {
 
   rejectSelected() {
     this.submitBulk("rejected")
+  }
+
+  handleBeforeStreamRender(event) {
+    const originalRender = event.detail.render
+    event.detail.render = (streamElement) => {
+      originalRender(streamElement)
+      this.syncToggle()
+    }
+  }
+
+  handleSubmitStart() {
+    this.pendingRows = this.itemTargets
+      .filter((item) => item.checked && !item.disabled)
+      .map((item) => item.closest("tr"))
+      .filter(Boolean)
+
+    this.pendingRows.forEach((row) => row.classList.add("opacity-60"))
+    if (this.hasFloatingTarget) {
+      this.floatingTarget.classList.add("opacity-70", "pointer-events-none")
+    }
+  }
+
+  handleSubmitEnd(event) {
+    if (this.hasFloatingTarget) {
+      this.floatingTarget.classList.remove("opacity-70", "pointer-events-none")
+    }
+
+    if (event.detail.success) {
+      this.pendingRows = []
+      this.updateFloating()
+      return
+    }
+
+    this.pendingRows.forEach((row) => row.classList.remove("opacity-60"))
+    this.pendingRows = []
+    this.updateFloating()
   }
 
   isTyping(event) {

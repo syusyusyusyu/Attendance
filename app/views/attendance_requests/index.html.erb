@@ -21,9 +21,16 @@
   </div>
 
   <% if current_user.staff? %>
-    <%= turbo_frame_tag "attendance_requests_list", class: "drawer-panel", data: { controller: "drawer", drawer_open_value: true } do %>
+    <%= turbo_frame_tag "attendance_requests_list", class: "drawer-panel relative", data: { controller: "drawer", drawer_open_value: true } do %>
+    <%= render "shared/frame_loader" %>
     <div class="card p-6">
-      <%= form_with url: attendance_requests_path, method: :get, class: "grid grid-cols-1 md:grid-cols-3 gap-4 items-end" do |f| %>
+      <%= form_with url: attendance_requests_path,
+        method: :get,
+        class: "grid grid-cols-1 md:grid-cols-3 gap-4 items-end",
+        data: {
+          controller: "request-filter",
+          action: "change->request-filter#submit input->request-filter#submitDebounced"
+        } do |f| %>
         <div>
           <%= f.label :class_id, "クラス", class: "block text-sm font-medium text-gray-700 mb-2" %>
           <%= f.select :class_id,
@@ -38,8 +45,13 @@
             { include_blank: "すべて" },
             class: "input" %>
         </div>
-        <div>
+        <div class="flex flex-col gap-2">
           <%= f.submit "絞り込む", class: "btn btn-secondary w-full" %>
+          <% if session[:attendance_requests_last_filter].present? %>
+            <%= link_to "前回条件",
+              attendance_requests_path(session[:attendance_requests_last_filter]),
+              class: "btn btn-secondary w-full" %>
+          <% end %>
         </div>
       <% end %>
     </div>
@@ -158,9 +170,39 @@
           { include_blank: "種別を選択" },
           class: "input" %>
       </div>
-      <div class="md:col-span-2">
+      <div class="md:col-span-2" data-controller="preset">
         <%= f.label :reason, "理由", class: "block text-sm font-medium text-gray-700 mb-2" %>
-        <%= f.text_area :reason, rows: 3, class: "input", placeholder: "例: 体調不良のため欠席します" %>
+        <%= f.text_area :reason,
+          rows: 3,
+          class: "input",
+          placeholder: "例: 体調不良のため欠席します。",
+          data: { preset_target: "input" } %>
+        <div class="mt-2 flex flex-wrap gap-2">
+          <button
+            type="button"
+            class="min-h-0 min-w-0 rounded-full border border-gray-300 bg-white px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-100"
+            data-action="preset#fill"
+            data-preset-value-param="体調不良のため欠席します。"
+          >
+            体調不良
+          </button>
+          <button
+            type="button"
+            class="min-h-0 min-w-0 rounded-full border border-gray-300 bg-white px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-100"
+            data-action="preset#fill"
+            data-preset-value-param="交通機関の遅延のため遅刻します。"
+          >
+            交通遅延
+          </button>
+          <button
+            type="button"
+            class="min-h-0 min-w-0 rounded-full border border-gray-300 bg-white px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-100"
+            data-action="preset#fill"
+            data-preset-value-param="学校行事のため公欠です。"
+          >
+            公欠
+          </button>
+        </div>
       </div>
       <div class="md:col-span-2">
         <%= f.submit "申請を送信", class: "btn btn-primary w-full" %>

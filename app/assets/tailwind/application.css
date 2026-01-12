@@ -348,3 +348,7 @@ details summary {
     padding-top: max(env(safe-area-inset-top), 1rem);
   }
 }
+
+turbo-frame[busy] .frame-loader {
+  display: flex;
+}

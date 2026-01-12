@@ -94,9 +94,16 @@
       <p class="text-sm text-gray-500 mt-1">直近200件まで表示します。</p>
     </div>
 
-    <%= turbo_frame_tag "qr_scan_events_results", class: "drawer-panel", data: { controller: "drawer", drawer_open_value: true } do %>
+    <%= turbo_frame_tag "qr_scan_events_results", class: "drawer-panel relative", data: { controller: "drawer", drawer_open_value: true } do %>
+    <%= render "shared/frame_loader" %>
     <div class="p-6 space-y-6" data-controller="filter" data-filter-storage-key-value="scan-logs">
-      <%= form_with url: scan_logs_path, method: :get, class: "grid grid-cols-1 md:grid-cols-4 gap-4 items-end" do |f| %>
+      <%= form_with url: scan_logs_path,
+        method: :get,
+        class: "grid grid-cols-1 md:grid-cols-4 gap-4 items-end",
+        data: {
+          controller: "request-filter",
+          action: "change->request-filter#submit input->request-filter#submitDebounced"
+        } do |f| %>
         <div>
           <%= f.label :class_id, "クラス", class: "block text-sm font-medium text-gray-700 mb-2" %>
           <%= f.select :class_id,
@@ -195,8 +202,12 @@
               <% @scan_events.each do |event| %>
                 <tr data-filter-target="row">
                   <td class="px-6 py-4 whitespace-normal text-sm text-gray-500">
-                    <div><%= event.scanned_at&.strftime("%Y-%m-%d") %></div>
-                    <div class="text-xs text-gray-400"><%= event.scanned_at&.strftime("%H:%M:%S") %></div>
+                    <%= link_to qr_scan_event_path(event),
+                      data: { turbo_frame: "qr_scan_event_detail" },
+                      class: "block hover:underline" do %>
+                      <div><%= event.scanned_at&.strftime("%Y-%m-%d") %></div>
+                      <div class="text-xs text-gray-400"><%= event.scanned_at&.strftime("%H:%M:%S") %></div>
+                    <% end %>
                   </td>
                   <td class="px-6 py-4 whitespace-normal text-sm text-gray-700">
                     <div><%= event.school_class&.name || "-" %></div>
@@ -246,4 +257,8 @@
   </div>
 </div>
 
-
+<%= turbo_frame_tag "qr_scan_event_detail",
+  class: "drawer-panel hidden",
+  data: { controller: "drawer", drawer_open_value: false } do %>
+  <div class="hidden"></div>
+<% end %>

@@ -10,7 +10,13 @@
     </div>
 
     <div class="p-6 space-y-6">
-      <%= form_with url: attendance_path, method: :get, class: "grid grid-cols-1 md:grid-cols-2 gap-4" do |f| %>
+      <%= form_with url: attendance_path,
+        method: :get,
+        class: "grid grid-cols-1 md:grid-cols-2 gap-4",
+        data: {
+          controller: "request-filter",
+          action: "change->request-filter#submit input->request-filter#submitDebounced"
+        } do |f| %>
         <div>
           <%= f.label :class_id, "クラス", class: "block text-sm font-medium text-gray-700 mb-2" %>
           <%= f.select :class_id,
@@ -34,8 +40,13 @@
             <% end %>
           </div>
         </div>
-        <div class="md:col-span-2">
+        <div class="md:col-span-2 flex flex-col sm:flex-row gap-2">
           <%= f.submit "表示", class: "btn btn-primary w-full" %>
+          <% if session[:attendance_class_id].present? || session[:attendance_date].present? %>
+            <%= link_to "前回条件",
+              attendance_path(class_id: session[:attendance_class_id], date: session[:attendance_date]),
+              class: "btn btn-secondary w-full" %>
+          <% end %>
         </div>
       <% end %>
 

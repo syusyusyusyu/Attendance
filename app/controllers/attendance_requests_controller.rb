@@ -42,6 +42,7 @@ class AttendanceRequestsController < ApplicationController
       @requests = scope.limit(200)
       count_scope = @selected_class ? AttendanceRequest.where(school_class: @selected_class) : AttendanceRequest.all
       @request_counts = count_scope.group(:status).count
+      session[:attendance_requests_last_filter] = { class_id: @selected_class&.id, status: @status }.compact_blank
     else
       @classes = current_user.enrolled_classes.order(:name)
       default_class_id = params[:class_id].presence || session[:attendance_request_class_id]
@@ -155,11 +156,15 @@ class AttendanceRequestsController < ApplicationController
 
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: turbo_stream.replace(
-          helpers.dom_id(@request, :row),
-          partial: "attendance_requests/row",
-          locals: { request: @request }
-        )
+        flash.now[:notice] = @request.status_approved? ? "申請を承認しました。" : "申請を却下しました。"
+        render turbo_stream: [
+          turbo_stream.replace(
+            helpers.dom_id(@request, :row),
+            partial: "attendance_requests/row",
+            locals: { request: @request }
+          ),
+          turbo_stream.update("flash", partial: "shared/flash")
+        ]
       end
       format.html do
         redirect_back fallback_location: attendance_requests_path, notice: "申請を更新しました。"
@@ -199,8 +204,16 @@ class AttendanceRequestsController < ApplicationController
       end
     end
 
-    redirect_to attendance_requests_path(class_id: params[:class_id], status: params[:filter_status]),
-                notice: "申請を一括更新しました(#{processed}件)"
+    respond_to do |format|
+      format.turbo_stream do
+        @processed_requests = requests
+        flash.now[:notice] = "申請を一括更新しました(#{processed}件)"
+      end
+      format.html do
+        redirect_to attendance_requests_path(class_id: params[:class_id], status: params[:filter_status]),
+                    notice: "申請を一括更新しました(#{processed}件)"
+      end
+    end
   end
 
   private
