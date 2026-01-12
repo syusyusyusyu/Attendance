@@ -12,12 +12,18 @@
       </span>
     </div>
     <div class="mt-4 flex flex-wrap gap-2">
-      <%= link_to "詳細", school_class_path(klass), class: "btn btn-secondary text-sm" %>
+      <%= link_to "詳細",
+        school_class_path(klass),
+        data: { turbo_frame: "_top" },
+        class: "btn btn-secondary text-sm" %>
       <%= link_to "編集",
         edit_school_class_path(klass),
         data: { turbo_frame: dom_id(klass) },
         class: "btn btn-secondary text-sm" %>
-      <%= link_to "出席管理", attendance_path(class_id: klass.id), class: "btn btn-secondary text-sm" %>
+      <%= link_to "出席管理",
+        attendance_path(class_id: klass.id),
+        data: { turbo_frame: "_top" },
+        class: "btn btn-secondary text-sm" %>
       <% if current_user.admin? %>
         <%= link_to "削除",
           school_class_path(klass),
