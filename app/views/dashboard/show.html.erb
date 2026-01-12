@@ -42,31 +42,31 @@ end %>
     </div>
   <% end %>
 
-  <div class="dashboard-masonry sm:grid-cols-3">
+  <div class="grid grid-cols-3 gap-2 sm:gap-4">
     <% if @user.staff? %>
-      <div class="bg-white p-4 sm:p-5 rounded-lg shadow-sm border border-gray-200">
-        <div class="text-xs text-gray-500">出席率</div>
+      <div class="bg-white p-3 sm:p-5 rounded-lg shadow-sm border border-gray-200 min-w-0">
+        <div class="text-xs text-gray-500 truncate">出席率</div>
         <div class="mt-1 text-2xl font-semibold text-gray-900"><%= @staff_attendance_rate %>%</div>
       </div>
-      <div class="bg-white p-4 sm:p-5 rounded-lg shadow-sm border border-gray-200">
-        <div class="text-xs text-gray-500">承認待ち</div>
+      <div class="bg-white p-3 sm:p-5 rounded-lg shadow-sm border border-gray-200 min-w-0">
+        <div class="text-xs text-gray-500 truncate">承認待ち</div>
         <div class="mt-1 text-2xl font-semibold text-gray-900"><%= @pending_requests_count %>件</div>
       </div>
-      <div class="bg-white p-4 sm:p-5 rounded-lg shadow-sm border border-gray-200">
-        <div class="text-xs text-gray-500">注意学生</div>
+      <div class="bg-white p-3 sm:p-5 rounded-lg shadow-sm border border-gray-200 min-w-0">
+        <div class="text-xs text-gray-500 truncate">注意学生</div>
         <div class="mt-1 text-2xl font-semibold text-gray-900"><%= @attention_students.size %>名</div>
       </div>
     <% else %>
-      <div class="bg-white p-4 sm:p-5 rounded-lg shadow-sm border border-gray-200">
-        <div class="text-xs text-gray-500">出席率</div>
+      <div class="bg-white p-3 sm:p-5 rounded-lg shadow-sm border border-gray-200 min-w-0">
+        <div class="text-xs text-gray-500 truncate">出席率</div>
         <div class="mt-1 text-2xl font-semibold text-gray-900"><%= @student_attendance_rate %>%</div>
       </div>
-      <div class="bg-white p-4 sm:p-5 rounded-lg shadow-sm border border-gray-200">
-        <div class="text-xs text-gray-500">申請待ち</div>
+      <div class="bg-white p-3 sm:p-5 rounded-lg shadow-sm border border-gray-200 min-w-0">
+        <div class="text-xs text-gray-500 truncate">申請待ち</div>
         <div class="mt-1 text-2xl font-semibold text-gray-900"><%= @pending_requests_count %>件</div>
       </div>
-      <div class="bg-white p-4 sm:p-5 rounded-lg shadow-sm border border-gray-200">
-        <div class="text-xs text-gray-500">注意</div>
+      <div class="bg-white p-3 sm:p-5 rounded-lg shadow-sm border border-gray-200 min-w-0">
+        <div class="text-xs text-gray-500 truncate">注意</div>
         <div class="mt-1 text-2xl font-semibold text-gray-900"><%= @student_warnings.size %>件</div>
       </div>
     <% end %>
