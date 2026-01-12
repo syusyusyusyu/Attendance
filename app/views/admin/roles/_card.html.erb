@@ -1,14 +1,17 @@
 <%= turbo_frame_tag dom_id(role) do %>
   <div class="card p-6">
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-      <div>
-        <h2 class="text-lg font-medium text-gray-900"><%= role.label %></h2>
-        <p class="text-xs text-gray-500">key: <%= role.name %></p>
-      </div>
-      <% if role.updated_at %>
-        <p class="text-xs text-gray-400">更新: <%= l(role.updated_at, format: :short) %></p>
-      <% end %>
-    </div>
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+  <div>
+    <h2 class="text-lg font-medium text-gray-900"><%= role.label %></h2>
+    <p class="text-xs text-gray-500">key: <%= role.name %></p>
+  </div>
+  <% if role.updated_at %>
+    <p class="text-xs text-gray-400">更新: <%= l(role.updated_at, format: :short) %></p>
+  <% end %>
+</div>
+<% if local_assigns[:error_message].present? %>
+  <div class="mb-3 text-sm text-red-600">権限の更新に失敗しました: <%= error_message %></div>
+<% end %>
 
     <%= form_with url: admin_role_path(role), method: :patch, scope: :role do |f| %>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">

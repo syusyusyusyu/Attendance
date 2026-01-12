@@ -13,12 +13,25 @@ class Admin::RolesController < Admin::BaseController
     attrs = params.require(:role).permit(:label, :description)
     permission_ids = Array(params[:permission_ids]).map(&:to_i)
 
-    @role.update(attrs)
-    @role.permission_ids = permission_ids
+    ActiveRecord::Base.transaction do
+      @role.update!(attrs)
+      @role.permission_ids = permission_ids
+    end
 
     respond_to do |format|
       format.turbo_stream
       format.html { redirect_to admin_roles_path, notice: "権限を更新しました。" }
+    end
+  rescue StandardError => e
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.replace(
+          dom_id(@role),
+          partial: "admin/roles/card",
+          locals: { role: @role, permissions: @permissions, error_message: e.message }
+        ), status: :unprocessable_entity
+      end
+      format.html { redirect_to admin_roles_path, alert: "権限の更新に失敗しました: #{e.message}" }
     end
   end
 end
