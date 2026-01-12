@@ -35,30 +35,40 @@ export default class extends Controller {
 
   animateOpen() {
     const el = this.element
+    const useSheet = this.useSheetLayout()
+    const offset = useSheet ? 16 : -6
+    const maxHeight = useSheet ? this.sheetMaxHeight(el) : el.scrollHeight
     el.style.overflow = "hidden"
     el.style.maxHeight = "0px"
     el.style.opacity = "0"
-    el.style.transform = "translateY(-6px)"
+    el.style.transform = `translateY(${offset}px)`
     el.style.transition = "max-height 220ms ease, opacity 200ms ease, transform 200ms ease"
 
     requestAnimationFrame(() => {
-      const height = el.scrollHeight
-      el.style.maxHeight = `${height}px`
+      el.style.maxHeight = `${maxHeight}px`
       el.style.opacity = "1"
       el.style.transform = "translateY(0)"
     })
 
     clearTimeout(this.openTimer)
     this.openTimer = setTimeout(() => {
-      el.style.maxHeight = "none"
-      el.style.overflow = "visible"
+      if (useSheet) {
+        el.style.maxHeight = `${maxHeight}px`
+        el.style.overflow = "auto"
+      } else {
+        el.style.maxHeight = "none"
+        el.style.overflow = "visible"
+      }
     }, 240)
   }
 
   animateClose() {
     const el = this.element
+    const useSheet = this.useSheetLayout()
+    const offset = useSheet ? 16 : -6
+    const maxHeight = useSheet ? this.sheetMaxHeight(el) : el.scrollHeight
     el.style.overflow = "hidden"
-    el.style.maxHeight = `${el.scrollHeight}px`
+    el.style.maxHeight = `${maxHeight}px`
     el.style.opacity = "1"
     el.style.transform = "translateY(0)"
     el.style.transition = "max-height 220ms ease, opacity 200ms ease, transform 200ms ease"
@@ -66,7 +76,7 @@ export default class extends Controller {
     requestAnimationFrame(() => {
       el.style.maxHeight = "0px"
       el.style.opacity = "0"
-      el.style.transform = "translateY(-6px)"
+      el.style.transform = `translateY(${offset}px)`
     })
 
     clearTimeout(this.closeTimer)
@@ -85,5 +95,15 @@ export default class extends Controller {
     if (this.element.classList.contains("hidden")) {
       this.open()
     }
+  }
+
+  useSheetLayout() {
+    return this.element.classList.contains("drawer-sheet") &&
+      window.matchMedia("(max-width: 640px)").matches
+  }
+
+  sheetMaxHeight(element) {
+    const cap = Math.floor(window.innerHeight * 0.85)
+    return Math.min(element.scrollHeight, cap)
   }
 }

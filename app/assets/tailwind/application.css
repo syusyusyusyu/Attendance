@@ -132,6 +132,30 @@
     will-change: max-height, opacity, transform;
   }
 
+  .drawer-sheet {
+    will-change: max-height, opacity, transform;
+  }
+
+  @media (max-width: 640px) {
+    .drawer-sheet {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 50;
+      padding: 0.75rem 1rem max(env(safe-area-inset-bottom), 1rem);
+      display: flex;
+      justify-content: center;
+      overscroll-behavior: contain;
+    }
+
+    .drawer-sheet > .card {
+      width: min(92vw, 42rem);
+      border-radius: 1rem 1rem 0 0;
+      margin: 0 auto;
+    }
+  }
+
   .responsive-image {
     @apply w-full h-auto object-cover;
   }
