@@ -42,30 +42,6 @@ end %>
     </div>
   <% end %>
 
-  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-      <div>
-        <h2 class="text-lg font-semibold text-gray-900">クイック操作</h2>
-        <p class="text-sm text-gray-500 mt-1">
-          <%= @user.staff? ? "今日の運用フローを最短で。" : "最短でスキャンへ。" %>
-        </p>
-      </div>
-      <div class="grid grid-cols-2 sm:flex gap-2 w-full sm:w-auto">
-        <% if @user.staff? %>
-          <%= link_to "QR発行", generate_qr_path, class: "btn btn-primary w-full sm:w-auto" %>
-          <%= link_to "出席管理", attendance_path, class: "btn btn-secondary w-full sm:w-auto" %>
-          <%= link_to "申請一覧", attendance_requests_path(status: "pending"), class: "btn btn-secondary w-full sm:w-auto" %>
-          <%= link_to "レポート", reports_path, class: "btn btn-secondary w-full sm:w-auto" %>
-        <% else %>
-          <%= link_to "QRスキャン", scan_path, class: "btn btn-primary w-full sm:w-auto" %>
-          <%= link_to "履歴", history_path, class: "btn btn-secondary w-full sm:w-auto" %>
-          <%= link_to "申請", attendance_requests_path, class: "btn btn-secondary w-full sm:w-auto" %>
-          <%= link_to "通知", notifications_path, class: "btn btn-secondary w-full sm:w-auto" %>
-        <% end %>
-      </div>
-    </div>
-  </div>
-
   <div class="dashboard-masonry sm:grid-cols-3">
     <% if @user.staff? %>
       <div class="bg-white p-4 sm:p-5 rounded-lg shadow-sm border border-gray-200">
@@ -148,10 +124,10 @@ end %>
       <% end %>
     </div>
   <% else %>
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      <%= link_to scan_path, class: "bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 cursor-pointer transition hover:-translate-y-1 hover:shadow-md sm:col-span-2" do %>
-        <div class="mb-4 text-google-green">
-          <svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <div class="grid grid-cols-3 gap-2 sm:gap-4">
+      <%= link_to scan_path, class: "bg-white min-w-0 p-3 sm:p-6 rounded-lg shadow-sm border border-gray-200 cursor-pointer transition hover:-translate-y-1 hover:shadow-md" do %>
+        <div class="mb-2 sm:mb-4 text-google-green">
+          <svg class="h-6 w-6 sm:h-8 sm:w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="3" width="6" height="6" />
             <rect x="15" y="3" width="6" height="6" />
             <rect x="3" y="15" width="6" height="6" />
@@ -159,31 +135,31 @@ end %>
             <path d="M11 11h2v2h-2z" />
           </svg>
         </div>
-        <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-1">QRスキャン</h3>
-        <p class="text-sm text-gray-500">ここから出席</p>
+        <h3 class="text-sm sm:text-lg font-medium text-gray-900 mb-1 truncate">QRスキャン</h3>
+        <p class="text-xs sm:text-sm text-gray-500 truncate">ここから出席</p>
       <% end %>
 
-      <%= link_to history_path, class: "bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 cursor-pointer transition hover:-translate-y-1 hover:shadow-md" do %>
-        <div class="mb-4 text-google-blue">
-          <svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <%= link_to history_path, class: "bg-white min-w-0 p-3 sm:p-6 rounded-lg shadow-sm border border-gray-200 cursor-pointer transition hover:-translate-y-1 hover:shadow-md" do %>
+        <div class="mb-2 sm:mb-4 text-google-blue">
+          <svg class="h-6 w-6 sm:h-8 sm:w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="9" />
             <path d="M12 7v5l3 3" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
         </div>
-        <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-1">出席履歴</h3>
-        <p class="text-sm text-gray-500">履歴</p>
+        <h3 class="text-sm sm:text-lg font-medium text-gray-900 mb-1 truncate">出席履歴</h3>
+        <p class="text-xs sm:text-sm text-gray-500 truncate">履歴</p>
       <% end %>
 
-      <%= link_to attendance_requests_path, class: "bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 cursor-pointer transition hover:-translate-y-1 hover:shadow-md" do %>
-        <div class="mb-4 text-google-red">
-          <svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <%= link_to attendance_requests_path, class: "bg-white min-w-0 p-3 sm:p-6 rounded-lg shadow-sm border border-gray-200 cursor-pointer transition hover:-translate-y-1 hover:shadow-md" do %>
+        <div class="mb-2 sm:mb-4 text-google-red">
+          <svg class="h-6 w-6 sm:h-8 sm:w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M12 3v18" stroke-linecap="round" stroke-linejoin="round" />
             <path d="M5 8h14" stroke-linecap="round" stroke-linejoin="round" />
             <path d="M5 16h14" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
         </div>
-        <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-1">出席申請</h3>
-        <p class="text-sm text-gray-500">欠席/遅刻</p>
+        <h3 class="text-sm sm:text-lg font-medium text-gray-900 mb-1 truncate">出席申請</h3>
+        <p class="text-xs sm:text-sm text-gray-500 truncate">欠席/遅刻</p>
       <% end %>
     </div>
   <% end %>

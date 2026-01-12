@@ -7,8 +7,10 @@
     <%= link_to "新規クラス",
       new_school_class_path,
       class: "btn btn-primary w-full sm:w-auto",
-      data: { turbo_frame: "school_class_form" } %>
+      data: { turbo_frame: "school_class_form", turbo_action: "advance" } %>
   </div>
+
+  <%= render "form_frame" %>
 
   <div class="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
     <div class="relative flex-1 w-full">
@@ -44,6 +46,4 @@
       </div>
     <% end %>
   </div>
-
-  <%= render "form_frame" %>
 </div>
