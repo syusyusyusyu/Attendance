@@ -8,8 +8,8 @@ class RemoveMathClass < ActiveRecord::Migration[8.0]
       ClassSession.where(school_class_id: klass.id).delete_all
       ClassSessionOverride.where(school_class_id: klass.id).delete_all
       Enrollment.where(school_class_id: klass.id).delete_all
-      QRSession.where(school_class_id: klass.id).delete_all
-      QRScanEvent.where(school_class_id: klass.id).delete_all
+      QrSession.where(school_class_id: klass.id).delete_all
+      QrScanEvent.where(school_class_id: klass.id).delete_all
       OperationRequest.where(school_class_id: klass.id).delete_all
       klass.destroy!
     end
