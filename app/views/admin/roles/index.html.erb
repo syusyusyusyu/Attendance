@@ -4,39 +4,6 @@
   </div>
 
   <% @roles.each do |role| %>
-    <div class="card p-6">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-        <div>
-          <h2 class="text-lg font-medium text-gray-900"><%= role.label %></h2>
-          <p class="text-xs text-gray-500">key: <%= role.name %></p>
-        </div>
-      </div>
-
-      <%= form_with url: admin_role_path(role), method: :patch, scope: :role do |f| %>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div>
-            <%= f.label :label, "表示名", class: "block text-sm font-medium text-gray-700 mb-2" %>
-            <%= f.text_field :label, value: role.label, class: "input" %>
-          </div>
-          <div>
-            <%= f.label :description, "説明", class: "block text-sm font-medium text-gray-700 mb-2" %>
-            <%= f.text_field :description, value: role.description, class: "input" %>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          <% @permissions.each do |permission| %>
-            <label class="flex items-center gap-2 text-sm text-gray-700">
-              <%= check_box_tag "permission_ids[]", permission.id, role.permissions.exists?(permission.id), class: "rounded border-gray-300 text-[var(--google-green)] focus:ring-[var(--google-green)]" %>
-              <span><%= permission.label %></span>
-            </label>
-          <% end %>
-        </div>
-
-        <div class="mt-4">
-          <%= f.submit "更新する", class: "btn btn-primary" %>
-        </div>
-      <% end %>
-    </div>
+    <%= render "card", role: role, permissions: @permissions %>
   <% end %>
 </div>

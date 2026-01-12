@@ -1,0 +1,3 @@
+<%= turbo_stream.replace dom_id(@role),
+  partial: "admin/roles/card",
+  locals: { role: @role, permissions: @permissions } %>
