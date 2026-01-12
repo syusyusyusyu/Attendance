@@ -1,4 +1,4 @@
-<% role_labels = { "student" => "学生", "teacher" => "教員", "admin" => "管理者" } %>
+﻿<% role_labels = { "student" => "学生", "teacher" => "教員", "admin" => "管理者" } %>
 <% total_users = @users.size %>
 
 <div class="max-w-6xl mx-auto space-y-6">
@@ -66,7 +66,7 @@
               <% end %>
             <% else %>
               <tr>
-                <td colspan="4" class="px-4 py-6 text-center text-sm text-gray-500">申請がありません。</td>
+                <td colspan="4" class="px-4 py-6 text-center text-sm text-gray-500">該当なし</td>
               </tr>
             <% end %>
           </tbody>
@@ -98,7 +98,7 @@
               <% end %>
             <% else %>
               <tr>
-                <td colspan="4" class="px-4 py-6 text-center text-sm text-gray-500">申請がありません。</td>
+                <td colspan="4" class="px-4 py-6 text-center text-sm text-gray-500">該当なし</td>
               </tr>
             <% end %>
           </tbody>
@@ -132,7 +132,7 @@
               <% end %>
             <% else %>
               <tr>
-                <td colspan="4" class="px-4 py-6 text-center text-sm text-gray-500">ログがありません。</td>
+                <td colspan="4" class="px-4 py-6 text-center text-sm text-gray-500">該当なし</td>
               </tr>
             <% end %>
           </tbody>
@@ -164,7 +164,7 @@
               <% end %>
             <% else %>
               <tr>
-                <td colspan="4" class="px-4 py-6 text-center text-sm text-gray-500">ログがありません。</td>
+                <td colspan="4" class="px-4 py-6 text-center text-sm text-gray-500">該当なし</td>
               </tr>
             <% end %>
           </tbody>
@@ -173,3 +173,4 @@
     </div>
   </div>
 </div>
+
