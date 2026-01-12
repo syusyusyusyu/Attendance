@@ -1,0 +1,66 @@
+<% type_labels = {
+  "absent" => "欠席",
+  "late" => "遅刻",
+  "excused" => "公欠"
+} %>
+<% status_labels = {
+  "pending" => "審査中",
+  "approved" => "承認",
+  "rejected" => "却下"
+} %>
+<% status_badges = {
+  "pending" => "badge badge-warning",
+  "approved" => "badge badge-success",
+  "rejected" => "badge badge-error"
+} %>
+
+<tr id="<%= dom_id(request, :row) %>">
+  <td class="px-4 py-3">
+    <input
+      type="checkbox"
+      name="request_ids[]"
+      value="<%= request.id %>"
+      form="bulk-requests-form"
+      class="h-4 w-4 rounded border-gray-300 text-[var(--google-green)] focus:ring-[var(--google-green)]"
+      data-bulk-select-target="item"
+      data-action="bulk-select#syncToggle"
+      <%= request.status_pending? ? "" : "disabled" %>
+    />
+  </td>
+  <td class="px-4 py-3 whitespace-normal text-sm text-gray-500"><%= request.date.strftime("%Y-%m-%d") %></td>
+  <td class="px-4 py-3 text-sm text-gray-700"><%= request.school_class.name %></td>
+  <td class="px-4 py-3 text-sm text-gray-700">
+    <%= render "shared/session_status_badges", session: request.class_session %>
+  </td>
+  <td class="px-4 py-3 text-sm text-gray-700">
+    <div><%= request.user.name %></div>
+    <div class="text-xs text-gray-400"><%= request.user.student_id %></div>
+  </td>
+  <td class="px-4 py-3 text-sm text-gray-700"><%= type_labels[request.request_type] || request.request_type %></td>
+  <td class="px-4 py-3 text-sm text-gray-700"><%= request.reason %></td>
+  <td class="px-4 py-3">
+    <span class="<%= status_badges[request.status] || "badge" %>">
+      <%= status_labels[request.status] || request.status %>
+    </span>
+  </td>
+  <td class="px-4 py-3">
+    <% if request.status_pending? %>
+      <%= form_with model: request, url: attendance_request_path(request), method: :patch, class: "space-y-2" do |f| %>
+        <div class="grid grid-cols-2 gap-2">
+          <button type="submit" name="attendance_request[status]" value="approved" class="btn btn-primary text-sm">
+            承認
+          </button>
+          <button type="submit" name="attendance_request[status]" value="rejected" class="btn btn-secondary text-sm">
+            却下
+          </button>
+        </div>
+        <%= f.text_area :decision_reason, rows: 2, class: "input", placeholder: "コメント任意" %>
+      <% end %>
+    <% else %>
+      <div class="text-xs text-gray-500">
+        <div><%= request.processed_at&.strftime("%Y-%m-%d %H:%M") %></div>
+        <div><%= request.decision_reason.presence || "コメントなし" %></div>
+      </div>
+    <% end %>
+  </td>
+</tr>

@@ -1,5 +1,5 @@
 <%= turbo_frame_tag dom_id(school_class) do %>
-  <div class="card p-4 space-y-4">
+  <div class="card p-4 space-y-4 drawer-panel" data-controller="drawer" data-drawer-open-value="true">
     <div class="flex items-center justify-between">
       <div class="text-sm font-medium text-gray-900">クラス編集</div>
       <%= link_to "キャンセル",

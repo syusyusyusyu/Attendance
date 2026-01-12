@@ -153,7 +153,18 @@ class AttendanceRequestsController < ApplicationController
       action_path: attendance_requests_path
     )
 
-    redirect_back fallback_location: attendance_requests_path, notice: "申請を更新しました。"
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.replace(
+          helpers.dom_id(@request, :row),
+          partial: "attendance_requests/row",
+          locals: { request: @request }
+        )
+      end
+      format.html do
+        redirect_back fallback_location: attendance_requests_path, notice: "申請を更新しました。"
+      end
+    end
   end
 
   def bulk_update

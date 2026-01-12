@@ -75,7 +75,16 @@ export default class extends Controller {
       this.cancelButtonTarget.classList.toggle("hidden", !editing)
     }
     if (this.hasReasonBlockTarget) {
-      this.reasonBlockTarget.classList.toggle("hidden", !editing)
+      const drawer = this.drawerFor(this.reasonBlockTarget)
+      if (drawer) {
+        if (editing) {
+          drawer.open()
+        } else {
+          drawer.close()
+        }
+      } else {
+        this.reasonBlockTarget.classList.toggle("hidden", !editing)
+      }
     }
   }
 
@@ -97,5 +106,17 @@ export default class extends Controller {
 
     const changed = field.value !== field.dataset.initialValue
     row.classList.toggle("bg-yellow-50", changed)
+  }
+
+  submitEnd(event) {
+    if (!event.detail.success) return
+
+    this.editingValue = false
+    this.resetSelects()
+    this.updateState()
+  }
+
+  drawerFor(element) {
+    return this.application.getControllerForElementAndIdentifier(element, "drawer")
   }
 }

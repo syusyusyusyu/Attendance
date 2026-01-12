@@ -109,7 +109,12 @@ class ClassAttendancesController < ApplicationController
           "changes" => changes.map { |user_id, _previous, status| { "user_id" => user_id, "status" => status } }
         }
       )
-      redirect_to attendance_path(class_id: selected_class.id, date: date), notice: "修正内容を承認申請しました。"
+      respond_to do |format|
+        format.turbo_stream { head :ok }
+        format.html do
+          redirect_to attendance_path(class_id: selected_class.id, date: date), notice: "修正内容を承認申請しました。"
+        end
+      end
       return
     end
 
@@ -154,7 +159,12 @@ class ClassAttendancesController < ApplicationController
       )
     end
 
-    redirect_to attendance_path(class_id: selected_class.id, date: date), notice: "出席を更新しました。"
+    respond_to do |format|
+      format.turbo_stream { head :ok }
+      format.html do
+        redirect_to attendance_path(class_id: selected_class.id, date: date), notice: "出席を更新しました。"
+      end
+    end
   rescue ArgumentError
     redirect_to attendance_path, alert: "日付の形式が正しくありません。"
   end

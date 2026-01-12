@@ -25,6 +25,7 @@
       <p class="text-sm text-gray-500 mt-1">直近200件まで表示します。</p>
     </div>
 
+    <%= turbo_frame_tag "attendance_changes_results", class: "drawer-panel", data: { controller: "drawer", drawer_open_value: true } do %>
     <div class="p-6 space-y-6">
       <%= form_with url: attendance_logs_path, method: :get, class: "grid grid-cols-1 md:grid-cols-6 gap-4 items-end" do |f| %>
         <div>
@@ -72,7 +73,8 @@
             <%= f.submit "絞り込む", class: "btn btn-primary w-full sm:w-auto" %>
             <%= link_to "CSV出力",
               attendance_logs_path(format: :csv, class_id: @selected_class&.id, start_date: @start_date, end_date: @end_date, status: @status, source: @source, q: @query),
-              class: "btn btn-secondary w-full sm:w-auto" %>
+              class: "btn btn-secondary w-full sm:w-auto",
+              data: { turbo: false } %>
           </div>
           <div class="md:col-span-3 flex flex-col sm:flex-row gap-2">
             <%= f.text_field :save_search_name, class: "input", placeholder: "条件名を入力" %>
@@ -151,6 +153,7 @@
         </table>
       </div>
     </div>
+    <% end %>
   </div>
 </div>
 

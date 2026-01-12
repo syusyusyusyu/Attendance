@@ -94,6 +94,7 @@
       <p class="text-sm text-gray-500 mt-1">直近200件まで表示します。</p>
     </div>
 
+    <%= turbo_frame_tag "qr_scan_events_results", class: "drawer-panel", data: { controller: "drawer", drawer_open_value: true } do %>
     <div class="p-6 space-y-6" data-controller="filter" data-filter-storage-key-value="scan-logs">
       <%= form_with url: scan_logs_path, method: :get, class: "grid grid-cols-1 md:grid-cols-4 gap-4 items-end" do |f| %>
         <div>
@@ -125,7 +126,8 @@
           <%= f.submit "絞り込む", class: "btn btn-primary w-full sm:w-auto" %>
           <%= link_to "CSV出力",
             scan_logs_path(format: :csv, class_id: @selected_class&.id, date: @date, status: @status, attendance_status: @attendance_status),
-            class: "btn btn-secondary w-full sm:w-auto" %>
+            class: "btn btn-secondary w-full sm:w-auto",
+            data: { turbo: false } %>
         </div>
       <% end %>
 
@@ -235,6 +237,7 @@
         </table>
       </div>
     </div>
+    <% end %>
   </div>
 </div>
 

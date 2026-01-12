@@ -128,6 +128,10 @@
     line-break: strict;
   }
 
+  .drawer-panel {
+    will-change: max-height, opacity, transform;
+  }
+
   .responsive-image {
     @apply w-full h-auto object-cover;
   }
