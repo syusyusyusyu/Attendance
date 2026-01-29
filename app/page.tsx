@@ -62,7 +62,7 @@ export default function SlideshowPage() {
   }, [isAutoPlay, nextSlide]);
 
   return (
-    <div className="dark fixed inset-0 flex flex-col bg-background text-foreground overflow-hidden">
+    <div className="fixed inset-0 flex flex-col bg-background text-foreground overflow-hidden">
       <div className="flex-1 flex items-center justify-center">
         <div className="w-full h-full max-w-[177.78vh] max-h-[56.25vw] aspect-video relative">
           {slides[currentSlide].type === "title" && <TitleSlide />}
