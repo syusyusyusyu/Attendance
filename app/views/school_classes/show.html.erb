@@ -113,19 +113,19 @@
       </div>
 
       <%= form_with model: [@school_class, @override], class: "grid grid-cols-1 md:grid-cols-2 gap-4 items-end" do |f| %>
-        <div>
+        <div class="min-w-0">
           <%= f.label :date, "日付", class: "block text-sm font-medium text-gray-700 mb-2" %>
           <%= f.date_field :date, class: "input", required: true %>
         </div>
-        <div>
+        <div class="min-w-0">
           <%= f.label :status, "種別", class: "block text-sm font-medium text-gray-700 mb-2" %>
           <%= f.select :status, [["通常", "regular"], ["補講", "makeup"], ["休講", "canceled"]], {}, class: "input" %>
         </div>
-        <div>
+        <div class="min-w-0">
           <%= f.label :start_time, "開始時刻", class: "block text-sm font-medium text-gray-700 mb-2" %>
           <%= f.time_field :start_time, class: "input" %>
         </div>
-        <div>
+        <div class="min-w-0">
           <%= f.label :end_time, "終了時刻", class: "block text-sm font-medium text-gray-700 mb-2" %>
           <%= f.time_field :end_time, class: "input" %>
         </div>

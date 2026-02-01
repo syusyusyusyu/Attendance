@@ -17,9 +17,9 @@
         <%= f.select :class_id,
           options_for_select(@classes.map { |klass| ["#{klass.name} (#{klass.room})", klass.id] }, @selected_class&.id),
           { include_blank: "全クラス" },
-          class: "input" %>
-        <%= f.date_field :start_date, value: @start_date, class: "input" %>
-        <%= f.date_field :end_date, value: @end_date, class: "input" %>
+          class: "input min-w-0" %>
+        <%= f.date_field :start_date, value: @start_date, class: "input min-w-0" %>
+        <%= f.date_field :end_date, value: @end_date, class: "input min-w-0" %>
         <%= f.submit "更新", class: "btn btn-secondary" %>
         <% if session[:reports_class_id].present? || session[:reports_start_date].present? || session[:reports_end_date].present? %>
           <%= link_to "前回条件",
