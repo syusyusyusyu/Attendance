@@ -63,6 +63,16 @@
   textarea {
     font-size: 16px;
   }
+
+  input[type="date"],
+  input[type="datetime-local"],
+  input[type="month"],
+  input[type="week"] {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
 }
 
 @layer components {
@@ -93,7 +103,7 @@
   }
 
   .input {
-    @apply w-full min-w-0 px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--google-green)] focus:border-transparent min-h-[44px] text-base;
+    @apply w-full max-w-full min-w-0 box-border px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--google-green)] focus:border-transparent min-h-[44px] text-base;
   }
 
   .badge {
