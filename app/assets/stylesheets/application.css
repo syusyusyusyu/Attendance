@@ -15,9 +15,14 @@ input[type="datetime-local"],
 input[type="month"],
 input[type="week"],
 .input {
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
   display: block;
+}
+
+/* Prevent grid items from forcing intrinsic width on mobile. */
+.grid > * {
+  min-width: 0;
 }
