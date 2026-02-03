@@ -700,3 +700,18 @@ input[type="week"],
     border-radius: var(--radius-xl) var(--radius-xl) 0 0;
   }
 }
+
+@media (max-width: 1024px) {
+  body.sidebar-open .sidebar {
+    z-index: 70;
+  }
+
+  body.sidebar-open [data-sidebar-target="overlay"] {
+    z-index: 60;
+  }
+
+  body.sidebar-open .drawer-panel.drawer-sheet {
+    z-index: 50;
+    pointer-events: none;
+  }
+}

@@ -3,6 +3,14 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = ["sidebar", "overlay"]
 
+  connect() {
+    document.body.classList.remove("sidebar-open")
+  }
+
+  disconnect() {
+    document.body.classList.remove("sidebar-open")
+  }
+
   toggle() {
     if (!this.hasSidebarTarget || !this.hasOverlayTarget) return
 
@@ -18,6 +26,7 @@ export default class extends Controller {
 
     this.sidebarTarget.classList.remove("-translate-x-full")
     this.overlayTarget.classList.remove("hidden")
+    document.body.classList.add("sidebar-open")
   }
 
   close() {
@@ -25,5 +34,6 @@ export default class extends Controller {
 
     this.sidebarTarget.classList.add("-translate-x-full")
     this.overlayTarget.classList.add("hidden")
+    document.body.classList.remove("sidebar-open")
   }
 }
