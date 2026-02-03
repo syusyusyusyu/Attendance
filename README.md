@@ -544,12 +544,12 @@ erDiagram
 
   ATTENDANCE_POLICIES {
     bigint id PK
-    bigint school_class_id FK UK
-    integer late_after_minutes "遅刻判定"
-    integer close_after_minutes "締切"
-    integer minimum_attendance_rate "最低出席率"
+    bigint school_class_id FK "UK:クラスごとに1つ"
+    integer late_after_minutes "遅刻判定(分)"
+    integer close_after_minutes "締切(分)"
+    integer minimum_attendance_rate "最低出席率(%)"
     integer warning_absence_count "警告欠席数"
-    integer warning_attendance_rate "警告出席率"
+    integer warning_attendance_rate "警告出席率(%)"
     datetime created_at
     datetime updated_at
   }
