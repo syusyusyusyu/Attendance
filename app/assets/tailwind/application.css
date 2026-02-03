@@ -1,13 +1,113 @@
 ﻿@import "tailwindcss";
 
+/* ============================================
+   AdminKit-style Design Tokens
+   ============================================ */
 :root {
+  /* === Legacy Google Colors (互換性維持) === */
   --google-blue: #4285F4;
   --google-red: #EA4335;
   --google-yellow: #FBBC05;
   --google-green: #34A853;
   --google-grey: #F8F9FA;
   --google-dark-grey: #5F6368;
+
+  /* === Primary Colors (青を主役に) === */
+  --color-primary: #3B82F6;
+  --color-primary-hover: #2563EB;
+  --color-primary-light: #DBEAFE;
+  --color-primary-dark: #1D4ED8;
+
+  /* === Status Colors === */
+  --color-success: #10B981;
+  --color-success-light: #D1FAE5;
+  --color-success-dark: #059669;
+
+  --color-warning: #F59E0B;
+  --color-warning-light: #FEF3C7;
+  --color-warning-dark: #D97706;
+
+  --color-error: #EF4444;
+  --color-error-light: #FEE2E2;
+  --color-error-dark: #DC2626;
+
+  --color-info: #3B82F6;
+  --color-info-light: #DBEAFE;
+  --color-info-dark: #2563EB;
+
+  /* === Surface & Background === */
+  --color-background: #F1F5F9;
+  --color-surface: #FFFFFF;
+  --color-surface-hover: #F8FAFC;
+
+  /* === Sidebar (濃紺/ダークグレー) === */
+  --sidebar-bg: #1E293B;
+  --sidebar-bg-hover: #334155;
+  --sidebar-text: #94A3B8;
+  --sidebar-text-active: #FFFFFF;
+  --sidebar-active-bg: #3B82F6;
+  --sidebar-active-indicator: #3B82F6;
+  --sidebar-section-text: #64748B;
+  --sidebar-border: #334155;
+  --sidebar-width: 16rem;
+
+  /* === Text Colors === */
+  --color-text-primary: #1E293B;
+  --color-text-secondary: #64748B;
+  --color-text-muted: #94A3B8;
+  --color-text-inverse: #FFFFFF;
+
+  /* === Border & Outline === */
+  --color-border: #E2E8F0;
+  --color-border-hover: #CBD5E1;
+  --color-outline-focus: #3B82F6;
+
+  /* === Radius === */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  /* === Spacing (8px基準) === */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* === Typography === */
+  --font-family: "Roboto", "Noto Sans JP", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* === Elevation (控えめな影) === */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+  /* === Motion === */
+  --transition-fast: 150ms ease;
+  --transition-normal: 200ms ease;
+  --transition-slow: 300ms ease;
+
+  /* === Layout === */
   --app-header-height: 4rem;
+  --topbar-bg: #FFFFFF;
+  --topbar-border: #E2E8F0;
 }
 
 @layer base {
@@ -76,8 +176,11 @@
 }
 
 @layer components {
+  /* === Buttons (AdminKit風) === */
   .btn {
-    @apply px-5 py-2.5 rounded-md font-medium text-sm sm:text-base transition-all duration-200 flex items-center justify-center gap-2 min-h-[44px];
+    @apply px-5 py-2.5 font-medium text-sm sm:text-base flex items-center justify-center gap-2 min-h-[44px];
+    border-radius: var(--radius-lg);
+    transition: all var(--transition-normal);
   }
 
   .btn.is-loading {
@@ -85,25 +188,145 @@
   }
 
   .btn-primary {
-    @apply bg-[var(--google-green)] hover:bg-[#2d964a] text-white;
+    background-color: var(--color-primary);
+    color: var(--color-text-inverse);
+  }
+
+  .btn-primary:hover {
+    background-color: var(--color-primary-hover);
   }
 
   .btn-secondary {
-    @apply bg-white border border-gray-300 hover:bg-gray-100 text-gray-800;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-primary);
   }
 
+  .btn-secondary:hover {
+    background-color: var(--color-surface-hover);
+    border-color: var(--color-border-hover);
+  }
+
+  .btn-success {
+    background-color: var(--color-success);
+    color: var(--color-text-inverse);
+  }
+
+  .btn-success:hover {
+    background-color: var(--color-success-dark);
+  }
+
+  .btn-danger {
+    background-color: var(--color-error);
+    color: var(--color-text-inverse);
+  }
+
+  .btn-danger:hover {
+    background-color: var(--color-error-dark);
+  }
+
+  /* Legacy support */
   .btn-blue {
-    @apply bg-[var(--google-blue)] hover:bg-[#3367d6] text-white;
+    background-color: var(--color-primary);
+    color: var(--color-text-inverse);
   }
 
+  .btn-blue:hover {
+    background-color: var(--color-primary-hover);
+  }
+
+  /* === Cards (AdminKit風: 白、薄い境界線、控えめな影、角丸12px) === */
   .card {
-    @apply bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden;
+    background-color: var(--color-surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
     overflow-wrap: break-word;
     word-break: normal;
   }
 
+  .card-header {
+    @apply px-5 py-4 border-b;
+    border-color: var(--color-border);
+  }
+
+  .card-body {
+    @apply px-5 py-4;
+  }
+
+  .card-footer {
+    @apply px-5 py-4 border-t;
+    border-color: var(--color-border);
+    background-color: var(--color-surface-hover);
+  }
+
+  /* === KPI Card (AdminKit風: 右上丸いアイコンバッジ) === */
+  .kpi-card {
+    @apply relative;
+    background-color: var(--color-surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-sm);
+    padding: var(--space-5);
+  }
+
+  .kpi-card-icon {
+    @apply absolute top-4 right-4 w-12 h-12 rounded-full flex items-center justify-center;
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+  }
+
+  .kpi-card-icon.success {
+    background-color: var(--color-success-light);
+    color: var(--color-success);
+  }
+
+  .kpi-card-icon.warning {
+    background-color: var(--color-warning-light);
+    color: var(--color-warning);
+  }
+
+  .kpi-card-icon.error {
+    background-color: var(--color-error-light);
+    color: var(--color-error);
+  }
+
+  .kpi-card-title {
+    @apply text-sm font-medium mb-2;
+    color: var(--color-text-secondary);
+  }
+
+  .kpi-card-value {
+    @apply text-3xl font-bold;
+    color: var(--color-text-primary);
+  }
+
+  .kpi-card-diff {
+    @apply text-sm mt-1;
+  }
+
+  .kpi-card-diff.positive {
+    color: var(--color-success);
+  }
+
+  .kpi-card-diff.negative {
+    color: var(--color-error);
+  }
+
+  /* === Input Fields === */
   .input {
-    @apply w-full max-w-full min-w-0 box-border px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--google-green)] focus:border-transparent min-h-[44px] text-base;
+    @apply w-full max-w-full min-w-0 box-border px-4 py-2.5 min-h-[44px] text-base;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  }
+
+  .input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-light);
   }
 
   /* 日付入力フィールドがはみ出さないように修正 */
@@ -115,35 +338,75 @@
     appearance: none;
   }
 
+  /* === Status Pill Badges (AdminKit風: 角丸9999px、淡色背景＋濃い文字) === */
   .badge {
-    @apply px-2 py-1 text-xs rounded-full;
+    @apply px-3 py-1 text-xs font-medium inline-flex items-center;
+    border-radius: var(--radius-full);
   }
 
-  .badge-success {
-    @apply bg-green-100 text-green-800;
+  .badge-success,
+  .status-pill-success {
+    background-color: var(--color-success-light);
+    color: var(--color-success-dark);
   }
 
-  .badge-warning {
-    @apply bg-yellow-100 text-yellow-800;
+  .badge-warning,
+  .status-pill-warning {
+    background-color: var(--color-warning-light);
+    color: var(--color-warning-dark);
   }
 
-  .badge-error {
-    @apply bg-red-100 text-red-800;
+  .badge-error,
+  .status-pill-error {
+    background-color: var(--color-error-light);
+    color: var(--color-error-dark);
   }
 
-  .badge-info {
-    @apply bg-blue-100 text-blue-800;
+  .badge-info,
+  .status-pill-info {
+    background-color: var(--color-info-light);
+    color: var(--color-info-dark);
   }
 
+  .badge-neutral,
+  .status-pill-neutral {
+    @apply bg-gray-100 text-gray-700;
+  }
+
+  /* === Tables (AdminKit風: ヘッダー薄グレー、行間ゆったり 48-56px) === */
   .table-container {
     @apply w-full overflow-x-auto;
     max-width: 100%;
+    background-color: var(--color-surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
   }
 
-  .dashboard-masonry {
-    @apply grid grid-cols-1 gap-4 lg:grid-cols-3;
-    grid-auto-flow: dense;
-    align-items: start;
+  .table-container table {
+    @apply w-full;
+    border-collapse: collapse;
+  }
+
+  .table-container th {
+    @apply px-4 py-3 text-left text-sm font-semibold;
+    background-color: var(--color-surface-hover);
+    color: var(--color-text-secondary);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .table-container td {
+    @apply px-4 py-3 text-sm;
+    color: var(--color-text-primary);
+    border-bottom: 1px solid var(--color-border);
+    min-height: 52px;
+  }
+
+  .table-container tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .table-container tbody tr:hover {
+    background-color: var(--color-surface-hover);
   }
 
   .table-container th,
@@ -152,6 +415,217 @@
     line-break: strict;
   }
 
+  /* === DataGrid (検索/絞り込み対応テーブル) === */
+  .data-grid {
+    background-color: var(--color-surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+
+  .data-grid-toolbar {
+    @apply px-4 py-3 flex flex-wrap items-center gap-3;
+    border-bottom: 1px solid var(--color-border);
+    background-color: var(--color-surface);
+  }
+
+  .data-grid-search {
+    @apply flex-1 min-w-[200px];
+  }
+
+  .data-grid-search input {
+    @apply w-full px-4 py-2 text-sm;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface);
+  }
+
+  .data-grid-search input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-light);
+  }
+
+  .data-grid-filters {
+    @apply flex flex-wrap gap-2;
+  }
+
+  .data-grid-table {
+    @apply w-full;
+    border-collapse: collapse;
+  }
+
+  .data-grid-table th {
+    @apply px-4 py-3 text-left text-sm font-semibold;
+    background-color: var(--color-surface-hover);
+    color: var(--color-text-secondary);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .data-grid-table td {
+    @apply px-4 py-4 text-sm;
+    color: var(--color-text-primary);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .data-grid-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .data-grid-table tbody tr:hover {
+    background-color: var(--color-surface-hover);
+  }
+
+  .data-grid-pagination {
+    @apply px-4 py-3 flex items-center justify-between;
+    border-top: 1px solid var(--color-border);
+    background-color: var(--color-surface);
+  }
+
+  .dashboard-masonry {
+    @apply grid grid-cols-1 gap-4 lg:grid-cols-3;
+    grid-auto-flow: dense;
+    align-items: start;
+  }
+
+  /* === Sidebar (AdminKit風: 濃紺、左インジケータ) === */
+  .sidebar {
+    background-color: var(--sidebar-bg);
+    width: var(--sidebar-width);
+    min-height: 100%;
+  }
+
+  .sidebar-header {
+    @apply h-16 flex items-center justify-center;
+    border-bottom: 1px solid var(--sidebar-border);
+  }
+
+  .sidebar-header-title {
+    @apply font-semibold text-lg;
+    color: var(--color-text-inverse);
+  }
+
+  .sidebar-section {
+    @apply mt-6 px-4;
+  }
+
+  .sidebar-section-title {
+    @apply text-xs font-semibold uppercase tracking-wider mb-2 px-3;
+    color: var(--sidebar-section-text);
+  }
+
+  .sidebar-nav {
+    @apply space-y-1;
+  }
+
+  .sidebar-link {
+    @apply flex items-center px-3 py-3 rounded-lg text-sm font-medium relative;
+    color: var(--sidebar-text);
+    transition: all var(--transition-fast);
+  }
+
+  .sidebar-link:hover {
+    background-color: var(--sidebar-bg-hover);
+    color: var(--sidebar-text-active);
+  }
+
+  .sidebar-link.active {
+    background-color: var(--sidebar-active-bg);
+    color: var(--sidebar-text-active);
+  }
+
+  .sidebar-link.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 24px;
+    background-color: var(--color-text-inverse);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  }
+
+  .sidebar-link-icon {
+    @apply mr-3 h-5 w-5 flex-shrink-0;
+  }
+
+  .sidebar-link-badge {
+    @apply ml-auto text-xs px-2 py-0.5 rounded-full;
+    background-color: var(--color-error);
+    color: var(--color-text-inverse);
+  }
+
+  /* === Topbar (AdminKit風: ライト背景) === */
+  .topbar {
+    background-color: var(--topbar-bg);
+    border-bottom: 1px solid var(--topbar-border);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .topbar-search {
+    @apply relative;
+  }
+
+  .topbar-search input {
+    @apply pl-10 pr-4 py-2 text-sm rounded-lg;
+    background-color: var(--color-background);
+    border: 1px solid var(--color-border);
+    min-width: 200px;
+    transition: all var(--transition-fast);
+  }
+
+  .topbar-search input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-light);
+    background-color: var(--color-surface);
+  }
+
+  .topbar-search-icon {
+    @apply absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4;
+    color: var(--color-text-muted);
+  }
+
+  /* === Toast (右上、aria-live対応) === */
+  .toast {
+    @apply fixed top-20 right-4 z-50 px-4 py-3 rounded-lg shadow-lg max-w-sm;
+    animation: slideIn var(--transition-normal);
+  }
+
+  .toast-success {
+    background-color: var(--color-success);
+    color: var(--color-text-inverse);
+  }
+
+  .toast-error {
+    background-color: var(--color-error);
+    color: var(--color-text-inverse);
+  }
+
+  .toast-warning {
+    background-color: var(--color-warning);
+    color: var(--color-text-primary);
+  }
+
+  .toast-info {
+    background-color: var(--color-info);
+    color: var(--color-text-inverse);
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(100%);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  /* === Drawer (PC右 / SP下) === */
   .drawer-panel {
     will-change: max-height, opacity, transform;
   }
@@ -160,6 +634,31 @@
     will-change: max-height, opacity, transform;
   }
 
+  .drawer-overlay {
+    @apply fixed inset-0 z-40;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+  }
+
+  .drawer-content {
+    @apply fixed z-50 overflow-y-auto;
+    background-color: var(--color-surface);
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* PC: 右ドロワー */
+  @media (min-width: 641px) {
+    .drawer-content {
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: min(480px, 90vw);
+      border-left: 1px solid var(--color-border);
+      border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+    }
+  }
+
+  /* SP: 下ドロワー */
   @media (max-width: 640px) {
     .drawer-sheet {
       position: fixed;
@@ -175,9 +674,151 @@
 
     .drawer-sheet > .card {
       width: min(92vw, 42rem);
-      border-radius: 1rem 1rem 0 0;
+      border-radius: var(--radius-xl) var(--radius-xl) 0 0;
       margin: 0 auto;
     }
+
+    .drawer-content {
+      left: 0;
+      right: 0;
+      bottom: 0;
+      max-height: 90vh;
+      border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    }
+  }
+
+  .drawer-header {
+    @apply px-5 py-4 flex items-center justify-between;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .drawer-title {
+    @apply text-lg font-semibold;
+    color: var(--color-text-primary);
+  }
+
+  .drawer-close {
+    @apply p-2 rounded-lg;
+    color: var(--color-text-secondary);
+    transition: all var(--transition-fast);
+  }
+
+  .drawer-close:hover {
+    background-color: var(--color-surface-hover);
+    color: var(--color-text-primary);
+  }
+
+  .drawer-body {
+    @apply px-5 py-4;
+  }
+
+  .drawer-footer {
+    @apply px-5 py-4;
+    border-top: 1px solid var(--color-border);
+  }
+
+  /* === Skeleton Loading (Turbo領域) === */
+  .skeleton {
+    @apply relative overflow-hidden;
+    background-color: var(--color-background);
+    border-radius: var(--radius-md);
+  }
+
+  .skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.4),
+      transparent
+    );
+    animation: skeleton-shimmer 1.5s infinite;
+  }
+
+  @keyframes skeleton-shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  .skeleton-text {
+    @apply h-4 rounded;
+    background-color: var(--color-background);
+  }
+
+  .skeleton-text.sm {
+    @apply h-3 w-20;
+  }
+
+  .skeleton-text.lg {
+    @apply h-6 w-32;
+  }
+
+  .skeleton-avatar {
+    @apply w-10 h-10 rounded-full;
+    background-color: var(--color-background);
+  }
+
+  .skeleton-card {
+    @apply p-4 rounded-lg;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+  }
+
+  /* === Empty State === */
+  .empty-state {
+    @apply py-12 px-4 text-center;
+  }
+
+  .empty-state-icon {
+    @apply mx-auto w-16 h-16 mb-4;
+    color: var(--color-text-muted);
+  }
+
+  .empty-state-title {
+    @apply text-lg font-medium mb-2;
+    color: var(--color-text-primary);
+  }
+
+  .empty-state-description {
+    @apply text-sm mb-4;
+    color: var(--color-text-secondary);
+  }
+
+  /* === Mobile Row Card (SP用テーブル代替) === */
+  .mobile-row-card {
+    @apply p-4;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+  }
+
+  .mobile-row-card + .mobile-row-card {
+    @apply mt-3;
+  }
+
+  .mobile-row-header {
+    @apply flex items-center justify-between mb-2;
+  }
+
+  .mobile-row-title {
+    @apply font-medium;
+    color: var(--color-text-primary);
+  }
+
+  .mobile-row-content {
+    @apply space-y-1 text-sm;
+    color: var(--color-text-secondary);
+  }
+
+  .mobile-row-actions {
+    @apply flex gap-2 mt-3 pt-3;
+    border-top: 1px solid var(--color-border);
   }
 
   .responsive-image {
@@ -252,9 +893,97 @@
     @apply w-full h-auto;
     image-rendering: crisp-edges;
   }
+
+  /* === Bottom Navigation (学生SP用: 5アイテム固定) === */
+  .bottom-nav {
+    @apply fixed bottom-0 left-0 right-0 z-40;
+    background-color: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+
+  .bottom-nav-container {
+    @apply flex items-center justify-around h-16 max-w-md mx-auto;
+  }
+
+  .bottom-nav-link {
+    @apply flex flex-col items-center justify-center flex-1 py-2 px-1;
+    color: var(--color-text-muted);
+    transition: color var(--transition-fast);
+    min-width: 0;
+    min-height: 44px;
+  }
+
+  .bottom-nav-link:hover,
+  .bottom-nav-link:active {
+    color: var(--color-primary);
+  }
+
+  .bottom-nav-link.active {
+    color: var(--color-primary);
+  }
+
+  .bottom-nav-link.active .bottom-nav-icon {
+    transform: scale(1.1);
+  }
+
+  .bottom-nav-icon {
+    @apply w-6 h-6 mb-0.5;
+    transition: transform var(--transition-fast);
+  }
+
+  .bottom-nav-label {
+    @apply text-[10px] font-medium leading-tight text-center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+
+  .bottom-nav-badge {
+    @apply absolute -top-1 -right-1 w-4 h-4 text-[10px] font-bold flex items-center justify-center rounded-full;
+    background-color: var(--color-error);
+    color: var(--color-text-inverse);
+  }
+
+  /* === 未実装バナー (通知機能など) === */
+  .not-implemented-banner {
+    @apply px-4 py-3 rounded-lg flex items-center gap-3;
+    background-color: var(--color-warning-light);
+    border: 1px solid var(--color-warning);
+  }
+
+  .not-implemented-banner-icon {
+    @apply w-6 h-6 flex-shrink-0;
+    color: var(--color-warning-dark);
+  }
+
+  .not-implemented-banner-text {
+    @apply text-sm font-medium;
+    color: var(--color-warning-dark);
+  }
+
+  /* === フォーカスリング強化 (アクセシビリティ) === */
+  .focus-visible-ring:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  /* === スキップリンク (アクセシビリティ) === */
+  .skip-link {
+    @apply sr-only;
+  }
+
+  .skip-link:focus {
+    @apply not-sr-only fixed top-4 left-4 z-50 px-4 py-2 rounded-lg;
+    background-color: var(--color-primary);
+    color: var(--color-text-inverse);
+  }
 }
 
 @layer utilities {
+  /* === Legacy Google Colors (互換性維持) === */
   .text-google-green {
     color: var(--google-green);
   }
@@ -309,6 +1038,92 @@
 
   .shadow-google {
     box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+  }
+
+  /* === New AdminKit Token Utilities === */
+  .text-primary {
+    color: var(--color-primary);
+  }
+
+  .text-secondary {
+    color: var(--color-text-secondary);
+  }
+
+  .text-muted {
+    color: var(--color-text-muted);
+  }
+
+  .bg-primary {
+    background-color: var(--color-primary);
+  }
+
+  .bg-primary-light {
+    background-color: var(--color-primary-light);
+  }
+
+  .bg-surface {
+    background-color: var(--color-surface);
+  }
+
+  .bg-background {
+    background-color: var(--color-background);
+  }
+
+  .border-default {
+    border-color: var(--color-border);
+  }
+
+  .shadow-card {
+    box-shadow: var(--shadow-sm);
+  }
+
+  .shadow-elevated {
+    box-shadow: var(--shadow-md);
+  }
+
+  .rounded-card {
+    border-radius: var(--radius-lg);
+  }
+
+  .rounded-button {
+    border-radius: var(--radius-md);
+  }
+
+  /* === Focus Utilities === */
+  .focus-ring {
+    outline: none;
+  }
+
+  .focus-ring:focus {
+    box-shadow: 0 0 0 3px var(--color-primary-light);
+  }
+
+  /* === Transition Utilities === */
+  .transition-fast {
+    transition: all var(--transition-fast);
+  }
+
+  .transition-normal {
+    transition: all var(--transition-normal);
+  }
+
+  .transition-slow {
+    transition: all var(--transition-slow);
+  }
+}
+
+/* === Accessibility: Reduced Motion === */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .skeleton::after {
+    animation: none;
   }
 }
 

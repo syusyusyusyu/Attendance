@@ -1,3 +1,4 @@
+<%# AdminKit風トースト: 右上、aria-live対応 %>
 <% messages = flash.to_hash.filter_map do |type, message|
   next if message.blank?
   alert_type = type.to_s == "notice" ? "success" : type.to_s == "alert" ? "error" : "info"
@@ -10,19 +11,32 @@ end %>
     aria-live="polite"
     aria-atomic="true"
   >
-    <% icon_colors = { "success" => "text-green-600", "error" => "text-red-600", "info" => "text-blue-600" } %>
-    <% border_colors = { "success" => "border-green-200", "error" => "border-red-200", "info" => "border-blue-200" } %>
-    <% bg_colors = { "success" => "bg-green-50", "error" => "bg-red-50", "info" => "bg-blue-50" } %>
+    <% icon_colors = {
+      "success" => "text-[var(--color-success)]",
+      "error" => "text-[var(--color-error)]",
+      "info" => "text-[var(--color-info)]"
+    } %>
+    <% bg_colors = {
+      "success" => "bg-[var(--color-success-light)]",
+      "error" => "bg-[var(--color-error-light)]",
+      "info" => "bg-[var(--color-info-light)]"
+    } %>
+    <% border_colors = {
+      "success" => "border-[var(--color-success)]/20",
+      "error" => "border-[var(--color-error)]/20",
+      "info" => "border-[var(--color-info)]/20"
+    } %>
 
     <% messages.each do |alert_type, message| %>
       <div
         data-controller="toast"
         data-toast-timeout-value="4500"
-        class="pointer-events-auto rounded-lg border p-4 shadow-lg <%= bg_colors[alert_type] %> <%= border_colors[alert_type] %> opacity-0 translate-y-2 transition duration-200"
+        class="pointer-events-auto border p-4 shadow-lg <%= bg_colors[alert_type] %> <%= border_colors[alert_type] %> opacity-0 translate-y-2 transition duration-200"
+        style="border-radius: var(--radius-lg);"
         role="alert"
       >
         <div class="flex gap-3 items-start">
-          <div class="<%= icon_colors[alert_type] %> pt-0.5">
+          <div class="<%= icon_colors[alert_type] %> pt-0.5 flex-shrink-0">
             <% if alert_type == "success" %>
               <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="9" />
@@ -41,12 +55,12 @@ end %>
               </svg>
             <% end %>
           </div>
-          <div class="flex-1 text-sm text-gray-800 whitespace-pre-wrap">
+          <div class="flex-1 text-sm text-[var(--color-text-primary)] whitespace-pre-wrap font-medium">
             <%= message %>
           </div>
           <button
             type="button"
-            class="text-gray-500 hover:text-gray-700 -mr-1 -mt-1 p-2"
+            class="text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] -mr-1 -mt-1 p-2 rounded-lg hover:bg-black/5 transition-colors"
             data-action="toast#close"
             aria-label="閉じる"
           >

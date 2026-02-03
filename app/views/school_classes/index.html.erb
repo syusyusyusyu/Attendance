@@ -1,46 +1,68 @@
+<%# AdminKit風クラス管理: CSS変数、統一スタイル %>
 <div class="max-w-6xl mx-auto space-y-6" data-controller="filter" data-filter-storage-key-value="class-list">
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-    <div>
-      <h1 class="text-2xl font-semibold text-gray-900">クラス管理</h1>
-      <p class="text-sm text-gray-500 mt-1">担当クラスの作成・更新を行います。</p>
+  <%# ページヘッダー %>
+  <div class="card">
+    <div class="card-body">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background-color: var(--color-primary-light);">
+            <svg class="h-6 w-6" style="color: var(--color-primary);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="9" cy="7" r="4" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-2xl font-semibold" style="color: var(--color-text-primary);">クラス管理</h1>
+            <p class="text-sm mt-1" style="color: var(--color-text-secondary);">担当クラスの作成・更新を行います。</p>
+          </div>
+        </div>
+        <%= link_to "新規クラス",
+          new_school_class_path,
+          class: "btn btn-primary w-full sm:w-auto" %>
+      </div>
     </div>
-    <%= link_to "新規クラス",
-      new_school_class_path,
-      class: "btn btn-primary w-full sm:w-auto" %>
   </div>
 
   <%= render "form_frame" %>
 
-  <div class="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
-    <div class="relative flex-1 w-full">
-      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-        <svg class="h-4 w-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="7" />
-          <path d="M21 21l-4.3-4.3" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
+  <%# 検索・フィルター %>
+  <div class="card">
+    <div class="card-body">
+      <div class="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
+        <div class="relative flex-1 w-full">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="h-4 w-4" style="color: var(--color-text-muted);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="7" />
+              <path d="M21 21l-4.3-4.3" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </div>
+          <input
+            type="text"
+            class="input pl-10"
+            placeholder="クラス名/教室/科目で検索"
+            data-filter-target="input"
+            data-action="input->filter#filter"
+          />
+        </div>
+        <select class="input sm:w-40" data-filter-target="select" data-action="change->filter#filter">
+          <option value="">すべて</option>
+          <option value="active">運用中</option>
+          <option value="inactive">停止中</option>
+        </select>
       </div>
-      <input
-        type="text"
-        class="input pl-10"
-        placeholder="クラス名/教室/科目で検索"
-        data-filter-target="input"
-        data-action="input->filter#filter"
-      />
     </div>
-    <select class="input sm:w-40" data-filter-target="select" data-action="change->filter#filter">
-      <option value="">すべて</option>
-      <option value="active">運用中</option>
-      <option value="inactive">停止中</option>
-    </select>
   </div>
 
+  <%# クラスカード一覧 %>
   <div id="school_classes_list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <% if @classes.any? %>
       <% @classes.each do |klass| %>
         <%= render "card", klass: klass %>
       <% end %>
     <% else %>
-      <div id="school_classes_empty" class="card p-6 text-center text-gray-500 md:col-span-2">
+      <div id="school_classes_empty" class="card p-6 text-center md:col-span-2" style="color: var(--color-text-muted);">
         まだクラスがありません。新規クラスを作成してください。
       </div>
     <% end %>

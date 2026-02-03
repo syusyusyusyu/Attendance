@@ -1,10 +1,10 @@
+<%# AdminKit風通知リスト: CSS変数、統一スタイル %>
 <% if notifications.any? %>
   <div class="space-y-3">
     <%= render partial: "notifications/notification", collection: notifications, as: :notification %>
   </div>
 <% else %>
-  <div class="card p-6 text-center text-gray-500">
+  <div class="card p-6 text-center" style="color: var(--color-text-muted);">
     通知はありません。
   </div>
 <% end %>
-

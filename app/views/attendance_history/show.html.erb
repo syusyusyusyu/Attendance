@@ -1,94 +1,117 @@
-﻿<% day_names = %w[日 月 火 水 木 金 土] %>
+<%# AdminKit風出席履歴: CSS変数、統一スタイル %>
+<% day_names = %w[日 月 火 水 木 金 土] %>
 <% calendar_start = @month_start.beginning_of_week(:sunday) %>
 <% calendar_end = @month_end.end_of_week(:sunday) %>
 <% weeks = (calendar_start..calendar_end).to_a.each_slice(7).to_a %>
-<% status_classes = {
-  "present" => "bg-green-100 text-green-800",
-  "late" => "bg-yellow-100 text-yellow-800",
-  "early_leave" => "bg-yellow-100 text-yellow-800",
-  "absent" => "bg-red-100 text-red-800",
-  "excused" => "bg-blue-100 text-blue-800"
+<% status_badge_classes = {
+  "present" => "badge-success",
+  "late" => "badge-warning",
+  "early_leave" => "badge-warning",
+  "absent" => "badge-error",
+  "excused" => "badge-info"
 } %>
 
 <%= turbo_frame_tag "attendance_history", class: "relative" do %>
   <%= render "shared/frame_loader" %>
-  <div class="max-w-5xl mx-auto">
+  <div class="max-w-5xl mx-auto space-y-6">
+    <%# ページヘッダー %>
     <div class="card">
-      <div class="p-4 bg-google-grey border-b border-gray-200">
-        <h2 class="text-xl font-medium text-gray-800 flex items-center">
-        <svg class="mr-2 h-5 w-5 text-google-green" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="9" />
-          <path d="M12 7v5l3 3" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
-          出席履歴
-        </h2>
-      </div>
-
-      <div class="p-6">
-        <div class="border border-gray-200 rounded-lg bg-gray-50 p-4 mb-6">
-          <h3 class="text-sm font-medium text-gray-700 mb-2">出席履歴のエクスポート</h3>
-          <%= form_with url: attendance_history_export_path, method: :get, class: "grid grid-cols-1 sm:grid-cols-4 gap-3 items-end", data: { turbo: false } do |f| %>
-            <div class="min-w-0">
-              <%= f.label :start_date, "開始日", class: "block text-sm font-medium text-gray-700 mb-2" %>
-              <%= f.date_field :start_date, value: @month_start, class: "input max-w-full" %>
-            </div>
-            <div class="min-w-0">
-              <%= f.label :end_date, "終了日", class: "block text-sm font-medium text-gray-700 mb-2" %>
-              <%= f.date_field :end_date, value: @month_end, class: "input max-w-full" %>
-            </div>
-            <div class="sm:col-span-2 flex flex-col sm:flex-row gap-2">
-              <button type="submit" name="format" value="csv" class="btn btn-secondary w-full sm:w-auto">
-                CSV出力
-              </button>
-              <button type="submit" name="format" value="pdf" class="btn btn-primary w-full sm:w-auto">
-                PDF出力
-              </button>
-            </div>
-          <% end %>
-          <p class="text-xs text-gray-500 mt-2">指定期間の履歴を出力できます。</p>
+      <div class="card-body">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background-color: var(--color-success-light);">
+            <svg class="h-6 w-6" style="color: var(--color-success);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 7v5l3 3" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-2xl font-semibold" style="color: var(--color-text-primary);">出席履歴</h1>
+            <p class="text-sm mt-1" style="color: var(--color-text-secondary);">あなたの出席状況をカレンダーで確認できます。</p>
+          </div>
         </div>
+      </div>
+    </div>
 
+    <%# エクスポートカード %>
+    <div class="card">
+      <div class="card-body">
+        <h3 class="text-sm font-medium mb-3" style="color: var(--color-text-primary);">出席履歴のエクスポート</h3>
+        <%= form_with url: attendance_history_export_path, method: :get, class: "grid grid-cols-1 sm:grid-cols-4 gap-3 items-end", data: { turbo: false } do |f| %>
+          <div class="min-w-0">
+            <%= f.label :start_date, "開始日", class: "block text-sm font-medium mb-2", style: "color: var(--color-text-primary);" %>
+            <%= f.date_field :start_date, value: @month_start, class: "input max-w-full" %>
+          </div>
+          <div class="min-w-0">
+            <%= f.label :end_date, "終了日", class: "block text-sm font-medium mb-2", style: "color: var(--color-text-primary);" %>
+            <%= f.date_field :end_date, value: @month_end, class: "input max-w-full" %>
+          </div>
+          <div class="sm:col-span-2 flex flex-col sm:flex-row gap-2">
+            <button type="submit" name="format" value="csv" class="btn btn-secondary w-full sm:w-auto">
+              CSV出力
+            </button>
+            <button type="submit" name="format" value="pdf" class="btn btn-primary w-full sm:w-auto">
+              PDF出力
+            </button>
+          </div>
+        <% end %>
+        <p class="text-xs mt-2" style="color: var(--color-text-muted);">指定期間の履歴を出力できます。</p>
+      </div>
+    </div>
+
+    <%# カレンダーと詳細 %>
+    <div class="card">
+      <div class="card-body">
         <div class="flex flex-col md:flex-row space-y-6 md:space-y-0 md:space-x-6">
+          <%# カレンダー %>
           <div class="md:w-1/2">
-            <div class="border rounded-lg overflow-hidden">
-              <div class="flex items-center justify-between px-4 py-2 border-b border-gray-200 bg-white">
+            <div class="rounded-lg overflow-hidden" style="border: 1px solid var(--color-border);">
+              <div class="flex items-center justify-between px-4 py-2" style="border-bottom: 1px solid var(--color-border); background-color: var(--color-background);">
                 <%= link_to history_path(date: @prev_month),
-                  class: "p-2 rounded-md hover:bg-gray-100",
+                  class: "p-2 rounded-md hover:opacity-70",
                   data: { turbo_frame: "attendance_history" } do %>
-                  <svg class="h-4 w-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <svg class="h-4 w-4" style="color: var(--color-text-secondary);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round" />
                   </svg>
                 <% end %>
-                <div class="text-sm font-medium text-gray-700"><%= @date.strftime("%Y年%m月") %></div>
+                <div class="text-sm font-medium" style="color: var(--color-text-primary);"><%= @date.strftime("%Y年%m月") %></div>
                 <%= link_to history_path(date: @next_month),
-                  class: "p-2 rounded-md hover:bg-gray-100",
+                  class: "p-2 rounded-md hover:opacity-70",
                   data: { turbo_frame: "attendance_history" } do %>
-                  <svg class="h-4 w-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <svg class="h-4 w-4" style="color: var(--color-text-secondary);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
                   </svg>
                 <% end %>
               </div>
 
-              <div class="grid grid-cols-7 gap-px bg-gray-200 text-xs text-gray-500">
+              <div class="grid grid-cols-7 gap-px text-xs" style="background-color: var(--color-border); color: var(--color-text-muted);">
                 <% day_names.each do |day| %>
-                  <div class="bg-gray-50 py-2 text-center font-medium"><%= day %></div>
+                  <div class="py-2 text-center font-medium" style="background-color: var(--color-surface);"><%= day %></div>
                 <% end %>
 
                 <% weeks.each do |week| %>
                   <% week.each do |day| %>
                     <% in_month = day.month == @date.month %>
                     <% status = @status_by_date[day] %>
-                    <% tile_classes = if day == @date
-                      "bg-google-green text-white"
-                    elsif !in_month
-                      "text-gray-300"
-                    elsif status_classes[status]
-                      status_classes[status]
-                    else
-                      "text-gray-700 hover:bg-gray-50"
-                    end %>
+                    <% is_selected = day == @date %>
                     <%= link_to history_path(date: day),
-                      class: "bg-white py-2 text-center text-sm #{tile_classes}",
+                      class: "py-2 text-center text-sm",
+                      style: "background-color: var(--color-background); #{
+                        if is_selected
+                          "background-color: var(--color-primary); color: white;"
+                        elsif !in_month
+                          "color: var(--color-text-muted); opacity: 0.4;"
+                        elsif status == "present"
+                          "background-color: var(--color-success-light); color: var(--color-success-dark);"
+                        elsif status == "late" || status == "early_leave"
+                          "background-color: var(--color-warning-light); color: var(--color-warning-dark);"
+                        elsif status == "absent"
+                          "background-color: var(--color-error-light); color: var(--color-error-dark);"
+                        elsif status == "excused"
+                          "background-color: var(--color-info-light); color: var(--color-info-dark);"
+                        else
+                          "color: var(--color-text-primary);"
+                        end
+                      }",
                       data: { turbo_frame: "attendance_history" } do %>
                       <%= day.day %>
                     <% end %>
@@ -97,39 +120,40 @@
               </div>
             </div>
 
-            <div class="mt-4 flex flex-wrap items-center gap-3 text-xs text-gray-600">
+            <div class="mt-4 flex flex-wrap items-center gap-3 text-xs" style="color: var(--color-text-secondary);">
               <span class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded bg-green-100"></span>
+                <span class="w-2.5 h-2.5 rounded" style="background-color: var(--color-success-light);"></span>
                 出席
               </span>
               <span class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded bg-yellow-100"></span>
+                <span class="w-2.5 h-2.5 rounded" style="background-color: var(--color-warning-light);"></span>
                 遅刻/早退
               </span>
               <span class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded bg-red-100"></span>
+                <span class="w-2.5 h-2.5 rounded" style="background-color: var(--color-error-light);"></span>
                 欠席
               </span>
               <span class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded bg-blue-100"></span>
+                <span class="w-2.5 h-2.5 rounded" style="background-color: var(--color-info-light);"></span>
                 公欠
               </span>
             </div>
           </div>
 
+          <%# 日別詳細 %>
           <div class="md:w-1/2">
-            <h3 class="text-lg font-medium text-gray-800 mb-4">
+            <h3 class="text-lg font-medium mb-4" style="color: var(--color-text-primary);">
               <%= @date.strftime("%Y年%m月%d日") %> (<%= day_names[@date.wday] %>) の出席状況
             </h3>
 
             <% if @records.any? %>
               <div class="space-y-3">
                 <% @records.each do |record| %>
-                  <div class="border rounded-md p-3 bg-gray-50">
+                  <div class="rounded-md p-3" style="border: 1px solid var(--color-border); background-color: var(--color-surface);">
                     <div class="flex justify-between items-start mb-2">
-                      <div class="font-medium"><%= record.school_class.name %></div>
-                      <span class="badge flex items-center space-x-1 <%= status_classes[record.status] || "bg-gray-100 text-gray-800" %>">
-                        <span><%= record.status_label || record.status %></span>
+                      <div class="font-medium" style="color: var(--color-text-primary);"><%= record.school_class.name %></div>
+                      <span class="badge <%= status_badge_classes[record.status] || "" %>">
+                        <%= record.status_label || record.status %>
                       </span>
                     </div>
                     <% if record.class_session %>
@@ -139,7 +163,7 @@
                     <% end %>
 
                     <% if record.timestamp %>
-                      <div class="text-sm text-gray-600 flex items-center">
+                      <div class="text-sm flex items-center" style="color: var(--color-text-secondary);">
                         <svg class="h-4 w-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                           <circle cx="12" cy="12" r="9" />
                           <path d="M12 7v5l3 3" stroke-linecap="round" stroke-linejoin="round" />
@@ -148,34 +172,34 @@
                       </div>
                     <% end %>
                     <% if record.checked_out_at %>
-                      <div class="text-sm text-gray-600 flex items-center mt-1">
+                      <div class="text-sm flex items-center mt-1" style="color: var(--color-text-secondary);">
                         <svg class="h-4 w-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                           <path d="M12 8v4l3 3" stroke-linecap="round" stroke-linejoin="round" />
                           <circle cx="12" cy="12" r="9" />
                         </svg>
                         退室 <%= record.checked_out_at.strftime("%H:%M") %>
                         <% if record.duration_minutes.present? %>
-                          <span class="ml-2 text-xs text-gray-500">滞在 <%= record.duration_minutes %>分</span>
+                          <span class="ml-2 text-xs" style="color: var(--color-text-muted);">滞在 <%= record.duration_minutes %>分</span>
                         <% end %>
                       </div>
                       <% policy = @policies_by_class[record.school_class_id]&.attendance_policy || AttendancePolicy.new(AttendancePolicy.default_attributes) %>
                       <% required_minutes = record.class_session&.duration_minutes.present? ? policy.required_attendance_minutes(record.class_session.duration_minutes) : nil %>
                       <% if record.status_early_leave? && required_minutes.present? && record.duration_minutes.present? %>
-                        <div class="text-xs text-gray-500 mt-1">
+                        <div class="text-xs mt-1" style="color: var(--color-text-muted);">
                           早退判定: 必要 <%= required_minutes %>分 / 実績 <%= record.duration_minutes %>分
                         </div>
                       <% end %>
                     <% end %>
 
                     <% if record.modified_by %>
-                      <div class="text-xs text-gray-500 mt-2 italic">
+                      <div class="text-xs mt-2 italic" style="color: var(--color-text-muted);">
                         最終更新: <%= record.modified_at&.strftime("%Y-%m-%d %H:%M") %>
                       </div>
                     <% end %>
 
                     <% request = @requests_by_class[record.school_class_id] %>
                     <% if request %>
-                      <div class="text-xs text-gray-500 mt-2">
+                      <div class="text-xs mt-2" style="color: var(--color-text-muted);">
                         申請状況:
                         <%= { "pending" => "審査中", "approved" => "承認", "rejected" => "却下" }[request.status] || request.status %>
                         (<%= { "absent" => "欠席", "late" => "遅刻", "excused" => "公欠" }[request.request_type] || request.request_type %>)
@@ -184,7 +208,7 @@
 
                     <% change = @changes_by_record[record.id] %>
                     <% if change&.reason.present? %>
-                      <div class="text-xs text-gray-500 mt-2">
+                      <div class="text-xs mt-2" style="color: var(--color-text-muted);">
                         更新理由: <%= change.reason %>
                       </div>
                     <% end %>
@@ -192,7 +216,7 @@
                 <% end %>
               </div>
             <% else %>
-              <div class="p-4 bg-gray-50 rounded-md text-center text-gray-500">
+              <div class="p-4 rounded-md text-center" style="background-color: var(--color-surface); color: var(--color-text-muted);">
                 この日の出席記録はありません。
               </div>
             <% end %>

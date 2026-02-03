@@ -1,3 +1,4 @@
+<%# AdminKit風申請行: バッジ、承認/却下ボタン %>
 <% type_labels = {
   "absent" => "欠席",
   "late" => "遅刻",
@@ -14,30 +15,31 @@
   "rejected" => "badge badge-error"
 } %>
 
-<tr id="<%= dom_id(request, :row) %>">
+<tr id="<%= dom_id(request, :row) %>" style="border-bottom: 1px solid var(--color-border);">
   <td class="px-4 py-3">
     <input
       type="checkbox"
       name="request_ids[]"
       value="<%= request.id %>"
       form="bulk-requests-form"
-      class="h-4 w-4 rounded border-gray-300 text-[var(--google-green)] focus:ring-[var(--google-green)]"
+      class="h-4 w-4 rounded"
+      style="border-color: var(--color-border); accent-color: var(--color-primary);"
       data-bulk-select-target="item"
       data-action="bulk-select#syncToggle"
       <%= request.status_pending? ? "" : "disabled" %>
     />
   </td>
-  <td class="px-4 py-3 whitespace-normal text-sm text-gray-500"><%= request.date.strftime("%Y-%m-%d") %></td>
-  <td class="px-4 py-3 text-sm text-gray-700"><%= request.school_class.name %></td>
-  <td class="px-4 py-3 text-sm text-gray-700">
+  <td class="px-4 py-3 whitespace-normal text-sm" style="color: var(--color-text-secondary);"><%= request.date.strftime("%Y-%m-%d") %></td>
+  <td class="px-4 py-3 text-sm" style="color: var(--color-text-primary);"><%= request.school_class.name %></td>
+  <td class="px-4 py-3 text-sm" style="color: var(--color-text-primary);">
     <%= render "shared/session_status_badges", session: request.class_session %>
   </td>
-  <td class="px-4 py-3 text-sm text-gray-700">
-    <div><%= request.user.name %></div>
-    <div class="text-xs text-gray-400"><%= request.user.student_id %></div>
+  <td class="px-4 py-3 text-sm">
+    <div style="color: var(--color-text-primary);"><%= request.user.name %></div>
+    <div class="text-xs" style="color: var(--color-text-muted);"><%= request.user.student_id %></div>
   </td>
-  <td class="px-4 py-3 text-sm text-gray-700"><%= type_labels[request.request_type] || request.request_type %></td>
-  <td class="px-4 py-3 text-sm text-gray-700"><%= request.reason %></td>
+  <td class="px-4 py-3 text-sm" style="color: var(--color-text-primary);"><%= type_labels[request.request_type] || request.request_type %></td>
+  <td class="px-4 py-3 text-sm" style="color: var(--color-text-primary);"><%= request.reason %></td>
   <td class="px-4 py-3">
     <span class="<%= status_badges[request.status] || "badge" %>">
       <%= status_labels[request.status] || request.status %>
@@ -57,7 +59,7 @@
         <%= f.text_area :decision_reason, rows: 2, class: "input", placeholder: "コメント任意" %>
       <% end %>
     <% else %>
-      <div class="text-xs text-gray-500">
+      <div class="text-xs" style="color: var(--color-text-muted);">
         <div><%= request.processed_at&.strftime("%Y-%m-%d %H:%M") %></div>
         <div><%= request.decision_reason.presence || "コメントなし" %></div>
       </div>

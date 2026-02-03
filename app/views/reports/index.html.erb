@@ -1,370 +1,468 @@
-﻿<div class="max-w-6xl mx-auto space-y-6">
-  <%= turbo_frame_tag "reports_results", class: "relative" do %>
-  <%= render "shared/frame_loader" %>
-  <div class="card p-6">
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-      <div>
-        <h1 class="text-2xl font-semibold text-gray-900">レポート</h1>
-        <p class="text-sm text-gray-500 mt-1">期間内の出席状況を集計します。</p>
-      </div>
-      <%= form_with url: reports_path,
-        method: :get,
-        class: "flex flex-col sm:flex-row gap-2",
-        data: {
-          controller: "request-filter",
-          action: "change->request-filter#submit input->request-filter#submitDebounced"
-        } do |f| %>
-        <%= f.select :class_id,
-          options_for_select(@classes.map { |klass| ["#{klass.name} (#{klass.room})", klass.id] }, @selected_class&.id),
-          { include_blank: "全クラス" },
-          class: "input min-w-0" %>
-        <%= f.date_field :start_date, value: @start_date, class: "input min-w-0" %>
-        <%= f.date_field :end_date, value: @end_date, class: "input min-w-0" %>
-        <%= f.submit "更新", class: "btn btn-secondary" %>
-        <% if session[:reports_class_id].present? || session[:reports_start_date].present? || session[:reports_end_date].present? %>
-          <%= link_to "前回条件",
-            reports_path(class_id: session[:reports_class_id], start_date: session[:reports_start_date], end_date: session[:reports_end_date]),
-            class: "btn btn-secondary" %>
+<%# AdminKit風レポート: KPIカード、チャート、週次/日次分析 %>
+<div class="max-w-6xl mx-auto space-y-6">
+  <%# ページヘッダー %>
+  <div class="card">
+    <div class="card-body">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background-color: var(--color-warning-light);">
+            <svg class="h-6 w-6" style="color: var(--color-warning);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 3v18h18" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M7 14l3-3 3 3 5-6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-2xl font-semibold" style="color: var(--color-text-primary);">レポート</h1>
+            <p class="text-sm mt-1" style="color: var(--color-text-secondary);">期間内の出席状況を集計します。</p>
+          </div>
+        </div>
+        <%= form_with url: reports_path,
+          method: :get,
+          class: "flex flex-col sm:flex-row gap-2",
+          data: {
+            controller: "request-filter",
+            action: "change->request-filter#submit input->request-filter#submitDebounced"
+          } do |f| %>
+          <%= f.select :class_id,
+            options_for_select(@classes.map { |klass| ["#{klass.name} (#{klass.room})", klass.id] }, @selected_class&.id),
+            { include_blank: "全クラス" },
+            class: "input min-w-0" %>
+          <%= f.date_field :start_date, value: @start_date, class: "input min-w-0" %>
+          <%= f.date_field :end_date, value: @end_date, class: "input min-w-0" %>
+          <%= f.submit "更新", class: "btn btn-primary" %>
+          <% if session[:reports_class_id].present? || session[:reports_start_date].present? || session[:reports_end_date].present? %>
+            <%= link_to "前回条件",
+              reports_path(class_id: session[:reports_class_id], start_date: session[:reports_start_date], end_date: session[:reports_end_date]),
+              class: "btn btn-secondary" %>
+          <% end %>
         <% end %>
-      <% end %>
+      </div>
     </div>
   </div>
 
+  <%= turbo_frame_tag "reports_results", class: "relative space-y-6" do %>
+  <%= render "shared/frame_loader" %>
+
+  <%# 概要カード %>
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <div class="card p-6">
-      <h2 class="text-lg font-medium text-gray-900 mb-4">クラス別出席率</h2>
-      <% if @class_stats.any? %>
-        <div class="mb-6 sm:overflow-x-auto">
-          <div class="flex flex-wrap sm:flex-nowrap items-end gap-3 h-auto sm:min-w-[480px] sm:h-28">
-            <% @class_stats.each do |stat| %>
-              <% bar_height = [stat[:rate].to_i, 3].max %>
-              <div class="flex flex-col items-center w-20 sm:shrink-0">
-                <div class="w-full h-20 bg-gray-100 rounded-md flex items-end">
-                  <div class="w-full bg-google-green rounded-md" style="height: <%= bar_height %>%"></div>
+    <%# クラス別出席率 %>
+    <div class="card">
+      <div class="card-header">
+        <h2 class="font-semibold" style="color: var(--color-text-primary);">クラス別出席率</h2>
+      </div>
+      <div class="card-body">
+        <% if @class_stats.any? %>
+          <%# バーチャート %>
+          <div class="mb-6 sm:overflow-x-auto">
+            <div class="flex flex-wrap sm:flex-nowrap items-end gap-3 h-auto sm:min-w-[480px] sm:h-28">
+              <% @class_stats.each do |stat| %>
+                <% bar_height = [stat[:rate].to_i, 3].max %>
+                <div class="flex flex-col items-center w-20 sm:shrink-0">
+                  <div class="w-full h-20 rounded-md flex items-end" style="background-color: var(--color-surface-hover);">
+                    <div class="w-full rounded-md" style="background-color: var(--color-success); height: <%= bar_height %>%"></div>
+                  </div>
+                  <div class="mt-2 text-[10px] truncate w-full text-center" style="color: var(--color-text-muted);"><%= stat[:klass].name %></div>
+                  <div class="text-[10px]" style="color: var(--color-text-muted);"><%= stat[:rate] %>%</div>
                 </div>
-                <div class="mt-2 text-[10px] text-gray-500 truncate w-full text-center"><%= stat[:klass].name %></div>
-                <div class="text-[10px] text-gray-400"><%= stat[:rate] %>%</div>
+              <% end %>
+            </div>
+          </div>
+
+          <%# 詳細リスト %>
+          <div class="space-y-4">
+            <% @class_stats.each do |stat| %>
+              <div class="p-4 rounded-lg" style="border: 1px solid var(--color-border);">
+                <div class="flex items-center justify-between">
+                  <div class="font-medium" style="color: var(--color-text-primary);"><%= stat[:klass].name %></div>
+                  <div class="text-sm" style="color: var(--color-text-secondary);"><%= stat[:rate] %>%</div>
+                </div>
+                <div class="mt-2 h-2 rounded-full" style="background-color: var(--color-surface-hover);">
+                  <div class="h-2 rounded-full" style="background-color: var(--color-success); width: <%= stat[:rate] %>%"></div>
+                </div>
+                <div class="mt-2 text-xs" style="color: var(--color-text-secondary);">
+                  出席 <%= stat[:totals][:present] %> / 遅刻 <%= stat[:totals][:late] %> / 公欠 <%= stat[:totals][:excused] %> /
+                  早退 <%= stat[:totals][:early_leave] %> / 欠席 <%= stat[:totals][:absent] %> / 未入力 <%= stat[:totals][:missing] %>
+                </div>
               </div>
             <% end %>
           </div>
-        </div>
-      <% end %>
-      <div class="space-y-4">
-        <% @class_stats.each do |stat| %>
-          <div class="border border-gray-200 rounded-lg p-4">
-            <div class="flex items-center justify-between">
-              <div class="font-medium text-gray-900"><%= stat[:klass].name %></div>
-              <div class="text-xs text-gray-500"><%= stat[:rate] %>%</div>
-            </div>
-            <div class="mt-2 h-2 rounded-full bg-gray-200">
-              <div class="h-2 rounded-full bg-google-green" style="width: <%= stat[:rate] %>%"></div>
-            </div>
-            <div class="mt-2 text-xs text-gray-600">
-              出席 <%= stat[:totals][:present] %> / 遅刻 <%= stat[:totals][:late] %> / 公欠 <%= stat[:totals][:excused] %> /
-              早退 <%= stat[:totals][:early_leave] %> / 欠席 <%= stat[:totals][:absent] %> / 未入力 <%= stat[:totals][:missing] %>
-            </div>
+        <% else %>
+          <div class="empty-state">
+            <div class="empty-state-title">集計対象のクラスがありません。</div>
           </div>
-        <% end %>
-        <% if @class_stats.empty? %>
-          <div class="text-sm text-gray-500">集計対象のクラスがありません。</div>
         <% end %>
       </div>
     </div>
 
-    <div class="card p-6">
-      <h2 class="text-lg font-medium text-gray-900 mb-4">欠席・早退が多い学生</h2>
-      <div class="space-y-3">
-        <% @student_ranking.each_with_index do |row, index| %>
-          <div class="flex items-center justify-between border border-gray-200 rounded-lg p-3">
-            <div>
-              <div class="text-sm font-medium text-gray-900"><%= "#{index + 1}. #{row[:user].name}" %></div>
-              <div class="text-xs text-gray-500"><%= row[:user].student_id %></div>
-            </div>
-            <div class="text-sm text-gray-600">欠席/早退 <%= row[:absent] + row[:early_leave] %> 回</div>
+    <%# 欠席・早退が多い学生 %>
+    <div class="card">
+      <div class="card-header">
+        <h2 class="font-semibold" style="color: var(--color-text-primary);">欠席・早退が多い学生</h2>
+      </div>
+      <div class="card-body">
+        <% if @student_ranking.any? %>
+          <div class="space-y-3">
+            <% @student_ranking.each_with_index do |row, index| %>
+              <div class="flex items-center justify-between p-3 rounded-lg" style="border: 1px solid var(--color-border);">
+                <div>
+                  <div class="text-sm font-medium" style="color: var(--color-text-primary);"><%= "#{index + 1}. #{row[:user].name}" %></div>
+                  <div class="text-xs" style="color: var(--color-text-muted);"><%= row[:user].student_id %></div>
+                </div>
+                <div class="text-sm" style="color: var(--color-text-secondary);">欠席/早退 <%= row[:absent] + row[:early_leave] %> 回</div>
+              </div>
+            <% end %>
           </div>
-        <% end %>
-        <% if @student_ranking.empty? %>
-          <div class="text-sm text-gray-500">対象データがありません。</div>
+        <% else %>
+          <div class="empty-state">
+            <div class="empty-state-title">対象データがありません。</div>
+          </div>
         <% end %>
       </div>
     </div>
   </div>
 
-  <div class="card p-6">
-    <h2 class="text-lg font-medium text-gray-900 mb-4">日別サマリー</h2>
-    <% daily_rates = @daily_summary.map do |row|
-      total = row[:present] + row[:late] + row[:excused] + row[:early_leave] + row[:absent]
-      rate = total.zero? ? 0 : ((row[:present] + row[:late] + row[:excused]) * 100.0 / total).round(1)
-      { date: row[:date], rate: rate }
-    end %>
-    <% if daily_rates.size > 1 %>
-      <% width = 100.0 %>
-      <% height = 40.0 %>
-      <% top = 4.0 %>
-      <% bottom = 36.0 %>
-      <% points = daily_rates.each_with_index.map do |row, index|
-        x = (index.to_f / (daily_rates.size - 1)) * width
-        y = bottom - (row[:rate] / 100.0) * (bottom - top)
-        "#{x.round(2)},#{y.round(2)}"
+  <%# 日別サマリー %>
+  <div class="card">
+    <div class="card-header">
+      <h2 class="font-semibold" style="color: var(--color-text-primary);">日別サマリー</h2>
+    </div>
+    <div class="card-body">
+      <% daily_rates = @daily_summary.map do |row|
+        total = row[:present] + row[:late] + row[:excused] + row[:early_leave] + row[:absent]
+        rate = total.zero? ? 0 : ((row[:present] + row[:late] + row[:excused]) * 100.0 / total).round(1)
+        { date: row[:date], rate: rate }
       end %>
-      <div class="mb-6">
-        <svg viewBox="0 0 100 40" class="w-full h-32">
-          <polyline
-            fill="none"
-            stroke="#34A853"
-            stroke-width="2"
-            points="<%= points.join(' ') %>"
-          />
-          <% points.each do |point| %>
-            <% x, y = point.split(",") %>
-            <circle cx="<%= x %>" cy="<%= y %>" r="1.6" fill="#34A853" />
-          <% end %>
-        </svg>
-        <div class="flex justify-between text-[10px] text-gray-400">
-          <span><%= daily_rates.first[:date].strftime("%m/%d") %></span>
-          <span><%= daily_rates.last[:date].strftime("%m/%d") %></span>
-        </div>
-      </div>
-    <% end %>
-    <div class="space-y-3">
-      <% @daily_summary.each do |row| %>
-        <% total = row[:present] + row[:late] + row[:excused] + row[:early_leave] + row[:absent] %>
-        <div>
-          <div class="flex items-center justify-between text-xs text-gray-500">
-            <span><%= row[:date].strftime("%Y-%m-%d") %></span>
-            <span>合計 <%= total %></span>
-          </div>
-          <div class="mt-1 h-2 rounded-full bg-gray-200 overflow-hidden flex">
-            <% if total > 0 %>
-              <div class="bg-google-green" style="width: <%= (row[:present] * 100.0 / total).round(2) %>%"></div>
-              <div class="bg-yellow-400" style="width: <%= (row[:late] * 100.0 / total).round(2) %>%"></div>
-              <div class="bg-blue-400" style="width: <%= (row[:excused] * 100.0 / total).round(2) %>%"></div>
-              <div class="bg-orange-400" style="width: <%= (row[:early_leave] * 100.0 / total).round(2) %>%"></div>
-              <div class="bg-red-400" style="width: <%= (row[:absent] * 100.0 / total).round(2) %>%"></div>
+
+      <%# 折れ線グラフ %>
+      <% if daily_rates.size > 1 %>
+        <% width = 100.0 %>
+        <% height = 40.0 %>
+        <% top = 4.0 %>
+        <% bottom = 36.0 %>
+        <% points = daily_rates.each_with_index.map do |row, index|
+          x = (index.to_f / (daily_rates.size - 1)) * width
+          y = bottom - (row[:rate] / 100.0) * (bottom - top)
+          "#{x.round(2)},#{y.round(2)}"
+        end %>
+        <div class="mb-6">
+          <svg viewBox="0 0 100 40" class="w-full h-32">
+            <polyline
+              fill="none"
+              stroke="var(--color-success)"
+              stroke-width="2"
+              points="<%= points.join(' ') %>"
+            />
+            <% points.each do |point| %>
+              <% x, y = point.split(",") %>
+              <circle cx="<%= x %>" cy="<%= y %>" r="1.6" fill="var(--color-success)" />
             <% end %>
-          </div>
-          <div class="text-xs text-gray-500 mt-1">
-            出席 <%= row[:present] %> / 遅刻 <%= row[:late] %> / 公欠 <%= row[:excused] %> / 早退 <%= row[:early_leave] %> / 欠席 <%= row[:absent] %>
+          </svg>
+          <div class="flex justify-between text-[10px]" style="color: var(--color-text-muted);">
+            <span><%= daily_rates.first[:date].strftime("%m/%d") %></span>
+            <span><%= daily_rates.last[:date].strftime("%m/%d") %></span>
           </div>
         </div>
       <% end %>
-      <% if @daily_summary.empty? %>
-        <div class="text-sm text-gray-500">日別データがありません。</div>
+
+      <%# 日別リスト %>
+      <% if @daily_summary.any? %>
+        <div class="space-y-3">
+          <% @daily_summary.each do |row| %>
+            <% total = row[:present] + row[:late] + row[:excused] + row[:early_leave] + row[:absent] %>
+            <div>
+              <div class="flex items-center justify-between text-xs" style="color: var(--color-text-muted);">
+                <span><%= row[:date].strftime("%Y-%m-%d") %></span>
+                <span>合計 <%= total %></span>
+              </div>
+              <div class="mt-1 h-2 rounded-full overflow-hidden flex" style="background-color: var(--color-surface-hover);">
+                <% if total > 0 %>
+                  <div style="background-color: var(--color-success); width: <%= (row[:present] * 100.0 / total).round(2) %>%"></div>
+                  <div style="background-color: var(--color-warning); width: <%= (row[:late] * 100.0 / total).round(2) %>%"></div>
+                  <div style="background-color: var(--color-info); width: <%= (row[:excused] * 100.0 / total).round(2) %>%"></div>
+                  <div style="background-color: #fb923c; width: <%= (row[:early_leave] * 100.0 / total).round(2) %>%"></div>
+                  <div style="background-color: var(--color-error); width: <%= (row[:absent] * 100.0 / total).round(2) %>%"></div>
+                <% end %>
+              </div>
+              <div class="text-xs mt-1" style="color: var(--color-text-muted);">
+                出席 <%= row[:present] %> / 遅刻 <%= row[:late] %> / 公欠 <%= row[:excused] %> / 早退 <%= row[:early_leave] %> / 欠席 <%= row[:absent] %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="empty-state">
+          <div class="empty-state-title">日別データがありません。</div>
+        </div>
       <% end %>
     </div>
   </div>
 
   <% if @selected_class %>
-    <div class="card p-6">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <div>
-          <h2 class="text-lg font-medium text-gray-900">クラス詳細: <%= @selected_class.name %></h2>
-          <p class="text-sm text-gray-500">教室: <%= @selected_class.room %> / <%= @selected_class.schedule_label || "スケジュール未設定" %></p>
-        </div>
-        <div class="text-sm text-gray-500">対象授業回数: <%= @daily_rates.size %></div>
-      </div>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <div class="card p-6">
-        <h3 class="text-lg font-medium text-gray-900 mb-4">週次出席率推移</h3>
-        <div class="table-container">
-          <table class="min-w-full divide-y divide-gray-200 text-sm">
-            <thead class="bg-gray-50">
-              <tr>
-                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">週</th>
-                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">出席率</th>
-                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">内訳</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <% @weekly_rates.each do |row| %>
-                <tr>
-                  <td class="px-4 py-2 text-sm text-gray-600">
-                    <%= row[:week_start].strftime("%m/%d") %> - <%= row[:week_end].strftime("%m/%d") %>
-                    (<%= row[:sessions_count] %>回)
-                  </td>
-                  <td class="px-4 py-2 text-sm text-gray-700"><%= row[:rate] %>%</td>
-                  <td class="px-4 py-2 text-xs text-gray-500">
-                    出席 <%= row[:totals][:present] %> / 遅刻 <%= row[:totals][:late] %> / 公欠 <%= row[:totals][:excused] %> /
-                    早退 <%= row[:totals][:early_leave] %> / 欠席 <%= row[:totals][:absent] %> / 未入力 <%= row[:totals][:missing] %>
-                  </td>
-                </tr>
-              <% end %>
-              <% if @weekly_rates.empty? %>
-                <tr>
-                  <td colspan="3" class="px-4 py-4 text-center text-sm text-gray-500">週次データがありません。</td>
-                </tr>
-              <% end %>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="card p-6">
-        <h3 class="text-lg font-medium text-gray-900 mb-4">日次出席率推移</h3>
-        <div class="table-container">
-          <table class="min-w-full divide-y divide-gray-200 text-sm">
-            <thead class="bg-gray-50">
-              <tr>
-                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">日付</th>
-                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">授業回</th>
-                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">出席率</th>
-                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">未入力</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <% @daily_rates.each do |row| %>
-                <tr>
-                  <td class="px-4 py-2 text-sm text-gray-600"><%= row[:date].strftime("%Y-%m-%d") %></td>
-                  <td class="px-4 py-2 text-sm text-gray-600">
-                    <%= render "shared/session_status_badges", session: row[:session] %>
-                  </td>
-                  <td class="px-4 py-2 text-sm text-gray-700"><%= row[:rate] %>%</td>
-                  <td class="px-4 py-2 text-sm text-gray-600"><%= row[:missing] %></td>
-                </tr>
-              <% end %>
-              <% if @daily_rates.empty? %>
-                <tr>
-                  <td colspan="4" class="px-4 py-4 text-center text-sm text-gray-500">日次データがありません。</td>
-                </tr>
-              <% end %>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <div class="card p-6">
-        <h3 class="text-lg font-medium text-gray-900 mb-4">要注意者</h3>
-        <div class="table-container">
-          <table class="min-w-full divide-y divide-gray-200 text-sm">
-            <thead class="bg-gray-50">
-              <tr>
-                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">学生</th>
-                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">出席率</th>
-                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">欠席/早退/未入力</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <% @risk_students.each do |row| %>
-                <tr>
-                  <td class="px-4 py-2 text-sm text-gray-700">
-                    <div><%= row[:student].name %></div>
-                    <div class="text-xs text-gray-400"><%= row[:student].student_id %></div>
-                  </td>
-                  <td class="px-4 py-2 text-sm text-gray-700"><%= row[:rate] %>%</td>
-                  <td class="px-4 py-2 text-sm text-gray-600"><%= row[:absence_total] %> 回</td>
-                </tr>
-              <% end %>
-              <% if @risk_students.empty? %>
-                <tr>
-                  <td colspan="3" class="px-4 py-4 text-center text-sm text-gray-500">要注意者はいません。</td>
-                </tr>
-              <% end %>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="card p-6">
-        <h3 class="text-lg font-medium text-gray-900 mb-4">遅刻・早退の理由分布</h3>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <%# クラス詳細ヘッダー %>
+    <div class="card">
+      <div class="card-body">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div>
-            <h4 class="text-sm font-medium text-gray-700 mb-2">遅刻</h4>
-            <% reasons = @reason_distribution["late"] || {} %>
-            <% if reasons.any? %>
-              <ul class="space-y-2">
-                <% reasons.each do |reason, count| %>
-                  <li class="flex items-center justify-between text-sm text-gray-600">
-                    <span class="truncate"><%= reason %></span>
-                    <span class="text-xs text-gray-400"><%= count %></span>
-                  </li>
-                <% end %>
-              </ul>
-            <% else %>
-              <div class="text-sm text-gray-500">該当データがありません。</div>
-            <% end %>
+            <h2 class="text-lg font-semibold" style="color: var(--color-text-primary);">クラス詳細: <%= @selected_class.name %></h2>
+            <p class="text-sm" style="color: var(--color-text-secondary);">教室: <%= @selected_class.room %> / <%= @selected_class.schedule_label || "スケジュール未設定" %></p>
           </div>
-          <div>
-            <h4 class="text-sm font-medium text-gray-700 mb-2">早退</h4>
-            <% reasons = @reason_distribution["early_leave"] || {} %>
-            <% if reasons.any? %>
-              <ul class="space-y-2">
-                <% reasons.each do |reason, count| %>
-                  <li class="flex items-center justify-between text-sm text-gray-600">
-                    <span class="truncate"><%= reason %></span>
-                    <span class="text-xs text-gray-400"><%= count %></span>
-                  </li>
+          <div class="text-sm" style="color: var(--color-text-muted);">対象授業回数: <%= @daily_rates.size %></div>
+        </div>
+      </div>
+    </div>
+
+    <%# 週次/日次 %>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <%# 週次出席率推移 %>
+      <div class="card">
+        <div class="card-header">
+          <h3 class="font-semibold" style="color: var(--color-text-primary);">週次出席率推移</h3>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-container" style="border: none; border-radius: 0;">
+            <table class="w-full">
+              <thead>
+                <tr>
+                  <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">週</th>
+                  <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">出席率</th>
+                  <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">内訳</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @weekly_rates.each do |row| %>
+                  <tr style="border-bottom: 1px solid var(--color-border);">
+                    <td class="px-4 py-3 text-sm" style="color: var(--color-text-secondary);">
+                      <%= row[:week_start].strftime("%m/%d") %> - <%= row[:week_end].strftime("%m/%d") %>
+                      (<%= row[:sessions_count] %>回)
+                    </td>
+                    <td class="px-4 py-3 text-sm" style="color: var(--color-text-primary);"><%= row[:rate] %>%</td>
+                    <td class="px-4 py-3 text-xs" style="color: var(--color-text-muted);">
+                      出席 <%= row[:totals][:present] %> / 遅刻 <%= row[:totals][:late] %> / 公欠 <%= row[:totals][:excused] %> /
+                      早退 <%= row[:totals][:early_leave] %> / 欠席 <%= row[:totals][:absent] %> / 未入力 <%= row[:totals][:missing] %>
+                    </td>
+                  </tr>
                 <% end %>
-              </ul>
-            <% else %>
-              <div class="text-sm text-gray-500">該当データがありません。</div>
-            <% end %>
+                <% if @weekly_rates.empty? %>
+                  <tr>
+                    <td colspan="3" class="px-4 py-8 text-center">
+                      <div class="empty-state" style="padding: 0;">
+                        <div class="empty-state-title">週次データがありません。</div>
+                      </div>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <%# 日次出席率推移 %>
+      <div class="card">
+        <div class="card-header">
+          <h3 class="font-semibold" style="color: var(--color-text-primary);">日次出席率推移</h3>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-container" style="border: none; border-radius: 0;">
+            <table class="w-full">
+              <thead>
+                <tr>
+                  <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">日付</th>
+                  <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">授業回</th>
+                  <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">出席率</th>
+                  <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">未入力</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @daily_rates.each do |row| %>
+                  <tr style="border-bottom: 1px solid var(--color-border);">
+                    <td class="px-4 py-3 text-sm" style="color: var(--color-text-secondary);"><%= row[:date].strftime("%Y-%m-%d") %></td>
+                    <td class="px-4 py-3 text-sm" style="color: var(--color-text-secondary);">
+                      <%= render "shared/session_status_badges", session: row[:session] %>
+                    </td>
+                    <td class="px-4 py-3 text-sm" style="color: var(--color-text-primary);"><%= row[:rate] %>%</td>
+                    <td class="px-4 py-3 text-sm" style="color: var(--color-text-secondary);"><%= row[:missing] %></td>
+                  </tr>
+                <% end %>
+                <% if @daily_rates.empty? %>
+                  <tr>
+                    <td colspan="4" class="px-4 py-8 text-center">
+                      <div class="empty-state" style="padding: 0;">
+                        <div class="empty-state-title">日次データがありません。</div>
+                      </div>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="card p-6">
-      <h3 class="text-lg font-medium text-gray-900 mb-4">学生別出席推移</h3>
-      <div class="table-container">
-        <table class="min-w-full divide-y divide-gray-200 text-sm">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">学生</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">出席率</th>
-              <% @weekly_keys.each do |week_start| %>
-                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= week_start.strftime("%m/%d週") %></th>
-              <% end %>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">判定</th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            <% @student_trends.each do |row| %>
-              <tr>
-                <td class="px-4 py-2 text-sm text-gray-700">
-                  <div><%= row[:student].name %></div>
-                  <div class="text-xs text-gray-400"><%= row[:student].student_id %></div>
-                </td>
-                <td class="px-4 py-2 text-sm text-gray-700"><%= row[:rate] %>%</td>
-                <% row[:weekly_rates].each do |week| %>
-                  <td class="px-4 py-2 text-sm text-gray-600"><%= week[:rate] %>%</td>
+    <%# 要注意者/理由分布 %>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <%# 要注意者 %>
+      <div class="card">
+        <div class="card-header">
+          <h3 class="font-semibold" style="color: var(--color-text-primary);">要注意者</h3>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-container" style="border: none; border-radius: 0;">
+            <table class="w-full">
+              <thead>
+                <tr>
+                  <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">学生</th>
+                  <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">出席率</th>
+                  <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">欠席/早退/未入力</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @risk_students.each do |row| %>
+                  <tr style="border-bottom: 1px solid var(--color-border);">
+                    <td class="px-4 py-3 text-sm">
+                      <div style="color: var(--color-text-primary);"><%= row[:student].name %></div>
+                      <div class="text-xs" style="color: var(--color-text-muted);"><%= row[:student].student_id %></div>
+                    </td>
+                    <td class="px-4 py-3 text-sm" style="color: var(--color-text-primary);"><%= row[:rate] %>%</td>
+                    <td class="px-4 py-3 text-sm" style="color: var(--color-text-secondary);"><%= row[:absence_total] %> 回</td>
+                  </tr>
                 <% end %>
-                <td class="px-4 py-2 text-sm">
-                  <span class="<%= row[:alert] ? 'badge badge-error' : 'badge badge-success' %>"><%= row[:alert_label] %></span>
-                </td>
-              </tr>
-            <% end %>
-            <% if @student_trends.empty? %>
-              <tr>
-                <td colspan="<%= 3 + @weekly_keys.size %>" class="px-4 py-4 text-center text-sm text-gray-500">対象データがありません。</td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
+                <% if @risk_students.empty? %>
+                  <tr>
+                    <td colspan="3" class="px-4 py-8 text-center">
+                      <div class="empty-state" style="padding: 0;">
+                        <div class="empty-state-title">要注意者はいません。</div>
+                      </div>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <%# 遅刻・早退の理由分布 %>
+      <div class="card">
+        <div class="card-header">
+          <h3 class="font-semibold" style="color: var(--color-text-primary);">遅刻・早退の理由分布</h3>
+        </div>
+        <div class="card-body">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <h4 class="text-sm font-medium mb-2" style="color: var(--color-text-primary);">遅刻</h4>
+              <% reasons = @reason_distribution["late"] || {} %>
+              <% if reasons.any? %>
+                <ul class="space-y-2">
+                  <% reasons.each do |reason, count| %>
+                    <li class="flex items-center justify-between text-sm" style="color: var(--color-text-secondary);">
+                      <span class="truncate"><%= reason %></span>
+                      <span class="text-xs" style="color: var(--color-text-muted);"><%= count %></span>
+                    </li>
+                  <% end %>
+                </ul>
+              <% else %>
+                <div class="text-sm" style="color: var(--color-text-muted);">該当データがありません。</div>
+              <% end %>
+            </div>
+            <div>
+              <h4 class="text-sm font-medium mb-2" style="color: var(--color-text-primary);">早退</h4>
+              <% reasons = @reason_distribution["early_leave"] || {} %>
+              <% if reasons.any? %>
+                <ul class="space-y-2">
+                  <% reasons.each do |reason, count| %>
+                    <li class="flex items-center justify-between text-sm" style="color: var(--color-text-secondary);">
+                      <span class="truncate"><%= reason %></span>
+                      <span class="text-xs" style="color: var(--color-text-muted);"><%= count %></span>
+                    </li>
+                  <% end %>
+                </ul>
+              <% else %>
+                <div class="text-sm" style="color: var(--color-text-muted);">該当データがありません。</div>
+              <% end %>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="card p-6">
-      <h3 class="text-lg font-medium text-gray-900 mb-2">期末レポート出力</h3>
-      <p class="text-sm text-gray-500 mb-4">出席評価の根拠を含むCSV/PDFを出力します。</p>
-      <div class="flex flex-col sm:flex-row gap-2">
-        <%= link_to "CSV出力",
-          reports_path(format: :csv, class_id: @selected_class.id, start_date: @start_date, end_date: @end_date),
-          class: "btn btn-secondary",
-          data: { turbo: false } %>
-        <%= link_to "PDF出力",
-          reports_path(format: :pdf, class_id: @selected_class.id, start_date: @start_date, end_date: @end_date),
-          class: "btn btn-primary",
-          data: { turbo: false } %>
+    <%# 学生別出席推移 %>
+    <div class="card">
+      <div class="card-header">
+        <h3 class="font-semibold" style="color: var(--color-text-primary);">学生別出席推移</h3>
       </div>
-      <p class="text-xs text-gray-500 mt-2">出力対象は授業回が存在する日付のみです。</p>
+      <div class="card-body p-0">
+        <div class="table-container" style="border: none; border-radius: 0;">
+          <table class="w-full">
+            <thead>
+              <tr>
+                <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">学生</th>
+                <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">出席率</th>
+                <% @weekly_keys.each do |week_start| %>
+                  <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);"><%= week_start.strftime("%m/%d週") %></th>
+                <% end %>
+                <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">判定</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @student_trends.each do |row| %>
+                <tr style="border-bottom: 1px solid var(--color-border);">
+                  <td class="px-4 py-3 text-sm">
+                    <div style="color: var(--color-text-primary);"><%= row[:student].name %></div>
+                    <div class="text-xs" style="color: var(--color-text-muted);"><%= row[:student].student_id %></div>
+                  </td>
+                  <td class="px-4 py-3 text-sm" style="color: var(--color-text-primary);"><%= row[:rate] %>%</td>
+                  <% row[:weekly_rates].each do |week| %>
+                    <td class="px-4 py-3 text-sm" style="color: var(--color-text-secondary);"><%= week[:rate] %>%</td>
+                  <% end %>
+                  <td class="px-4 py-3 text-sm">
+                    <span class="<%= row[:alert] ? 'badge badge-error' : 'badge badge-success' %>"><%= row[:alert_label] %></span>
+                  </td>
+                </tr>
+              <% end %>
+              <% if @student_trends.empty? %>
+                <tr>
+                  <td colspan="<%= 3 + @weekly_keys.size %>" class="px-4 py-8 text-center">
+                    <div class="empty-state" style="padding: 0;">
+                      <div class="empty-state-title">対象データがありません。</div>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <%# 期末レポート出力 %>
+    <div class="card">
+      <div class="card-header">
+        <h3 class="font-semibold" style="color: var(--color-text-primary);">期末レポート出力</h3>
+      </div>
+      <div class="card-body">
+        <p class="text-sm mb-4" style="color: var(--color-text-secondary);">出席評価の根拠を含むCSV/PDFを出力します。</p>
+        <div class="flex flex-col sm:flex-row gap-2">
+          <%= link_to "CSV出力",
+            reports_path(format: :csv, class_id: @selected_class.id, start_date: @start_date, end_date: @end_date),
+            class: "btn btn-secondary",
+            data: { turbo: false } %>
+          <%= link_to "PDF出力",
+            reports_path(format: :pdf, class_id: @selected_class.id, start_date: @start_date, end_date: @end_date),
+            class: "btn btn-primary",
+            data: { turbo: false } %>
+        </div>
+        <p class="text-xs mt-2" style="color: var(--color-text-muted);">出力対象は授業回が存在する日付のみです。</p>
+      </div>
     </div>
   <% else %>
-    <div class="card p-6 text-sm text-gray-500">
-      クラスを選択すると詳細分析と期末レポートが表示されます。
+    <div class="card">
+      <div class="card-body">
+        <div class="empty-state">
+          <div class="empty-state-title">クラスを選択すると詳細分析と期末レポートが表示されます。</div>
+        </div>
+      </div>
     </div>
   <% end %>
   <% end %>

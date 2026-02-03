@@ -1,72 +1,113 @@
-﻿<% role_labels = { "student" => "学生", "teacher" => "教員", "admin" => "管理者" } %>
+<%# AdminKit風管理者ダッシュボード: KPIカード、テーブル %>
+<% role_labels = { "student" => "学生", "teacher" => "教員", "admin" => "管理者" } %>
 <% total_users = @users.size %>
 
 <div class="max-w-6xl mx-auto space-y-6">
-  <div class="card p-6">
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-      <div>
-        <h1 class="text-2xl font-semibold text-gray-900">管理者ダッシュボード</h1>
-      </div>
-      <div class="flex flex-wrap gap-2">
-        <%= link_to "ユーザー管理", admin_users_path, class: "btn btn-secondary text-sm" %>
-        <%= link_to "ロール/権限", admin_roles_path, class: "btn btn-secondary text-sm" %>
-        <%= link_to "操作申請", admin_operation_requests_path, class: "btn btn-secondary text-sm" %>
-        <%= link_to "監査ログ", attendance_logs_path, class: "btn btn-secondary text-sm" %>
+  <%# ページヘッダー %>
+  <div class="card">
+    <div class="card-body">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 class="text-2xl font-semibold" style="color: var(--color-text-primary);">管理者ダッシュボード</h1>
+          <p class="text-sm mt-1" style="color: var(--color-text-secondary);">システム全体の状況を確認できます</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <%= link_to "ユーザー管理", admin_users_path, class: "btn btn-secondary text-sm" %>
+          <%= link_to "ロール/権限", admin_roles_path, class: "btn btn-secondary text-sm" %>
+          <%= link_to "操作申請", admin_operation_requests_path, class: "btn btn-secondary text-sm" %>
+          <%= link_to "監査ログ", attendance_logs_path, class: "btn btn-secondary text-sm" %>
+        </div>
       </div>
     </div>
   </div>
 
+  <%# KPIカード %>
   <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-    <div class="card p-4">
-      <div class="text-xs text-gray-500">総ユーザー数</div>
-      <div class="text-2xl font-semibold text-gray-900 mt-1"><%= total_users %></div>
-      <div class="text-xs text-gray-500 mt-2">
+    <%# 総ユーザー数 %>
+    <div class="kpi-card">
+      <div class="kpi-card-icon">
+        <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="9" cy="7" r="4" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="kpi-card-title">総ユーザー数</div>
+      <div class="kpi-card-value"><%= total_users %></div>
+      <div class="kpi-card-diff" style="color: var(--color-text-secondary);">
         学生 <%= @role_counts.fetch("student", 0) %> / 教員 <%= @role_counts.fetch("teacher", 0) %> / 管理者 <%= @role_counts.fetch("admin", 0) %>
       </div>
     </div>
-    <div class="card p-4">
-      <div class="text-xs text-gray-500">未処理の出席申請</div>
-      <div class="text-2xl font-semibold text-gray-900 mt-1"><%= @pending_requests.size %></div>
-      <div class="text-xs text-gray-500 mt-2">直近10件を下部に表示</div>
+
+    <%# 未処理の出席申請 %>
+    <div class="kpi-card">
+      <div class="kpi-card-icon warning">
+        <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 3h6a2 2 0 012 2v1H7V5a2 2 0 012-2z"/>
+          <rect x="5" y="6" width="14" height="15" rx="2" ry="2"/>
+          <path d="M9 14l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="kpi-card-title">未処理の出席申請</div>
+      <div class="kpi-card-value"><%= @pending_requests.size %></div>
+      <div class="kpi-card-diff" style="color: var(--color-text-secondary);">直近10件を下部に表示</div>
     </div>
-    <div class="card p-4">
-      <div class="text-xs text-gray-500">直近7日の監査集計</div>
-      <div class="mt-2 space-y-1 text-sm text-gray-700">
-        <div>変更ログ: <%= @change_source_counts.values.sum %> 件</div>
-        <div>スキャンログ: <%= @scan_status_counts.values.sum %> 件</div>
+
+    <%# 直近7日の監査集計 %>
+    <div class="kpi-card">
+      <div class="kpi-card-icon success">
+        <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 3v18h18" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M7 14l3-3 3 3 5-6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="kpi-card-title">直近7日の監査集計</div>
+      <div class="space-y-1 mt-2">
+        <div class="text-sm" style="color: var(--color-text-primary);">変更ログ: <span class="font-semibold"><%= @change_source_counts.values.sum %></span> 件</div>
+        <div class="text-sm" style="color: var(--color-text-primary);">スキャンログ: <span class="font-semibold"><%= @scan_status_counts.values.sum %></span> 件</div>
       </div>
     </div>
   </div>
 
+  <%# 申請テーブル %>
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <div class="card p-6">
-      <h2 class="text-lg font-medium text-gray-900 mb-4">未処理の出席申請</h2>
-      <div class="table-container">
-        <table class="min-w-full divide-y divide-gray-200 text-sm">
-          <thead class="bg-gray-50">
+    <%# 未処理の出席申請 %>
+    <div class="card">
+      <div class="card-header">
+        <h2 class="text-lg font-semibold" style="color: var(--color-text-primary);">未処理の出席申請</h2>
+      </div>
+      <div class="table-container" style="border: none; border-radius: 0;">
+        <table class="w-full">
+          <thead>
             <tr>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">日付</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">クラス</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">学生</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">種別</th>
+              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">日付</th>
+              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">クラス</th>
+              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">学生</th>
+              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">種別</th>
             </tr>
           </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
+          <tbody>
             <% if @pending_requests.any? %>
               <% @pending_requests.each do |request| %>
-                <tr>
-                  <td class="px-4 py-2 text-sm text-gray-500"><%= request.date.strftime("%Y-%m-%d") %></td>
-                  <td class="px-4 py-2 text-sm text-gray-700"><%= request.school_class.name %></td>
-                  <td class="px-4 py-2 text-sm text-gray-700">
-                    <div><%= request.user.name %></div>
-                    <div class="text-xs text-gray-400"><%= request.user.student_id %></div>
+                <tr style="border-bottom: 1px solid var(--color-border);">
+                  <td class="px-4 py-3 text-sm" style="color: var(--color-text-secondary);"><%= request.date.strftime("%Y-%m-%d") %></td>
+                  <td class="px-4 py-3 text-sm" style="color: var(--color-text-primary);"><%= request.school_class.name %></td>
+                  <td class="px-4 py-3 text-sm">
+                    <div style="color: var(--color-text-primary);"><%= request.user.name %></div>
+                    <div class="text-xs" style="color: var(--color-text-muted);"><%= request.user.student_id %></div>
                   </td>
-                  <td class="px-4 py-2 text-sm text-gray-700"><%= request.request_type %></td>
+                  <td class="px-4 py-3 text-sm">
+                    <span class="badge badge-warning"><%= request.request_type %></span>
+                  </td>
                 </tr>
               <% end %>
             <% else %>
               <tr>
-                <td colspan="4" class="px-4 py-6 text-center text-sm text-gray-500">該当なし</td>
+                <td colspan="4" class="px-4 py-8 text-center">
+                  <div class="empty-state" style="padding: 0;">
+                    <div class="empty-state-title">該当なし</div>
+                  </div>
+                </td>
               </tr>
             <% end %>
           </tbody>
@@ -74,31 +115,40 @@
       </div>
     </div>
 
-    <div class="card p-6">
-      <h2 class="text-lg font-medium text-gray-900 mb-4">未処理の操作申請</h2>
-      <div class="table-container">
-        <table class="min-w-full divide-y divide-gray-200 text-sm">
-          <thead class="bg-gray-50">
+    <%# 未処理の操作申請 %>
+    <div class="card">
+      <div class="card-header">
+        <h2 class="text-lg font-semibold" style="color: var(--color-text-primary);">未処理の操作申請</h2>
+      </div>
+      <div class="table-container" style="border: none; border-radius: 0;">
+        <table class="w-full">
+          <thead>
             <tr>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">申請者</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">クラス</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">種別</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">申請日時</th>
+              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">申請者</th>
+              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">クラス</th>
+              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">種別</th>
+              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">申請日時</th>
             </tr>
           </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
+          <tbody>
             <% if @pending_operations.any? %>
               <% @pending_operations.each do |request| %>
-                <tr>
-                  <td class="px-4 py-2 text-sm text-gray-700"><%= request.user&.name || "-" %></td>
-                  <td class="px-4 py-2 text-sm text-gray-700"><%= request.school_class&.name || "-" %></td>
-                  <td class="px-4 py-2 text-sm text-gray-700"><%= request.kind %></td>
-                  <td class="px-4 py-2 text-sm text-gray-500"><%= request.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+                <tr style="border-bottom: 1px solid var(--color-border);">
+                  <td class="px-4 py-3 text-sm" style="color: var(--color-text-primary);"><%= request.user&.name || "-" %></td>
+                  <td class="px-4 py-3 text-sm" style="color: var(--color-text-primary);"><%= request.school_class&.name || "-" %></td>
+                  <td class="px-4 py-3 text-sm">
+                    <span class="badge badge-info"><%= request.kind %></span>
+                  </td>
+                  <td class="px-4 py-3 text-sm" style="color: var(--color-text-secondary);"><%= request.created_at.strftime("%Y-%m-%d %H:%M") %></td>
                 </tr>
               <% end %>
             <% else %>
               <tr>
-                <td colspan="4" class="px-4 py-6 text-center text-sm text-gray-500">該当なし</td>
+                <td colspan="4" class="px-4 py-8 text-center">
+                  <div class="empty-state" style="padding: 0;">
+                    <div class="empty-state-title">該当なし</div>
+                  </div>
+                </td>
               </tr>
             <% end %>
           </tbody>
@@ -107,32 +157,40 @@
     </div>
   </div>
 
+  <%# ログテーブル %>
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <div class="card p-6">
-      <h2 class="text-lg font-medium text-gray-900 mb-4">最近の出席変更ログ</h2>
-      <div class="table-container">
-        <table class="min-w-full divide-y divide-gray-200 text-sm">
-          <thead class="bg-gray-50">
+    <%# 最近の出席変更ログ %>
+    <div class="card">
+      <div class="card-header">
+        <h2 class="text-lg font-semibold" style="color: var(--color-text-primary);">最近の出席変更ログ</h2>
+      </div>
+      <div class="table-container" style="border: none; border-radius: 0;">
+        <table class="w-full">
+          <thead>
             <tr>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">日時</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">学生</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">変更</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">理由</th>
+              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">日時</th>
+              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">学生</th>
+              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">変更</th>
+              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">理由</th>
             </tr>
           </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
+          <tbody>
             <% if @recent_changes.any? %>
               <% @recent_changes.each do |change| %>
-                <tr>
-                  <td class="px-4 py-2 text-sm text-gray-500"><%= change.changed_at&.strftime("%m/%d %H:%M") %></td>
-                  <td class="px-4 py-2 text-sm text-gray-700"><%= change.user&.name || "-" %></td>
-                  <td class="px-4 py-2 text-sm text-gray-700"><%= "#{change.previous_status || '-'} → #{change.new_status}" %></td>
-                  <td class="px-4 py-2 text-sm text-gray-500"><%= change.reason.presence || "-" %></td>
+                <tr style="border-bottom: 1px solid var(--color-border);">
+                  <td class="px-4 py-3 text-sm" style="color: var(--color-text-secondary);"><%= change.changed_at&.strftime("%m/%d %H:%M") %></td>
+                  <td class="px-4 py-3 text-sm" style="color: var(--color-text-primary);"><%= change.user&.name || "-" %></td>
+                  <td class="px-4 py-3 text-sm" style="color: var(--color-text-primary);"><%= "#{change.previous_status || '-'} → #{change.new_status}" %></td>
+                  <td class="px-4 py-3 text-sm" style="color: var(--color-text-secondary);"><%= change.reason.presence || "-" %></td>
                 </tr>
               <% end %>
             <% else %>
               <tr>
-                <td colspan="4" class="px-4 py-6 text-center text-sm text-gray-500">該当なし</td>
+                <td colspan="4" class="px-4 py-8 text-center">
+                  <div class="empty-state" style="padding: 0;">
+                    <div class="empty-state-title">該当なし</div>
+                  </div>
+                </td>
               </tr>
             <% end %>
           </tbody>
@@ -140,31 +198,48 @@
       </div>
     </div>
 
-    <div class="card p-6">
-      <h2 class="text-lg font-medium text-gray-900 mb-4">最近のQRスキャン</h2>
-      <div class="table-container">
-        <table class="min-w-full divide-y divide-gray-200 text-sm">
-          <thead class="bg-gray-50">
+    <%# 最近のQRスキャン %>
+    <div class="card">
+      <div class="card-header">
+        <h2 class="text-lg font-semibold" style="color: var(--color-text-primary);">最近のQRスキャン</h2>
+      </div>
+      <div class="table-container" style="border: none; border-radius: 0;">
+        <table class="w-full">
+          <thead>
             <tr>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">時刻</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">学生</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">結果</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">クラス</th>
+              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">時刻</th>
+              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">学生</th>
+              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">結果</th>
+              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">クラス</th>
             </tr>
           </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
+          <tbody>
             <% if @recent_scans.any? %>
               <% @recent_scans.each do |scan| %>
-                <tr>
-                  <td class="px-4 py-2 text-sm text-gray-500"><%= scan.scanned_at&.strftime("%m/%d %H:%M") %></td>
-                  <td class="px-4 py-2 text-sm text-gray-700"><%= scan.user&.name || "-" %></td>
-                  <td class="px-4 py-2 text-sm text-gray-700"><%= scan.status %></td>
-                  <td class="px-4 py-2 text-sm text-gray-500"><%= scan.school_class&.name || "-" %></td>
+                <tr style="border-bottom: 1px solid var(--color-border);">
+                  <td class="px-4 py-3 text-sm" style="color: var(--color-text-secondary);"><%= scan.scanned_at&.strftime("%m/%d %H:%M") %></td>
+                  <td class="px-4 py-3 text-sm" style="color: var(--color-text-primary);"><%= scan.user&.name || "-" %></td>
+                  <td class="px-4 py-3 text-sm">
+                    <%
+                      status_class = case scan.status
+                        when "present" then "badge-success"
+                        when "late" then "badge-warning"
+                        when "failed" then "badge-error"
+                        else "badge-neutral"
+                      end
+                    %>
+                    <span class="badge <%= status_class %>"><%= scan.status %></span>
+                  </td>
+                  <td class="px-4 py-3 text-sm" style="color: var(--color-text-secondary);"><%= scan.school_class&.name || "-" %></td>
                 </tr>
               <% end %>
             <% else %>
               <tr>
-                <td colspan="4" class="px-4 py-6 text-center text-sm text-gray-500">該当なし</td>
+                <td colspan="4" class="px-4 py-8 text-center">
+                  <div class="empty-state" style="padding: 0;">
+                    <div class="empty-state-title">該当なし</div>
+                  </div>
+                </td>
               </tr>
             <% end %>
           </tbody>
@@ -173,4 +248,3 @@
     </div>
   </div>
 </div>
-

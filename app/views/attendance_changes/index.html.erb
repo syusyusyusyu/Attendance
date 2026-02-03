@@ -1,4 +1,5 @@
-﻿<% status_labels = {
+<%# AdminKit風出席変更ログ: DataGrid、バッジ、検索条件保存 %>
+<% status_labels = {
   "present" => "出席",
   "late" => "遅刻",
   "absent" => "欠席",
@@ -18,16 +19,34 @@
   "early_leave" => "badge badge-warning"
 } %>
 
-<div class="max-w-6xl mx-auto">
+<div class="max-w-6xl mx-auto space-y-6">
+  <%# ページヘッダー %>
   <div class="card">
-    <div class="p-4 bg-google-grey border-b border-gray-200">
-      <h2 class="text-xl font-medium text-gray-800">出席変更ログ</h2>
-      <p class="text-sm text-gray-500 mt-1">直近200件まで表示します。</p>
+    <div class="card-body">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background-color: var(--color-info-light);">
+          <svg class="h-6 w-6" style="color: var(--color-info);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 8v4l3 3"/>
+            <circle cx="12" cy="12" r="10"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-2xl font-semibold" style="color: var(--color-text-primary);">出席変更ログ</h1>
+          <p class="text-sm mt-1" style="color: var(--color-text-secondary);">直近200件まで表示します。</p>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <%= turbo_frame_tag "attendance_changes_results", class: "drawer-panel relative", data: { controller: "drawer", drawer_open_value: true } do %>
-    <%= render "shared/frame_loader" %>
-    <div class="p-6 space-y-6">
+  <%= turbo_frame_tag "attendance_changes_results", class: "drawer-panel relative", data: { controller: "drawer", drawer_open_value: true } do %>
+  <%= render "shared/frame_loader" %>
+
+  <%# フィルターカード %>
+  <div class="card">
+    <div class="card-header">
+      <h2 class="font-semibold" style="color: var(--color-text-primary);">絞り込み条件</h2>
+    </div>
+    <div class="card-body">
       <%= form_with url: attendance_logs_path,
         method: :get,
         class: "grid grid-cols-1 md:grid-cols-6 gap-4 items-end",
@@ -36,43 +55,43 @@
           action: "change->request-filter#submit input->request-filter#submitDebounced"
         } do |f| %>
         <div>
-          <%= f.label :saved_search_id, "保存済み条件", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= f.label :saved_search_id, "保存済み条件", class: "block text-sm font-medium mb-2", style: "color: var(--color-text-primary);" %>
           <%= f.select :saved_search_id,
             options_for_select(@saved_searches.map { |saved| [saved.name, saved.id] }, params[:saved_search_id]),
             { include_blank: "未選択" },
             class: "input" %>
         </div>
         <div>
-          <%= f.label :class_id, "クラス", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= f.label :class_id, "クラス", class: "block text-sm font-medium mb-2", style: "color: var(--color-text-primary);" %>
           <%= f.select :class_id,
             options_for_select(@classes.map { |klass| ["#{klass.name} (#{klass.room})", klass.id] }, @selected_class&.id),
             { include_blank: "すべて" },
             class: "input" %>
         </div>
         <div class="min-w-0">
-          <%= f.label :start_date, "開始日", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= f.label :start_date, "開始日", class: "block text-sm font-medium mb-2", style: "color: var(--color-text-primary);" %>
           <%= f.date_field :start_date, value: @start_date, class: "input" %>
         </div>
         <div class="min-w-0">
-          <%= f.label :end_date, "終了日", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= f.label :end_date, "終了日", class: "block text-sm font-medium mb-2", style: "color: var(--color-text-primary);" %>
           <%= f.date_field :end_date, value: @end_date, class: "input" %>
         </div>
         <div>
-          <%= f.label :status, "出席判定", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= f.label :status, "出席判定", class: "block text-sm font-medium mb-2", style: "color: var(--color-text-primary);" %>
           <%= f.select :status,
             options_for_select(status_labels.map { |key, label| [label, key] }, @status),
             { include_blank: "すべて" },
             class: "input" %>
         </div>
         <div>
-          <%= f.label :source, "種別", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= f.label :source, "種別", class: "block text-sm font-medium mb-2", style: "color: var(--color-text-primary);" %>
           <%= f.select :source,
             options_for_select(source_labels.map { |key, label| [label, key] }, @source),
             { include_blank: "すべて" },
             class: "input" %>
         </div>
         <div>
-          <%= f.label :q, "キーワード", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= f.label :q, "キーワード", class: "block text-sm font-medium mb-2", style: "color: var(--color-text-primary);" %>
           <%= f.text_field :q, value: @query, class: "input", placeholder: "氏名/学籍番号/理由/クラス" %>
         </div>
         <div class="md:col-span-6 grid grid-cols-1 md:grid-cols-6 gap-2">
@@ -90,7 +109,7 @@
           </div>
           <div class="md:col-span-3 flex flex-col sm:flex-row gap-2">
             <%= f.text_field :save_search_name, class: "input", placeholder: "条件名を入力" %>
-            <label class="inline-flex items-center text-sm text-gray-600 gap-2">
+            <label class="inline-flex items-center text-sm gap-2" style="color: var(--color-text-secondary);">
               <%= f.check_box :save_search_default, { checked: false }, "1", "0" %>
               既定にする
             </label>
@@ -98,37 +117,49 @@
           </div>
         </div>
       <% end %>
+    </div>
+  </div>
 
-      <% status_counts = @changes.group_by(&:new_status).transform_values(&:count) %>
-      <% source_counts = @changes.group_by(&:source).transform_values(&:count) %>
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-gray-600">
-        <div class="rounded-lg border border-gray-200 bg-white p-3">
-          <div class="text-[11px] text-gray-500">表示件数</div>
-          <div class="text-sm font-semibold text-gray-900"><%= @changes.size %>件</div>
-        </div>
-        <div class="rounded-lg border border-gray-200 bg-white p-3">
-          <div class="text-[11px] text-gray-500">種別内訳</div>
-          <div class="text-xs text-gray-700">
-            手動 <%= source_counts["manual"].to_i %> / CSV <%= source_counts["csv"].to_i %> / 自動 <%= source_counts["system"].to_i %>
-          </div>
-        </div>
-        <div class="rounded-lg border border-gray-200 bg-white p-3">
-          <div class="text-[11px] text-gray-500">出席判定</div>
-          <div class="text-xs text-gray-700">
-            出席 <%= status_counts["present"].to_i %> / 遅刻 <%= status_counts["late"].to_i %> / 欠席 <%= status_counts["absent"].to_i %>
-          </div>
+  <%# 統計カード %>
+  <% status_counts = @changes.group_by(&:new_status).transform_values(&:count) %>
+  <% source_counts = @changes.group_by(&:source).transform_values(&:count) %>
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+    <div class="card">
+      <div class="card-body py-3">
+        <div class="text-xs" style="color: var(--color-text-muted);">表示件数</div>
+        <div class="text-lg font-semibold" style="color: var(--color-text-primary);"><%= @changes.size %>件</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-body py-3">
+        <div class="text-xs" style="color: var(--color-text-muted);">種別内訳</div>
+        <div class="text-sm" style="color: var(--color-text-primary);">
+          手動 <%= source_counts["manual"].to_i %> / CSV <%= source_counts["csv"].to_i %> / 自動 <%= source_counts["system"].to_i %>
         </div>
       </div>
+    </div>
+    <div class="card">
+      <div class="card-body py-3">
+        <div class="text-xs" style="color: var(--color-text-muted);">出席判定</div>
+        <div class="text-sm" style="color: var(--color-text-primary);">
+          出席 <%= status_counts["present"].to_i %> / 遅刻 <%= status_counts["late"].to_i %> / 欠席 <%= status_counts["absent"].to_i %>
+        </div>
+      </div>
+    </div>
+  </div>
 
-      <div class="table-container">
-        <table class="min-w-full divide-y divide-gray-200 text-sm">
-          <thead class="bg-gray-50">
+  <%# データテーブル %>
+  <div class="card">
+    <div class="card-body p-0">
+      <div class="table-container" style="border: none; border-radius: 0;">
+        <table class="w-full">
+          <thead>
             <tr>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">概要</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">種別</th>
+              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">概要</th>
+              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">種別</th>
             </tr>
           </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
+          <tbody>
             <% if @changes.any? %>
               <% @changes.each do |change| %>
                 <% timestamp = change.changed_at&.strftime("%Y-%m-%d %H:%M") || "-" %>
@@ -139,29 +170,34 @@
                 <% change_label = "#{status_labels[change.previous_status] || "-"}→#{status_labels[change.new_status] || change.new_status}" %>
                 <% reason = change.reason.presence || "-" %>
                 <% summary = "#{timestamp} / 操作者: #{actor} / 学生: #{student_name}(#{student_id}) / クラス: #{klass_name} / 内容: #{change_label} / 理由: #{reason}" %>
-                <tr>
-                  <td class="px-4 py-2 text-sm text-gray-700">
+                <tr style="border-bottom: 1px solid var(--color-border);">
+                  <td class="px-4 py-3 text-sm" style="color: var(--color-text-primary);">
                     <%= link_to attendance_log_path(change),
                       data: { turbo_frame: "attendance_change_detail" },
                       class: "block max-w-[720px] truncate hover:underline",
+                      style: "color: var(--color-primary);",
                       title: summary do %>
                       <%= summary %>
                     <% end %>
                   </td>
-                  <td class="px-4 py-2 text-sm text-gray-500"><%= source_labels[change.source] || change.source %></td>
+                  <td class="px-4 py-3 text-sm" style="color: var(--color-text-secondary);"><%= source_labels[change.source] || change.source %></td>
                 </tr>
               <% end %>
             <% else %>
               <tr>
-                <td colspan="2" class="px-4 py-6 text-center text-sm text-gray-500">該当なし</td>
+                <td colspan="2" class="px-4 py-8 text-center">
+                  <div class="empty-state" style="padding: 0;">
+                    <div class="empty-state-title">該当なし</div>
+                  </div>
+                </td>
               </tr>
             <% end %>
           </tbody>
         </table>
       </div>
     </div>
-    <% end %>
   </div>
+  <% end %>
 </div>
 
 <%= turbo_frame_tag "attendance_change_detail",

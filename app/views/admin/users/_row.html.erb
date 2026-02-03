@@ -1,20 +1,54 @@
+<%# DataGrid行: ステータスピル、ゆったり行間 %>
 <tr id="<%= dom_id(user) %>">
-  <td class="px-4 py-2 text-sm text-gray-700"><%= user.name %></td>
-  <td class="px-4 py-2 text-sm text-gray-500"><%= user.email %></td>
-  <td class="px-4 py-2 text-sm text-gray-500"><%= user.student_id || "-" %></td>
-  <td class="px-4 py-2 text-sm text-gray-700"><%= user.role %></td>
-  <td class="px-4 py-2 text-sm text-gray-500"><%= user.last_login&.strftime("%Y-%m-%d %H:%M") || "-" %></td>
-  <td class="px-4 py-2 text-right">
-    <div class="flex items-center justify-end gap-3">
-      <%= link_to "編集",
-        edit_admin_user_path(user),
-        class: "text-google-green text-sm",
-        data: { turbo_frame: "admin_user_form" } %>
+  <td>
+    <div class="flex items-center gap-3">
+      <img
+        src="<%= user.profile_image.presence || "https://ui-avatars.com/api/?name=#{ERB::Util.url_encode(user.name)}&background=random&size=40" %>"
+        alt=""
+        class="w-10 h-10 rounded-full object-cover flex-shrink-0"
+      />
+      <div>
+        <div class="font-medium" style="color: var(--color-text-primary);"><%= user.name %></div>
+      </div>
+    </div>
+  </td>
+  <td style="color: var(--color-text-secondary);"><%= user.email %></td>
+  <td style="color: var(--color-text-secondary);"><%= user.student_id || "-" %></td>
+  <td>
+    <%
+      role_colors = {
+        "admin" => "badge-error",
+        "teacher" => "badge-info",
+        "staff" => "badge-warning",
+        "student" => "badge-success"
+      }
+      role_class = role_colors[user.role] || "badge-neutral"
+    %>
+    <span class="badge <%= role_class %>"><%= user.role %></span>
+  </td>
+  <td style="color: var(--color-text-secondary);">
+    <%= user.last_login&.strftime("%Y-%m-%d %H:%M") || "-" %>
+  </td>
+  <td class="text-right">
+    <div class="flex items-center justify-end gap-2">
+      <%= link_to edit_admin_user_path(user),
+        class: "btn btn-secondary text-sm px-3 py-1.5",
+        data: { turbo_frame: "admin_user_form" } do %>
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        編集
+      <% end %>
       <% if user != current_user %>
-        <%= link_to "削除",
-          admin_user_path(user),
+        <%= link_to admin_user_path(user),
           data: { turbo_method: :delete, turbo_confirm: "本当に削除しますか？" },
-          class: "text-red-600 text-sm" %>
+          class: "btn btn-danger text-sm px-3 py-1.5" do %>
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          削除
+        <% end %>
       <% end %>
     </div>
   </td>

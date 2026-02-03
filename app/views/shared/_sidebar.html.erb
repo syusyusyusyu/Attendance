@@ -1,127 +1,136 @@
-﻿<aside
+<%# AdminKit風サイドバー: 濃紺/ダークテーマ、セクション見出し、アクティブ時青系ハイライト＋左インジケータ %>
+<aside
   data-sidebar-target="sidebar"
-  class="fixed top-[var(--app-header-height)] bottom-0 left-0 z-30 w-64 bg-white transform transition-transform duration-300 ease-in-out -translate-x-full lg:translate-x-0 overflow-y-auto"
+  class="sidebar fixed top-[var(--app-header-height)] bottom-0 left-0 z-30 transform transition-transform duration-300 ease-in-out -translate-x-full lg:translate-x-0 overflow-y-auto"
 >
-  <div class="bg-white border-r border-gray-200 h-full min-h-full">
-    <div class="h-16 flex items-center justify-center border-b border-gray-200">
-      <h2 class="text-google-green font-medium text-lg">
+  <div class="h-full min-h-full flex flex-col">
+    <%# サイドバーヘッダー %>
+    <div class="sidebar-header">
+      <h2 class="sidebar-header-title">
         <%= current_user.admin? ? "管理者メニュー" : (current_user.teacher? ? "教員メニュー" : "学生メニュー") %>
       </h2>
     </div>
-    <nav class="mt-4">
-      <% nav_items = if current_user.staff?
-        items = [
-          { name: "ホーム", path: root_path, icon: "clock" },
-          { name: "クラス管理", path: school_classes_path, icon: "class" },
-          { name: "出席確認", path: attendance_path, icon: "clipboard" },
-          { name: "出席申請", path: attendance_requests_path, icon: "clipboard", badge: @pending_requests_count },
-          { name: "出席変更ログ", path: attendance_logs_path, icon: "history" },
-          { name: "スキャンログ", path: scan_logs_path, icon: "list" },
-          { name: "レポート", path: reports_path, icon: "report" },
-          { name: "通知", path: notifications_path, icon: "bell" },
-          { name: "QRコード生成", path: generate_qr_path, icon: "qr" }
-        ]
-        if current_user.admin?
-          items.unshift({ name: "管理者ダッシュボード", path: admin_path, icon: "shield" })
-          items.insert(1, { name: "ユーザー管理", path: admin_users_path, icon: "class" })
-          items.insert(2, { name: "ロール/権限", path: admin_roles_path, icon: "clipboard" })
-          items.insert(3, { name: "操作申請", path: admin_operation_requests_path, icon: "history" })
-        end
-        items
-      else
-        [
-          { name: "ホーム", path: root_path, icon: "clock" },
-          { name: "QRコードスキャン", path: scan_path, icon: "qr" },
-          { name: "出席履歴", path: history_path, icon: "calendar" },
-          { name: "出席申請", path: attendance_requests_path, icon: "clipboard", badge: @pending_requests_count },
-          { name: "通知", path: notifications_path, icon: "bell" }
-        ]
-      end %>
 
-      <ul>
-        <% nav_items.each do |item| %>
-          <% active = if item[:path] == root_path
-            request.path == item[:path]
-          elsif item[:path] == admin_path
-            request.path == item[:path]
-          else
-            request.path == item[:path] || request.path.start_with?("#{item[:path]}/")
-          end %>
-          <li class="px-2 py-1">
-            <%= link_to item[:path], class: "flex items-center px-4 py-3 rounded-md transition-colors #{active ? 'bg-google-green text-white' : 'text-gray-700 hover:bg-gray-100'}", data: { action: "click->sidebar#close" } do %>
-              <span class="mr-3 <%= active ? 'text-white' : '' %>">
-                <% case item[:icon]
-                when "clock" %>
-                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="9" />
-                    <path d="M12 7v5l3 3" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                <% when "calendar" %>
-                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                    <line x1="8" y1="2" x2="8" y2="6" />
-                    <line x1="16" y1="2" x2="16" y2="6" />
-                    <line x1="3" y1="10" x2="21" y2="10" />
-                  </svg>
-                <% when "clipboard" %>
-                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M9 3h6a2 2 0 0 1 2 2v1H7V5a2 2 0 0 1 2-2z" />
-                    <rect x="5" y="6" width="14" height="15" rx="2" ry="2" />
-                  </svg>
-                <% when "qr" %>
-                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="3" y="3" width="6" height="6" />
-                    <rect x="15" y="3" width="6" height="6" />
-                    <rect x="3" y="15" width="6" height="6" />
-                    <path d="M15 15h6v6h-6z" />
-                    <path d="M11 11h2v2h-2z" />
-                  </svg>
-                <% when "list" %>
-                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="8" y1="6" x2="21" y2="6" />
-                    <line x1="8" y1="12" x2="21" y2="12" />
-                    <line x1="8" y1="18" x2="21" y2="18" />
-                    <circle cx="4" cy="6" r="1" />
-                    <circle cx="4" cy="12" r="1" />
-                    <circle cx="4" cy="18" r="1" />
-                  </svg>
-                <% when "class" %>
-                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M4 6h16" stroke-linecap="round" stroke-linejoin="round" />
-                    <path d="M4 10h16" stroke-linecap="round" stroke-linejoin="round" />
-                    <path d="M4 14h10" stroke-linecap="round" stroke-linejoin="round" />
-                    <path d="M4 18h6" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                <% when "report" %>
-                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M3 3v18h18" stroke-linecap="round" stroke-linejoin="round" />
-                    <path d="M7 14l3-3 3 3 5-6" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                <% when "history" %>
-                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M3 3v6h6" stroke-linecap="round" stroke-linejoin="round" />
-                    <path d="M3.75 9A9 9 0 1 0 12 3" stroke-linecap="round" stroke-linejoin="round" />
-                    <path d="M12 7v5l3 3" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                <% when "bell" %>
-                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" stroke-linecap="round" stroke-linejoin="round" />
-                    <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                <% when "shield" %>
-                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 3l8 4v6c0 5-3.5 7.5-8 9-4.5-1.5-8-4-8-9V7l8-4z" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                <% end %>
-              </span>
-              <span class="<%= active ? 'text-white' : '' %>"><%= item[:name] %></span>
-              <% if item[:badge].to_i.positive? %>
-                <span class="ml-auto text-xs px-2 py-0.5 rounded-full bg-red-500 text-white"><%= item[:badge] %></span>
-              <% end %>
-            <% end %>
-          </li>
-        <% end %>
-      </ul>
+    <%# ナビゲーション %>
+    <nav class="flex-1 py-4 px-3">
+      <% if current_user.admin? %>
+        <%# 管理者ナビゲーション %>
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">管理</div>
+          <ul class="sidebar-nav">
+            <%= sidebar_link("管理者ダッシュボード", admin_path, "shield") %>
+          </ul>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">ユーザーと権限</div>
+          <ul class="sidebar-nav">
+            <%= sidebar_link("ユーザー管理", admin_users_path, "users") %>
+            <%= sidebar_link("ロール/権限", admin_roles_path, "key") %>
+            <%= sidebar_link("操作申請", admin_operation_requests_path, "clipboard-check", @pending_operation_requests_count) %>
+          </ul>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">監査</div>
+          <ul class="sidebar-nav">
+            <%= sidebar_link("QRスキャンログ", scan_logs_path, "list") %>
+            <%= sidebar_link("出席変更ログ", attendance_logs_path, "history") %>
+          </ul>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">教員機能</div>
+          <ul class="sidebar-nav">
+            <%= sidebar_link("ホーム", root_path, "home") %>
+            <%= sidebar_link("クラス管理", school_classes_path, "class") %>
+            <%= sidebar_link("出席確認", attendance_path, "clipboard") %>
+            <%= sidebar_link("出席申請", attendance_requests_path, "clipboard-check", @pending_requests_count) %>
+            <%= sidebar_link("QRコード生成", generate_qr_path, "qr") %>
+            <%= sidebar_link("レポート", reports_path, "report") %>
+          </ul>
+        </div>
+
+      <% elsif current_user.staff? %>
+        <%# 教員/スタッフナビゲーション %>
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">ダッシュボード</div>
+          <ul class="sidebar-nav">
+            <%= sidebar_link("ホーム", root_path, "home") %>
+          </ul>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">クラス</div>
+          <ul class="sidebar-nav">
+            <%= sidebar_link("クラス管理", school_classes_path, "class") %>
+          </ul>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">出席</div>
+          <ul class="sidebar-nav">
+            <%= sidebar_link("出席確認", attendance_path, "clipboard") %>
+            <%= sidebar_link("出席申請", attendance_requests_path, "clipboard-check", @pending_requests_count) %>
+            <%= sidebar_link("出席変更ログ", attendance_logs_path, "history") %>
+          </ul>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">QR</div>
+          <ul class="sidebar-nav">
+            <%= sidebar_link("QRコード生成", generate_qr_path, "qr") %>
+            <%= sidebar_link("スキャンログ", scan_logs_path, "list") %>
+          </ul>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">レポート</div>
+          <ul class="sidebar-nav">
+            <%= sidebar_link("レポート", reports_path, "report") %>
+          </ul>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">設定</div>
+          <ul class="sidebar-nav">
+            <%= sidebar_link("通知", notifications_path, "bell") %>
+          </ul>
+        </div>
+
+      <% else %>
+        <%# 学生ナビゲーション %>
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">学生</div>
+          <ul class="sidebar-nav">
+            <%= sidebar_link("ダッシュボード", root_path, "home") %>
+            <%= sidebar_link("QRコードスキャン", scan_path, "qr") %>
+            <%= sidebar_link("出席履歴", history_path, "calendar") %>
+            <%= sidebar_link("出席申請", attendance_requests_path, "clipboard-check", @pending_requests_count) %>
+            <%= sidebar_link("通知", notifications_path, "bell") %>
+          </ul>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">アカウント</div>
+          <ul class="sidebar-nav">
+            <%= sidebar_link("プロフィール", profile_path, "user") %>
+          </ul>
+        </div>
+      <% end %>
+
+      <%# ヘルプセクション (全ロール共通) %>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">ヘルプ</div>
+        <ul class="sidebar-nav">
+          <% unless current_user.student? %>
+            <%= sidebar_link("プロフィール", profile_path, "user") %>
+          <% end %>
+          <%= sidebar_link("利用規約", terms_path, "document") %>
+          <%= sidebar_link("プライバシー", privacy_path, "document") %>
+          <%= sidebar_link("データ保持", data_policy_path, "document") %>
+        </ul>
+      </div>
     </nav>
   </div>
 </aside>
