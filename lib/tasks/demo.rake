@@ -721,7 +721,7 @@ class CurriculumSeeder
         title: "出席状況のお知らせ"
       ) do |notification|
         notification.body = "今週の出席状況を確認してください。"
-        notification.category = "info"
+        notification.kind = "info"
         notification.read_at = nil
       end
     end
@@ -734,7 +734,7 @@ class CurriculumSeeder
         title: "出席率低下の警告"
       ) do |notification|
         notification.body = "出席率が警告閾値を下回っています。担当教員に相談してください。"
-        notification.category = "warning"
+        notification.kind = "warning"
         notification.read_at = nil
       end
     end
@@ -746,7 +746,7 @@ class CurriculumSeeder
         title: "出席申請の承認待ち"
       ) do |notification|
         notification.body = "承認待ちの出席申請があります。確認してください。"
-        notification.category = "info"
+        notification.kind = "info"
         notification.read_at = nil
       end
     end
