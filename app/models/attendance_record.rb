@@ -48,6 +48,9 @@ class AttendanceRecord < ApplicationRecord
   end
 
   def broadcast_attendance_update
+    return if Rails.env.test? || ENV["SEEDING"].present?
+    return unless ActionCable.server.pubsub.respond_to?(:broadcast)
+
     pending_request = AttendanceRequest.find_by(
       school_class_id: school_class_id,
       user_id: user_id,
@@ -67,5 +70,7 @@ class AttendanceRecord < ApplicationRecord
         policy: school_class&.attendance_policy
       }
     )
+  rescue Gem::LoadError, Redis::CannotConnectError, SocketError => e
+    Rails.logger.warn("Broadcast skipped: #{e.message}")
   end
 end

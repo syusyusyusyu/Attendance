@@ -3,7 +3,10 @@ require "pg"
 namespace :demo do
   desc "デモデータを作成(同期/固定シード)"
   task seed: :environment do
+    ENV["SEEDING"] = "true"
     DemoDataSyncer.new.seed!
+  ensure
+    ENV.delete("SEEDING")
   end
 
   desc "デモデータを削除"
@@ -13,7 +16,10 @@ namespace :demo do
 
   desc "Render DBの内容をデモDBへ同期"
   task sync: :environment do
+    ENV["SEEDING"] = "true"
     DemoDataSyncer.new.sync_from_source!
+  ensure
+    ENV.delete("SEEDING")
   end
 end
 
