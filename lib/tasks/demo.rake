@@ -517,8 +517,8 @@ class CurriculumSeeder
         if policy.new_record?
           # デモ用：遅刻判定・締切を長めに設定
           attrs = AttendancePolicy.default_attributes.merge(
-            late_threshold_minutes: 60,
-            cutoff_minutes: 120
+            late_after_minutes: 60,
+            close_after_minutes: 120
           )
           policy.assign_attributes(attrs)
         end
