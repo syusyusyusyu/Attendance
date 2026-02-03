@@ -1,4 +1,4 @@
-<%# AdminKit風ダッシュボード: KPIカード、Bento配置、クイック導線 %>
+﻿<%# AdminKit風ダッシュボード: KPIカード、Bento配置、クイック導線 %>
 <% greeting = case Time.current.hour
   when 5..10
     "おはようございます"
@@ -254,7 +254,7 @@ end %>
               <path d="M11 11h2v2h-2z"/>
             </svg>
           </div>
-          <h3 class="font-semibold" style="color: var(--color-text-primary);">QRコードスキャン</h3>
+          <h3 class="font-semibold" style="color: var(--color-text-primary);">QRスキャン</h3>
           <p class="text-sm mt-1" style="color: var(--color-text-secondary);">ここから出席</p>
         </div>
       <% end %>
@@ -506,7 +506,7 @@ end %>
                 <%= link_to "出席確認", attendance_path(class_id: klass.id), class: "btn btn-secondary text-sm w-full sm:w-auto" %>
               <% else %>
                 <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                  <%= link_to "QRコードスキャン", scan_path, class: "btn btn-primary text-sm w-full sm:w-auto" %>
+                  <%= link_to "QR", scan_path, class: "btn btn-primary text-sm w-full sm:w-auto" %>
                   <%= link_to "履歴", history_path, class: "btn btn-secondary text-sm w-full sm:w-auto" %>
                 </div>
               <% end %>
