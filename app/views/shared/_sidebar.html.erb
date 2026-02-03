@@ -57,6 +57,13 @@
           </ul>
         </div>
 
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">設定</div>
+          <ul class="sidebar-nav">
+            <%= sidebar_link("プロフィール", profile_path, "user") %>
+          </ul>
+        </div>
+
       <% elsif current_user.staff? %>
         <%# 教員/スタッフナビゲーション %>
         <div class="sidebar-section">
@@ -126,18 +133,6 @@
         </div>
       <% end %>
 
-      <%# ヘルプセクション (全ロール共通) %>
-      <div class="sidebar-section">
-        <div class="sidebar-section-title">ヘルプ</div>
-        <ul class="sidebar-nav">
-          <% unless current_user.student? %>
-            <%= sidebar_link("プロフィール", profile_path, "user") %>
-          <% end %>
-          <%= sidebar_link("利用規約", terms_path, "document") %>
-          <%= sidebar_link("プライバシー", privacy_path, "document") %>
-          <%= sidebar_link("データ保持", data_policy_path, "document") %>
-        </ul>
-      </div>
     </nav>
   </div>
 </aside>
