@@ -340,7 +340,7 @@ class CurriculumSeeder
     name: "【展示デモ】QR出席体験",
     subject: "デモ",
     semester: "後期",
-    room: "展示ブース",
+    room: "2C教室",
     description: "展示会でQR出席を体験できるデモ用クラスです。"
   }.freeze
 
