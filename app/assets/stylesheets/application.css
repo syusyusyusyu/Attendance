@@ -972,3 +972,82 @@ input[type="week"],
     font-size: 0.82rem;
   }
 }
+
+@media (min-width: 768px) and (max-height: 900px) {
+  .sidebar-header {
+    padding: 0.85rem 1.1rem;
+  }
+
+  .sidebar-header-title {
+    font-size: 0.8rem;
+  }
+
+  .sidebar-header-subtitle {
+    font-size: 0.66rem;
+  }
+
+  .sidebar-brand-mark {
+    width: 1.85rem;
+    height: 1.85rem;
+    font-size: 0.72rem;
+  }
+
+  .sidebar nav {
+    padding: 0.6rem 0.45rem;
+  }
+
+  .sidebar-section {
+    margin-bottom: 0.5rem;
+  }
+
+  .sidebar-section-title {
+    padding: 0.7rem 0.8rem 0.25rem;
+    font-size: 0.64rem;
+  }
+
+  .sidebar-link {
+    padding: 0.45rem 0.7rem;
+    margin: 0.06rem 0.5rem;
+    font-size: 0.78rem;
+    line-height: 1.2;
+  }
+
+  .sidebar-link svg {
+    width: 1rem;
+    height: 1rem;
+  }
+}
+
+@media (min-width: 768px) and (max-height: 820px) {
+  .sidebar-header-subtitle {
+    display: none;
+  }
+
+  .sidebar-section-title {
+    padding: 0.55rem 0.6rem 0.15rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+  }
+
+  .sidebar-link {
+    padding: 0.38rem 0.6rem;
+    margin: 0.04rem 0.45rem;
+    font-size: 0.74rem;
+  }
+}
+
+@media (min-width: 768px) and (max-height: 740px) {
+  .sidebar-section-title {
+    display: none;
+  }
+
+  .sidebar nav {
+    padding-top: 0.4rem;
+  }
+
+  .sidebar-link {
+    padding: 0.3rem 0.55rem;
+    margin: 0.03rem 0.4rem;
+    font-size: 0.7rem;
+  }
+}
