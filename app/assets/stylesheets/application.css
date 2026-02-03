@@ -164,6 +164,12 @@ h1, h2, h3, h4, h5, h6 {
   /* Fixed positioning handled by Tailwind classes in ERB, but colors here */
 }
 
+@media (max-width: 640px) {
+  .sidebar {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 4.5rem);
+  }
+}
+
 .sidebar-header {
   padding: 1.25rem 1.5rem;
   border-bottom: 1px solid var(--sidebar-border);
@@ -788,5 +794,19 @@ input[type="week"],
   body.sidebar-open .drawer-panel.drawer-sheet {
     z-index: 50;
     pointer-events: none;
+  }
+}
+
+@media (min-width: 768px) {
+  .topbar-hamburger {
+    display: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .topbar {
+    left: var(--sidebar-width);
+    right: 0;
+    width: auto;
   }
 }
