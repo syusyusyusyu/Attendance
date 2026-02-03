@@ -1,59 +1,913 @@
 # RoR出席管理システム (Rails 8 + Hotwire + PostgreSQL)
 
-## 概要
-学校向けの出席管理を、QR入室/退室・申請承認・監査ログ・レポートまで一体化したWebアプリです。
-教員/学生/管理者の3ロールで運用し、実運用を想定した承認フローと監査性を備えています。
+**QRコードと位置情報で、出席をもっとスマートに**
 
-## 主な機能
-- QRセッション発行と署名トークン検証による出席登録
-- 入室/退室の記録と滞在時間による早退判定
-- 出席申請(欠席/遅刻/公欠)と承認ワークフロー
-- 出席確定/確定解除/CSV反映の承認フロー
-- 監査ログ(出席変更/QRスキャン)の検索とCSV出力
-- 週次/日次の出席率推移、要注意者抽出、期末レポート
-- 管理者向け管理画面(ユーザー/権限/監査/承認)
+> メディアフロンティアのプレゼンテーション兼READMEとして、短時間で作品を伝えられる構成にしています。
 
-## UI/UXポリシー
-- ボタン文言は短い動詞（例: ログイン/保存/戻る）で統一し、フラッシュも同じ文体を使用
-- 成功/警告/エラーは色＋短文理由で一貫（緑/黄/赤）
-- モバイルは44pxタップ領域・16px以上入力フォントを徹底し、横スクロールを抑止
-- 編集/作成/承認フォームはドロワー＋Turbo Frameで遷移を減らし、完了後は一覧を即時置換
-- CSV/PDFダウンロードはTurbo無効化で確実に取得、フィルタは「前回条件」復元リンクを用意
+RoR出席管理システムは、QRコードによる出席登録と位置情報認証を融合させた、学校向けWebアプリケーションです。  
+教員・学生・管理者の3ロールで運用し、承認ワークフローと監査ログで実運用に耐える設計を実現しています。
 
-## OIC運用固定設定
-- 位置情報は大阪情報コンピュータ専門学校（〒543-0001 大阪府大阪市天王寺区上本町6-8-4）に固定
-- 校内半径50mのジオフェンスを常時適用（管理画面から変更不可）
-- 授業時限はOICの時限（1限 09:10-10:40 ～ 5限 16:30-18:00）
-- 教室リストはOICの運用範囲に限定
+![Ruby](https://img.shields.io/badge/Ruby-3.3-CC342D?logo=ruby&logoColor=white)
+![Rails](https://img.shields.io/badge/Rails-8.0-CC0000?logo=rubyonrails&logoColor=white)
+![Hotwire](https://img.shields.io/badge/Hotwire-Turbo%20%2B%20Stimulus-1E90FF)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql&logoColor=white)
+![Tailwind](https://img.shields.io/badge/Tailwind-CSS-06B6D4?logo=tailwindcss&logoColor=white)
 
-## クイックスタート
-```bash
-bundle install
-bin/rails db:setup
-bin/rails server
+<br>
+
+---
+
+## 目次
+
+| セクション | 内容 |
+|:---|:---|
+| **概要** | 1分でわかる RoR出席管理システム / 展示ポイント / デモの流れ |
+| **プロダクト** | システム概要 / ユーザーロール / OIC運用設定 |
+| **技術** | 技術的な特徴 / 技術の見せ場 / システム仕様詳細 |
+| **設計** | 設計・DB・API・モジュール |
+| **品質・運用** | テスト仕様 / 展示チェックリスト / 開発・デプロイ / ライセンス |
+
+<br>
+
+---
+---
+
+# PART 1: 概要
+
+---
+
+## 1分でわかる RoR出席管理システム
+
+| 観点 | 内容 |
+|:---|:---|
+| **体験** | QRスキャンで「出席・退室」を瞬時に記録 |
+| **特徴** | 位置情報認証（ジオフェンス）で代返を防止 |
+| **強み** | 承認ワークフロー × 監査ログで実運用対応 |
+| **価値** | 教員の負担軽減 × 学生の利便性向上 |
+
+<br>
+
+## 展示ポイント（見どころ）
+
+| ポイント | 説明 |
+|:---|:---|
+| **校内でしか出席できない** | 位置情報（半径50m）による不正防止 |
+| **リアルタイム反映** | Hotwireで出席状況が即座に更新 |
+| **3ロール運用** | 学生・教員・管理者の権限分離設計 |
+
+<br>
+
+## デモの流れ（展示用）
+
+```
+1. 教員ログイン → QRコード発行
+       ↓
+2. 学生ログイン → QRスキャン → 出席完了
+       ↓
+3. 出席管理画面でリアルタイム確認
+       ↓
+4. レポート画面で出席率・要注意者を確認
 ```
 
-## 初期ログイン
-- 管理者: `admin@example.com` / `password`
-- 教員: `teacher@example.com` / `password`
-- 学生: `student@example.com` / `password`
+<br>
 
-## Render デプロイ
-- 環境変数
-  - `DATABASE_URL`
-  - `RAILS_MASTER_KEY`
-  - `RAILS_ENV=production`
-  - `RAILS_SERVE_STATIC_FILES=1`
-  - `APP_HOST` (例: `attendance.example.com`)
-  - `QR_TOKEN_SECRET` (QR署名用の秘密鍵)
-- Build Command: `bin/render-build.sh`
-- Start Command: `bundle exec puma -C config/puma.rb`
+---
+---
 
-## 運用メモ
-- 定期確定: `bin/rails attendance:finalize`
-- デモデータ: `bin/rails demo:seed` / `bin/rails demo:reset`
-- Render DB同期: `DEMO_SOURCE_DATABASE_URL=... bin/rails demo:sync`
-- 運用ガイド: `OPERATION_GUIDE.md`
-- 運用保守: `MAINTENANCE_GUIDE.md`
-- デモ手順: `DEMO.md`
-- 仕様書: `仕様書.md`
+# PART 2: プロダクト
+
+---
+
+## システム概要
+
+紙の出席簿やICカードに代わる、QRコードベースの出席管理システムです。  
+教員がQRコードを発行し、学生がスマートフォンでスキャンするだけで出席登録が完了します。  
+2回目のスキャンで退室を記録し、滞在時間から早退判定も自動で行います。
+
+### 主要機能
+
+| 機能 | 内容 |
+|:---|:---|
+| **QR出席** | 署名付きトークンによる安全な出席登録 |
+| **位置情報認証** | OIC校内（半径50m）でのみ出席可能 |
+| **入室/退室記録** | 2回スキャンで滞在時間・早退を自動判定 |
+| **出席申請** | 欠席/遅刻/公欠の申請 → 教員承認ワークフロー |
+| **監査ログ** | すべての操作を記録、CSV出力対応 |
+| **レポート** | 週次/日次の出席率推移、要注意者抽出、期末PDF/CSV |
+| **通知** | メール/LINE/Push通知 ⚠️ **未実装** |
+
+<br>
+
+---
+
+## ユーザーロール
+
+3つのロールで権限を分離し、それぞれの責務を明確化しています。
+
+| ロール | 対象 | 主な機能 | 特徴 |
+|:---|:---|:---|:---|
+| **学生** | 履修者 | QRスキャン、出席履歴、出席申請 | 自分の出席状況を管理 |
+| **教員** | 担当教員 | QR発行、出席確認・修正、申請承認、レポート | クラス単位の出席管理 |
+| **管理者** | システム管理 | ユーザー管理、権限設定、操作申請承認 | 全体管理と最終承認 |
+
+<br>
+
+---
+
+## OIC運用設定（大阪情報コンピュータ専門学校）
+
+本システムはOIC校内での運用を前提に設定されています。
+
+### 時限設定
+
+| 時限 | 時間 |
+|:---|:---|
+| 1限 | 09:10 - 10:40 |
+| 2限 | 10:50 - 12:20 |
+| 3限 | 13:10 - 14:40 |
+| 4限 | 14:50 - 16:20 |
+| 5限 | 16:30 - 18:00 |
+
+### 位置情報設定
+
+| 項目 | 値 |
+|:---|:---|
+| 住所 | 大阪府大阪市天王寺区上本町6-8-4 |
+| 校内半径 | 50m（ジオフェンス） |
+| 精度上限 | 150m |
+
+### 出席ポリシー（デフォルト値）
+
+| 項目 | 値 | 説明 |
+|:---|:---|:---|
+| 遅刻判定 | 20分 | 授業開始から20分超過で遅刻 |
+| 出席締切 | 20分 | 締切後はQRスキャン不可（欠席扱い） |
+| 最低出席率 | 80% | 滞在時間がこれを下回ると早退判定 |
+| 警告欠席数 | 3回 | 欠席合計がこれ以上で「要注意」 |
+| 警告出席率 | 70% | 出席率がこれ未満で「要注意」 |
+
+<br>
+
+---
+---
+
+# PART 3: 技術
+
+---
+
+## 技術的な特徴
+
+### Backend (Ruby on Rails 8)
+
+| カテゴリ | 内容 |
+|:---|:---|
+| **Rails 8 + Hotwire** | Turbo Frame/Streamでリアルタイム更新、画面遷移を最小化 |
+| **MVC + Service Object** | Controller/Model/Serviceで責務を分離、保守性を向上 |
+| **has_secure_password** | bcryptによるパスワードハッシュ化 |
+| **MessageVerifier** | QRトークンの署名・改ざん検知 |
+| **PostgreSQL** | JSONB活用、外部キー制約、インデックス最適化 |
+
+### Security & Fraud Detection
+
+| カテゴリ | 内容 |
+|:---|:---|
+| **位置情報認証** | Geolocation API + ジオフェンス判定 |
+| **レート制限** | クラス10回/分、学生6回/分のスロットル |
+| **不正検知** | 失敗多発/IP集中/トークン共有を検知→教員通知 ⚠️ **通知は未実装** |
+| **IP/ブラウザ制限** | 許可範囲外からのアクセスをブロック |
+| **承認ワークフロー** | 出席修正/確定/解除は管理者承認を必須化 |
+
+### Frontend (Tailwind + Stimulus)
+
+| カテゴリ | 内容 |
+|:---|:---|
+| **Tailwind CSS** | ユーティリティファーストでレスポンシブ対応 |
+| **Stimulus** | 最小限のJSでインタラクション実装 |
+| **PWA対応** | Service WorkerでPush通知対応 ⚠️ **未実装** |
+| **BarcodeDetector + jsQR** | カメラQRスキャン（フォールバック付き） |
+
+<br>
+
+---
+
+## 技術の見せ場（展示で説明するポイント）
+
+| ポイント | 詳細 |
+|:---|:---|
+| **署名付きQRトークン** | MessageVerifierで改ざん検知、5分で自動失効 |
+| **ジオフェンス認証** | 校内50m判定で代返を物理的に防止 |
+| **リアルタイム更新** | Turbo Streamで出席状況が即座に反映 |
+| **監査ログ** | 全操作をIP/ブラウザ付きで記録、追跡可能 |
+
+<br>
+
+---
+
+## システム仕様詳細
+
+<br>
+
+### 3-1. システム構成図
+
+```mermaid
+flowchart LR
+  User[教員/学生ブラウザ] -->|HTTP| Rails["Rails Webアプリ"]
+  Rails --> Controller["Controller<br/>Sessions/Dashboard/QR/Attendance/..."]
+  Rails --> Service["Service<br/>AttendanceToken/QrScanProcessor/..."]
+  Rails --> Model["Model<br/>User/SchoolClass/AttendanceRecord/..."]
+  Model -->|ActiveRecord| DB["PostgreSQL"]
+  User -->|Geolocation| GPS["位置情報API"]
+  User -->|Camera| QR["QRスキャン"]
+  Rails -->|メール| SMTP["SendGrid"]
+  Rails -->|Push| WebPush["Web Push API"]
+  Rails -->|LINE| LINE["LINE Messaging API"]
+```
+
+<br>
+
+### 3-2. 機能階層図
+
+```mermaid
+graph TD
+  A[出席管理システム]
+  A --> B[認証]
+  B --> B1[ログイン/ログアウト]
+  B --> B2[ロックアウト]
+  A --> C[ダッシュボード]
+  C --> C1[教員：クラス一覧・QR発行導線]
+  C --> C2[学生：履修一覧・QRスキャン導線]
+  C --> C3[管理者：承認・監査導線]
+  A --> D[QR出席]
+  D --> D1[教員：QRトークン生成]
+  D --> D2[学生：QRスキャン・出席登録]
+  D --> D3[入室/退室記録]
+  A --> E[出席管理]
+  E --> E1[学生：出席履歴]
+  E --> E2[教員：出席確認・修正]
+  E --> E3[CSV入出力]
+  E --> E4[出席申請・承認]
+  E --> E5[出席確定・解除]
+  A --> F[監査ログ]
+  F --> F1[QRスキャンログ]
+  F --> F2[出席変更ログ]
+  F --> F3[条件保存・CSV出力]
+  A --> G[クラス管理]
+  G --> G1[クラス作成・編集]
+  G --> G2[履修管理・名簿CSV]
+  G --> G3[休講・補講設定]
+  A --> H[レポート]
+  H --> H1[出席率推移]
+  H --> H2[要注意者抽出]
+  H --> H3[期末PDF/CSV]
+  A --> I[通知 ⚠️未実装]
+  I --> I1[メール/LINE/Push]
+  A --> J[管理者機能]
+  J --> J1[ユーザー管理]
+  J --> J2[権限管理]
+  J --> J3[操作申請承認]
+```
+
+<br>
+
+### 3-3. 主要機能の処理フロー (IPO図)
+
+```mermaid
+flowchart TB
+  subgraph Login[ログイン]
+    L_In[Input: email, password]
+    L_Proc[Process: User.find_by → authenticate → セッション保存]
+    L_Out[Output: ダッシュボードへ遷移 or エラー]
+    L_In --> L_Proc --> L_Out
+  end
+
+  subgraph QRGen[QRトークン生成]
+    QG_In[Input: class_id]
+    QG_Proc[Process: QrSession作成 → AttendanceToken.generate]
+    QG_Out[Output: QRコード表示、期限表示]
+    QG_In --> QG_Proc --> QG_Out
+  end
+
+  subgraph QRScan[QRスキャン・出席登録]
+    QS_In[Input: token, latitude, longitude, accuracy]
+    QS_Proc[Process: トークン検証 → セッション検証 → 履修確認 → 位置検証 → 出席記録]
+    QS_Out[Output: 成功/失敗メッセージ、スキャンログ]
+    QS_In --> QS_Proc --> QS_Out
+  end
+
+  subgraph Report[レポート生成]
+    R_In[Input: class_id, start_date, end_date]
+    R_Proc[Process: 出席データ集計 → 要注意者抽出]
+    R_Out[Output: 集計結果、PDF/CSV]
+    R_In --> R_Proc --> R_Out
+  end
+```
+
+<br>
+
+### 3-4. 画面遷移図
+
+```mermaid
+stateDiagram-v2
+  state "ログイン (/login)" as Login
+  state "ダッシュボード (/)" as Dashboard
+  state "QRスキャン (/scan)" as Scan
+  state "QR生成 (/generate-qr)" as QRGen
+  state "出席履歴 (/history)" as History
+  state "出席確認 (/attendance)" as Attendance
+  state "出席申請 (/attendance_requests)" as Requests
+  state "レポート (/reports)" as Reports
+  state "クラス管理 (/school_classes)" as Classes
+  state "通知 (/notifications)" as Notifications
+  state "プロフィール (/profile)" as Profile
+  state "管理画面 (/admin)" as Admin
+
+  [*] --> Login
+  Login --> Dashboard: ログイン成功
+  Login --> Login: ログイン失敗
+  
+  Dashboard --> Scan: 学生
+  Dashboard --> History: 学生
+  Dashboard --> QRGen: 教員
+  Dashboard --> Attendance: 教員
+  Dashboard --> Reports: 教員
+  Dashboard --> Classes: 教員
+  Dashboard --> Requests: 全員
+  Dashboard --> Notifications: 全員
+  Dashboard --> Profile: 全員
+  Dashboard --> Admin: 管理者
+  
+  Scan --> Scan: 結果表示
+  QRGen --> QRGen: 自動更新
+```
+
+<br>
+
+### 3-5. 要件定義 (マインドマップ)
+
+```mermaid
+mindmap
+  root((出席管理システム))
+    機能要件
+      認証
+        ログイン/ログアウト
+        ロックアウト
+        セッション管理
+      QR出席
+        トークン生成
+        スキャン/検証
+        入室/退室記録
+      出席管理
+        履歴参照
+        確認/修正
+        CSV入出力
+        申請/承認
+      監査
+        スキャンログ
+        変更ログ
+        条件保存
+      レポート
+        出席率推移
+        要注意者
+        期末出力
+    非機能要件
+      セキュリティ
+        署名トークン
+        位置情報認証
+        レート制限
+        不正検知
+      パフォーマンス
+        Turbo Frame
+        インデックス最適化
+      ユーザビリティ
+        レスポンシブ
+        44pxタップ領域
+        リアルタイム更新
+```
+
+<br>
+
+### 3-6. 出席登録フローチャート
+
+```mermaid
+flowchart TB
+  S1[学生がQRトークン入力] --> S2[トークン検証]
+  S2 -->|NG| S3[失敗ログ記録とエラー表示]
+  S2 -->|OK| S4[セッション検証<br/>期限/失効/日付]
+  S4 -->|NG| S3
+  S4 -->|OK| S5[履修クラス確認]
+  S5 -->|未履修| S3
+  S5 -->|履修済み| S6[位置情報検証<br/>精度/ジオフェンス]
+  S6 -->|NG| S3
+  S6 -->|OK| S7[出席レコード作成/更新]
+  S7 --> S8[成功ログ記録と完了メッセージ]
+```
+
+<br>
+
+### 3-7. API仕様（主要URL）
+
+| Method | Path | 概要 | 認証/権限 |
+|:---|:---|:---|:---|
+| GET/POST | `/login` | ログイン | なし |
+| DELETE | `/logout` | ログアウト | ログイン必須 |
+| GET | `/` | ダッシュボード | ログイン必須 |
+| GET/POST | `/scan` | QRスキャン | 学生のみ |
+| GET | `/generate-qr` | QR生成 | 教員/管理者 |
+| GET | `/history` | 出席履歴 | 学生のみ |
+| GET/PATCH | `/attendance` | 出席確認・修正 | 教員/管理者 |
+| GET/POST | `/attendance_requests` | 出席申請 | 全員 |
+| GET | `/reports` | レポート | 教員/管理者 |
+| GET | `/scan-logs` | スキャンログ | 教員/管理者 |
+| GET | `/attendance-logs` | 変更ログ | 教員/管理者 |
+| GET | `/admin` | 管理画面 | 管理者のみ |
+
+<br>
+
+---
+---
+
+# PART 4: 設計
+
+---
+
+## データベース設計
+
+### ER図（主要テーブル）
+
+```mermaid
+erDiagram
+  USERS {
+    bigint id PK
+    string email UK
+    string name
+    string role
+    string student_id UK
+    string password_digest
+    jsonb settings
+  }
+  SCHOOL_CLASSES {
+    bigint id PK
+    bigint teacher_id FK
+    string name
+    string room
+    string subject
+    jsonb schedule
+  }
+  ENROLLMENTS {
+    bigint id PK
+    bigint school_class_id FK
+    bigint student_id FK
+  }
+  ATTENDANCE_RECORDS {
+    bigint id PK
+    bigint user_id FK
+    bigint school_class_id FK
+    bigint class_session_id FK
+    date date
+    string status
+    datetime checked_in_at
+    datetime checked_out_at
+    jsonb location
+  }
+  CLASS_SESSIONS {
+    bigint id PK
+    bigint school_class_id FK
+    date date
+    datetime start_at
+    datetime end_at
+    string status
+    datetime locked_at
+  }
+  QR_SESSIONS {
+    bigint id PK
+    bigint school_class_id FK
+    bigint teacher_id FK
+    date attendance_date
+    datetime expires_at
+    datetime revoked_at
+  }
+  QR_SCAN_EVENTS {
+    bigint id PK
+    bigint qr_session_id FK
+    bigint user_id FK
+    string status
+    string token_digest
+    string ip
+  }
+  ATTENDANCE_CHANGES {
+    bigint id PK
+    bigint attendance_record_id FK
+    string previous_status
+    string new_status
+    text reason
+    string source
+  }
+
+  USERS ||--o{ SCHOOL_CLASSES : teaches
+  USERS ||--o{ ENROLLMENTS : enrolls
+  SCHOOL_CLASSES ||--o{ ENROLLMENTS : has
+  SCHOOL_CLASSES ||--o{ CLASS_SESSIONS : has
+  USERS ||--o{ ATTENDANCE_RECORDS : records
+  SCHOOL_CLASSES ||--o{ ATTENDANCE_RECORDS : records
+  CLASS_SESSIONS ||--o{ ATTENDANCE_RECORDS : session
+  SCHOOL_CLASSES ||--o{ QR_SESSIONS : has
+  USERS ||--o{ QR_SESSIONS : issues
+  QR_SESSIONS ||--o{ QR_SCAN_EVENTS : scans
+  ATTENDANCE_RECORDS ||--o{ ATTENDANCE_CHANGES : changes
+```
+
+<br>
+
+### 主要テーブル定義
+
+#### users
+
+| カラム | 型 | 説明 |
+|:---|:---|:---|
+| id | bigint | プライマリキー |
+| email | string | メールアドレス（一意） |
+| name | string | 氏名 |
+| role | string | student/teacher/admin |
+| student_id | string | 学籍番号（一意） |
+| password_digest | string | パスワードハッシュ |
+| settings | jsonb | 通知設定等 |
+
+#### attendance_records
+
+| カラム | 型 | 説明 |
+|:---|:---|:---|
+| id | bigint | プライマリキー |
+| user_id | bigint | FK → users |
+| school_class_id | bigint | FK → school_classes |
+| class_session_id | bigint | FK → class_sessions |
+| date | date | 出席日 |
+| status | string | present/late/absent/excused/early_leave |
+| checked_in_at | datetime | 入室時刻 |
+| checked_out_at | datetime | 退室時刻 |
+| duration_minutes | integer | 滞在時間 |
+| location | jsonb | 位置情報 |
+| verification_method | string | qrcode/manual/system |
+
+<br>
+
+---
+
+## モジュール設計
+
+### モジュール分割図
+
+```mermaid
+graph TD
+  subgraph Frontend
+    Views[Views/ERB]
+    Stimulus[Stimulus Controllers]
+    Tailwind[Tailwind CSS]
+  end
+  subgraph Backend
+    Controllers[Controllers]
+    Models[Models]
+    Services[Services]
+  end
+  subgraph External
+    Push[Push/LINE/Mail]
+    Geolocation[Geolocation API]
+    Camera[Camera/jsQR]
+  end
+  DB[(PostgreSQL)]
+
+  Views --> Stimulus
+  Views --> Controllers
+  Controllers --> Services
+  Controllers --> Models
+  Services --> Models
+  Models --> DB
+  Stimulus --> Geolocation
+  Stimulus --> Camera
+  Services --> Push
+```
+
+<br>
+
+### 主要モジュールの責務
+
+| モジュール | 責務 | 主なファイル |
+|:---|:---|:---|
+| Controllers | リクエスト受付、レスポンス返却 | `app/controllers/*` |
+| Models | データアクセス、バリデーション | `app/models/*` |
+| Services | ビジネスロジック | `app/services/*` |
+| Views | HTML生成 | `app/views/*` |
+| Stimulus | フロントエンドインタラクション | `app/javascript/controllers/*` |
+
+<br>
+
+### クラス図（Backend）
+
+```mermaid
+classDiagram
+  direction TB
+
+  class ApplicationController {
+    +current_user
+    +require_login
+    +require_role!
+  }
+  class SessionsController {
+    +new
+    +create
+    +destroy
+  }
+  class QrScansController {
+    +new
+    +create
+  }
+  class QrCodesController {
+    +show
+  }
+  class ClassAttendancesController {
+    +show
+    +update
+    +export
+    +import
+  }
+
+  class User {
+    +email
+    +name
+    +role
+    +authenticate()
+  }
+  class SchoolClass {
+    +name
+    +schedule
+    +teacher
+  }
+  class AttendanceRecord {
+    +date
+    +status
+    +checked_in_at
+    +checked_out_at
+  }
+  class QrSession {
+    +expires_at
+    +revoked_at
+    +valid?
+  }
+
+  class AttendanceToken {
+    +generate()
+    +verify()
+  }
+  class QrScanProcessor {
+    +process()
+  }
+  class AttendanceFinalizer {
+    +finalize()
+  }
+
+  ApplicationController <|-- SessionsController
+  ApplicationController <|-- QrScansController
+  ApplicationController <|-- QrCodesController
+  ApplicationController <|-- ClassAttendancesController
+
+  QrScansController ..> QrScanProcessor : uses
+  QrCodesController ..> AttendanceToken : uses
+  QrScanProcessor ..> AttendanceRecord : creates
+  QrScanProcessor ..> QrSession : verifies
+```
+
+<br>
+
+---
+
+## 設計方針
+
+### 前提
+
+| 対象 | 方針 |
+|:---|:---|
+| 認証 | セッションベース、has_secure_password |
+| 認可 | ロール + 権限テーブルで機能単位制御 |
+| データ | PostgreSQL、外部キー制約、インデックス最適化 |
+| UI | Hotwire (Turbo + Stimulus)、画面遷移を最小化 |
+
+### レイヤー定義
+
+| レイヤー | 内容 |
+|:---|:---|
+| View層 | ERBテンプレート、Turbo Frame/Stream |
+| Controller層 | リクエスト/レスポンス、権限チェック |
+| Service層 | ビジネスロジック（トークン生成、スキャン処理等） |
+| Model層 | データアクセス、バリデーション、関連定義 |
+| Infrastructure | PostgreSQL、メール/Push/LINE配信 |
+
+<br>
+
+### データフロー（QRスキャン）
+
+```mermaid
+flowchart LR
+  Browser[ブラウザ] --> Controller[QrScansController]
+  Controller --> Processor[QrScanProcessor]
+  Processor --> Token[AttendanceToken.verify]
+  Processor --> Session[QrSession検証]
+  Processor --> Location[位置情報検証]
+  Processor --> Record[AttendanceRecord作成]
+  Processor --> Logger[QrScanEventLogger]
+  Record --> DB[(PostgreSQL)]
+  Logger --> DB
+  DB --> Controller
+  Controller --> Browser
+```
+
+<br>
+
+### 非機能設計
+
+| 観点 | 内容 |
+|:---|:---|
+| 性能 | Turbo Frameで部分更新、N+1防止、インデックス最適化 |
+| 信頼性 | トランザクション、外部キー制約、バリデーション |
+| セキュリティ | 署名トークン、位置情報認証、レート制限、監査ログ |
+| 運用 | IP/ブラウザ記録でログ追跡可能 |
+
+<br>
+
+---
+
+## クラス設計一覧
+
+| クラス/モジュール | 役割 | 主な責務 |
+|:---|:---|:---|
+| User | ユーザー | 認証、ロール判定、設定管理 |
+| SchoolClass | クラス | スケジュール、履修者管理 |
+| AttendanceRecord | 出席記録 | ステータス管理、入退室時刻 |
+| AttendanceRequest | 出席申請 | 申請/承認ワークフロー |
+| ClassSession | 授業回 | 日程、確定/解除状態 |
+| QrSession | QRセッション | 発行/失効管理 |
+| QrScanEvent | スキャンログ | 成功/失敗記録 |
+| AttendanceChange | 変更ログ | 変更履歴、理由記録 |
+| AttendancePolicy | 出席ポリシー | 遅刻/締切/警告の閾値 |
+| AttendanceToken | トークン生成/検証 | 署名付きQRトークン |
+| QrScanProcessor | スキャン処理 | 検証→記録の統括 |
+| AttendanceFinalizer | 自動確定 | 締切後の欠席確定 |
+| TermReportBuilder | レポート生成 | 期末集計 |
+
+<br>
+
+---
+
+## ディレクトリ構成
+
+```
+app/
+├── controllers/          # Controller層
+│   ├── application_controller.rb
+│   ├── sessions_controller.rb
+│   ├── qr_scans_controller.rb
+│   ├── qr_codes_controller.rb
+│   ├── class_attendances_controller.rb
+│   └── admin/
+│
+├── models/               # Model層
+│   ├── user.rb
+│   ├── school_class.rb
+│   ├── attendance_record.rb
+│   ├── attendance_policy.rb
+│   └── ...
+│
+├── services/             # Service層
+│   ├── attendance_token.rb
+│   ├── qr_scan_processor.rb
+│   ├── attendance_finalizer.rb
+│   └── ...
+│
+├── views/                # View層
+│   ├── layouts/
+│   ├── sessions/
+│   ├── dashboard/
+│   └── ...
+│
+└── javascript/           # Stimulus Controllers
+    └── controllers/
+```
+
+<br>
+
+---
+---
+
+# PART 5: 品質・運用
+
+---
+
+## テスト仕様
+
+### 単体テスト
+
+| ID | 対象 | 条件/入力 | 期待結果 |
+|:---:|:---|:---|:---|
+| 01 | AttendancePolicy | 授業開始10分後にスキャン | `present` と判定される |
+| 02 | AttendancePolicy | 授業開始25分後にスキャン | `late` と判定される |
+| 03 | AttendancePolicy | 締切後にスキャン | `outside_window` で拒否 |
+| 04 | AttendancePolicy | 滞在時間が80%未満 | `early_leave` と判定される |
+| 05 | AttendanceToken | 有効なトークンを検証 | `ok: true` と各IDが返る |
+| 06 | AttendanceToken | 期限切れトークン | `status: expired` が返る |
+| 07 | AttendanceToken | 改ざんトークン | `status: invalid` が返る |
+| 08 | QrScanProcessor | 未履修クラスのQR | `not_enrolled` で拒否 |
+| 09 | QrScanProcessor | 休講日のQR | `class_canceled` で拒否 |
+
+<br>
+
+### 結合テスト
+
+| ID | シーン | 手順 | 期待結果 |
+|:---:|:---|:---|:---|
+| 01 | ログイン成功 | 正しい認証情報を入力 | ダッシュボードへ遷移 |
+| 02 | ログイン失敗 | 誤った認証情報を入力 | エラーメッセージ表示 |
+| 03 | QR生成 | 教員がクラスを選択 | QRコードが表示される |
+| 04 | QRスキャン成功 | 学生が有効なQRをスキャン | 「出席を記録しました」表示 |
+| 05 | 退室記録 | 同一授業で2回目スキャン | 「退室を記録しました」表示 |
+| 06 | 出席申請 | 学生が理由を入力して送信 | 申請が登録される |
+| 07 | 申請承認 | 教員が承認ボタンを押す | 出席記録に反映される |
+| 08 | 出席確定 | 教員が確定を実行 | 管理者承認待ちになる |
+| 09 | 権限エラー | 学生が教員ページにアクセス | リダイレクトされる |
+
+<br>
+
+---
+
+## 展示チェックリスト
+
+| カテゴリ | 確認項目 |
+|:---|:---|
+| **機材** | PC、スマートフォン、安定した回線 |
+| **環境** | ローカルサーバー起動、DB接続確認 |
+| **動作確認** | ログイン、QR生成/スキャン、レポート表示 |
+| **説明順** | 1分概要 → デモ → 技術の見せ場 → 設計図 |
+
+<br>
+
+---
+
+## 開発・デプロイ
+
+### 必須要件
+
+| 項目 | バージョン/詳細 |
+|:---|:---|
+| Ruby | 3.3+ |
+| Rails | 8.0+ |
+| PostgreSQL | 16+ |
+| Node.js | 20+ |
+
+### セットアップ
+
+```bash
+# 1. 依存関係のインストール
+bundle install
+
+# 2. データベースセットアップ
+bin/rails db:setup
+
+# 3. 開発サーバー起動
+bin/rails server
+
+# 4. 本番デプロイ（Render）
+bin/render-build.sh
+```
+
+### 初期ログイン
+
+| ロール | メールアドレス | パスワード |
+|:---|:---|:---|
+| 管理者 | admin@example.com | password |
+| 教員 | teacher@example.com | password |
+| 学生 | student@example.com | password |
+
+### 環境変数
+
+| 変数名 | 用途 |
+|:---|:---|
+| DATABASE_URL | DB接続URL |
+| RAILS_MASTER_KEY | Rails暗号化キー |
+| QR_TOKEN_SECRET | QRトークン署名用 |
+| SENDGRID_API_KEY | メール送信 ⚠️ 未実装 |
+| LINE_CHANNEL_ACCESS_TOKEN | LINE通知 ⚠️ 未実装 |
+| WEBPUSH_PUBLIC_KEY | Push通知公開鍵 ⚠️ 未実装 |
+| WEBPUSH_PRIVATE_KEY | Push通知秘密鍵 ⚠️ 未実装 |
+
+<br>
+
+---
+
+## ライセンス & クレジット
+
+| 項目 | 内容 |
+|:---|:---|
+| **License** | MIT |
+| **Framework** | Ruby on Rails 8 |
+| **UI** | Tailwind CSS |
+| **QR生成** | RQRCode |
+| **PDF生成** | Prawn |
+| **Push通知** | webpush gem ⚠️ 未実装 |
+
