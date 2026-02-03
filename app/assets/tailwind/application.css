@@ -13,59 +13,59 @@
   --google-dark-grey: #5F6368;
 
   /* === Primary Colors (青を主役に) === */
-  --color-primary: #3B82F6;
-  --color-primary-hover: #2563EB;
-  --color-primary-light: #DBEAFE;
-  --color-primary-dark: #1D4ED8;
+  --color-primary: #3B7DDD;
+  --color-primary-hover: #2F5FB8;
+  --color-primary-light: #E8F0FE;
+  --color-primary-dark: #2F5FB8;
 
   /* === Status Colors === */
-  --color-success: #10B981;
-  --color-success-light: #D1FAE5;
-  --color-success-dark: #059669;
+  --color-success: #1CBB8C;
+  --color-success-light: #D1F4EA;
+  --color-success-dark: #129A6E;
 
-  --color-warning: #F59E0B;
-  --color-warning-light: #FEF3C7;
-  --color-warning-dark: #D97706;
+  --color-warning: #F4B740;
+  --color-warning-light: #FFF4DB;
+  --color-warning-dark: #D69B28;
 
-  --color-error: #EF4444;
-  --color-error-light: #FEE2E2;
-  --color-error-dark: #DC2626;
+  --color-error: #E2554B;
+  --color-error-light: #FDECEC;
+  --color-error-dark: #C44139;
 
-  --color-info: #3B82F6;
-  --color-info-light: #DBEAFE;
-  --color-info-dark: #2563EB;
+  --color-info: #3B7DDD;
+  --color-info-light: #E8F0FE;
+  --color-info-dark: #2F5FB8;
 
   /* === Surface & Background === */
-  --color-background: #F1F5F9;
+  --color-background: #F4F7FB;
   --color-surface: #FFFFFF;
   --color-surface-hover: #F8FAFC;
 
   /* === Sidebar (濃紺/ダークグレー) === */
-  --sidebar-bg: #1E293B;
-  --sidebar-bg-hover: #334155;
-  --sidebar-text: #94A3B8;
+  --sidebar-bg: #222E3C;
+  --sidebar-bg-hover: #2B3A4B;
+  --sidebar-text: #C7D0DD;
   --sidebar-text-active: #FFFFFF;
-  --sidebar-active-bg: #3B82F6;
-  --sidebar-active-indicator: #3B82F6;
-  --sidebar-section-text: #64748B;
-  --sidebar-border: #334155;
-  --sidebar-width: 16rem;
+  --sidebar-active-bg: rgba(59, 125, 221, 0.18);
+  --sidebar-active-indicator: #3B7DDD;
+  --sidebar-section-text: #8B97A8;
+  --sidebar-border: rgba(255, 255, 255, 0.06);
+  --sidebar-width: 16.25rem;
 
   /* === Text Colors === */
-  --color-text-primary: #1E293B;
-  --color-text-secondary: #64748B;
-  --color-text-muted: #94A3B8;
+  --color-text-primary: #1F2937;
+  --color-text-secondary: #6B7280;
+  --color-text-muted: #9CA3AF;
   --color-text-inverse: #FFFFFF;
 
   /* === Border & Outline === */
   --color-border: #E2E8F0;
   --color-border-hover: #CBD5E1;
-  --color-outline-focus: #3B82F6;
+  --color-outline-focus: #3B7DDD;
 
   /* === Radius === */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 12px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 14px;
   --radius-xl: 16px;
   --radius-full: 9999px;
 
@@ -81,7 +81,7 @@
   --space-12: 48px;
 
   /* === Typography === */
-  --font-family: "Roboto", "Noto Sans JP", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family: "Roboto", "Noto Sans JP", sans-serif;
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
   --font-size-base: 1rem;
@@ -95,9 +95,9 @@
   --font-weight-bold: 700;
 
   /* === Elevation (控えめな影) === */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
+  --shadow-md: 0 8px 24px rgba(16, 24, 40, 0.08);
+  --shadow-lg: 0 16px 40px rgba(16, 24, 40, 0.12);
 
   /* === Motion === */
   --transition-fast: 150ms ease;
@@ -112,7 +112,7 @@
 
 @layer base {
   html {
-    font-family: "Roboto", "Noto Sans JP", sans-serif;
+    font-family: var(--font-family);
     -webkit-tap-highlight-color: transparent;
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
@@ -121,7 +121,9 @@
   }
 
   body {
-    @apply bg-gray-50 text-gray-900 text-[15px] sm:text-base leading-relaxed overflow-x-hidden;
+    @apply text-[15px] sm:text-base leading-relaxed overflow-x-hidden;
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
     width: 100%;
     overflow-wrap: break-word;
     word-break: normal;

@@ -17,11 +17,14 @@ else
 end %>
 
 <div class="space-y-6">
-  <%# ウェルカムヘッダー %>
-  <div class="card" style="background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);">
-    <div class="card-body">
-      <h1 class="text-xl sm:text-2xl font-bold text-white"><%= greeting %>、<%= @user.name %>さん</h1>
-      <p class="text-white/80 mt-1"><%= role_label %>ダッシュボード</p>
+  <%# ページヘッダー %>
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">ダッシュボード</h1>
+      <p class="page-subtitle"><%= greeting %>、<%= @user.name %>さん（<%= role_label %>）</p>
+    </div>
+    <div class="text-sm" style="color: var(--color-text-secondary);">
+      今日: <%= Time.zone.today.strftime("%Y/%m/%d") %>
     </div>
   </div>
 
@@ -62,6 +65,11 @@ end %>
         </div>
         <div class="kpi-card-title">出席率</div>
         <div class="kpi-card-value"><%= @staff_attendance_rate %>%</div>
+        <% if @staff_attendance_diff %>
+          <div class="kpi-card-diff <%= @staff_attendance_diff >= 0 ? 'positive' : 'negative' %>">
+            <%= @staff_attendance_diff >= 0 ? '+' : '' %><%= @staff_attendance_diff %>% 前日比
+          </div>
+        <% end %>
       </div>
       <div class="kpi-card">
         <div class="kpi-card-icon warning">
@@ -73,6 +81,9 @@ end %>
         </div>
         <div class="kpi-card-title">承認待ち</div>
         <div class="kpi-card-value"><%= @pending_requests_count %>件</div>
+        <div class="kpi-card-diff">
+          今日 <%= @pending_requests_today %>件
+        </div>
       </div>
       <div class="kpi-card">
         <div class="kpi-card-icon error">
@@ -84,6 +95,9 @@ end %>
         </div>
         <div class="kpi-card-title">注意学生</div>
         <div class="kpi-card-value"><%= @attention_students.size %>名</div>
+        <div class="kpi-card-diff">
+          直近30日
+        </div>
       </div>
     <% else %>
       <%# 学生KPI %>
@@ -96,6 +110,11 @@ end %>
         </div>
         <div class="kpi-card-title">出席率</div>
         <div class="kpi-card-value"><%= @student_attendance_rate %>%</div>
+        <% if @student_attendance_diff %>
+          <div class="kpi-card-diff <%= @student_attendance_diff >= 0 ? 'positive' : 'negative' %>">
+            <%= @student_attendance_diff >= 0 ? '+' : '' %><%= @student_attendance_diff %>% 前月比
+          </div>
+        <% end %>
       </div>
       <div class="kpi-card">
         <div class="kpi-card-icon">
@@ -106,6 +125,9 @@ end %>
         </div>
         <div class="kpi-card-title">申請待ち</div>
         <div class="kpi-card-value"><%= @pending_requests_count %>件</div>
+        <div class="kpi-card-diff">
+          今日 <%= @student_pending_today %>件
+        </div>
       </div>
       <div class="kpi-card">
         <div class="kpi-card-icon warning">
@@ -117,9 +139,46 @@ end %>
         </div>
         <div class="kpi-card-title">注意</div>
         <div class="kpi-card-value"><%= @student_warnings.size %>件</div>
+        <div class="kpi-card-diff">
+          直近30日
+        </div>
       </div>
     <% end %>
   </div>
+
+  <%# 30日出席推移（教員/管理者） %>
+  <% if @user.staff? %>
+    <div class="card">
+      <div class="card-header">
+        <div class="flex items-center justify-between">
+          <h2 class="text-lg font-semibold" style="color: var(--color-text-primary);">30日出席推移</h2>
+          <% if @staff_daily_rates.present? %>
+            <% average_rate = (@staff_daily_rates.sum { |row| row[:rate] }.to_f / @staff_daily_rates.size).round %>
+            <span class="text-sm" style="color: var(--color-text-secondary);">平均 <%= average_rate %>%</span>
+          <% end %>
+        </div>
+      </div>
+      <div class="card-body">
+        <% if @staff_daily_rates.present? %>
+          <div class="chart-grid" role="img" aria-label="30日出席推移">
+            <% @staff_daily_rates.each do |row| %>
+              <div class="chart-bar" title="<%= row[:date].strftime('%m/%d') %> <%= row[:rate] %>%">
+                <span style="height: <%= row[:rate] %>%"></span>
+              </div>
+            <% end %>
+          </div>
+          <div class="chart-labels">
+            <span><%= 29.days.ago.strftime("%m/%d") %></span>
+            <span>今日</span>
+          </div>
+        <% else %>
+          <div class="empty-state">
+            <div class="empty-state-title">出席データがありません</div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
 
   <%# クイック導線カード %>
   <% if @user.staff? %>
@@ -163,7 +222,7 @@ end %>
               <path d="M11 11h2v2h-2z"/>
             </svg>
           </div>
-          <h3 class="font-semibold" style="color: var(--color-text-primary);">QRコード生成</h3>
+          <h3 class="font-semibold" style="color: var(--color-text-primary);">QRコード発行</h3>
           <p class="text-sm mt-1" style="color: var(--color-text-secondary);">授業QR</p>
         </div>
       <% end %>
@@ -195,7 +254,7 @@ end %>
               <path d="M11 11h2v2h-2z"/>
             </svg>
           </div>
-          <h3 class="font-semibold" style="color: var(--color-text-primary);">QRスキャン</h3>
+          <h3 class="font-semibold" style="color: var(--color-text-primary);">QRコードスキャン</h3>
           <p class="text-sm mt-1" style="color: var(--color-text-secondary);">ここから出席</p>
         </div>
       <% end %>
@@ -447,7 +506,7 @@ end %>
                 <%= link_to "出席確認", attendance_path(class_id: klass.id), class: "btn btn-secondary text-sm w-full sm:w-auto" %>
               <% else %>
                 <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                  <%= link_to "QRスキャン", scan_path, class: "btn btn-primary text-sm w-full sm:w-auto" %>
+                  <%= link_to "QRコードスキャン", scan_path, class: "btn btn-primary text-sm w-full sm:w-auto" %>
                   <%= link_to "履歴", history_path, class: "btn btn-secondary text-sm w-full sm:w-auto" %>
                 </div>
               <% end %>

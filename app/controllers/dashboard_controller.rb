@@ -50,6 +50,51 @@ class DashboardController < ApplicationController
           ((@overall_present_equiv.to_i * 100.0) / @overall_total.to_i).round
         end
 
+      yesterday = today - 1.day
+      yesterday_status_counts =
+        AttendanceRecord.where(school_class_id: class_ids, date: yesterday).group(:status).count
+      yesterday_present_equiv =
+        yesterday_status_counts.fetch("present", 0).to_i +
+        yesterday_status_counts.fetch("late", 0).to_i +
+        yesterday_status_counts.fetch("excused", 0).to_i
+      yesterday_rate =
+        if @overall_total.to_i.zero?
+          0
+        else
+          ((yesterday_present_equiv * 100.0) / @overall_total.to_i).round
+        end
+      @staff_attendance_diff = (@staff_attendance_rate - yesterday_rate).round(1)
+      @pending_requests_today =
+        AttendanceRequest
+          .where(school_class_id: class_ids, status: "pending", submitted_at: today.all_day)
+          .count
+
+      trend_range = 29.days.ago.to_date..today
+      trend_counts =
+        AttendanceRecord
+          .where(school_class_id: class_ids, date: trend_range)
+          .group(:date, :status)
+          .count
+      @staff_daily_rates = trend_range.map do |date|
+        present_equiv =
+          trend_counts.fetch([date, "present"], 0).to_i +
+          trend_counts.fetch([date, "late"], 0).to_i +
+          trend_counts.fetch([date, "excused"], 0).to_i
+        total =
+          trend_counts.fetch([date, "present"], 0).to_i +
+          trend_counts.fetch([date, "late"], 0).to_i +
+          trend_counts.fetch([date, "excused"], 0).to_i +
+          trend_counts.fetch([date, "early_leave"], 0).to_i +
+          trend_counts.fetch([date, "absent"], 0).to_i
+        rate =
+          if total.zero?
+            0
+          else
+            ((present_equiv * 100.0) / total).round
+          end
+        { date: date, rate: rate }
+      end
+
       recent_range = 30.days.ago.to_date..today
       absents = AttendanceRecord
                 .where(school_class_id: class_ids, date: recent_range, status: ["absent", "early_leave"])
@@ -114,6 +159,20 @@ class DashboardController < ApplicationController
         else
           ((present_equiv * 100.0) / total_expected).round
         end
+
+      prev_range = 60.days.ago.to_date..31.days.ago.to_date
+      prev_records = @user.attendance_records.where(date: prev_range)
+      prev_total = prev_records.count
+      prev_present_equiv = prev_records.where(status: ["present", "late", "excused"]).count
+      prev_rate =
+        if prev_total.zero?
+          0
+        else
+          ((prev_present_equiv * 100.0) / prev_total).round
+        end
+      @student_attendance_diff = (@student_attendance_rate - prev_rate).round(1)
+      @student_pending_today =
+        @user.attendance_requests.where(status: "pending", submitted_at: today.all_day).count
 
       @student_warnings = @student_summary.select do |row|
         policy = row[:policy]

@@ -1,8 +1,7 @@
 <% count = count.to_i %>
 <span
   id="nav_unread_notifications_count"
-  class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] leading-none rounded-full px-1.5 py-0.5 <%= count.positive? ? "" : "hidden" %>"
+  class="topbar-icon-badge <%= count.positive? ? "" : "hidden" %>"
 >
   <%= count %>
 </span>
-

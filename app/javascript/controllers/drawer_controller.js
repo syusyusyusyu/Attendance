@@ -71,7 +71,7 @@ export default class extends Controller {
 
     clearTimeout(this.openTimer)
     this.openTimer = setTimeout(() => {
-      if (useSheet) {
+      if (this.element.classList.contains("drawer-sheet")) {
         el.style.maxHeight = `${maxHeight}px`
         el.style.overflow = "auto"
       } else {

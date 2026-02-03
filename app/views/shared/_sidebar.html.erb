@@ -6,9 +6,15 @@
   <div class="h-full min-h-full flex flex-col">
     <%# サイドバーヘッダー %>
     <div class="sidebar-header">
-      <h2 class="sidebar-header-title">
-        <%= current_user.admin? ? "管理者メニュー" : (current_user.teacher? ? "教員メニュー" : "学生メニュー") %>
-      </h2>
+      <div class="sidebar-brand">
+        <div class="sidebar-brand-mark">R</div>
+        <div>
+          <h2 class="sidebar-header-title">RoR出席管理システム</h2>
+          <div class="sidebar-header-subtitle">
+            <%= current_user.admin? ? "管理者メニュー" : (current_user.teacher? ? "教員メニュー" : "学生メニュー") %>
+          </div>
+        </div>
+      </div>
     </div>
 
     <%# ナビゲーション %>
@@ -42,11 +48,11 @@
         <div class="sidebar-section">
           <div class="sidebar-section-title">教員機能</div>
           <ul class="sidebar-nav">
-            <%= sidebar_link("ホーム", root_path, "home") %>
+            <%= sidebar_link("ダッシュボード", root_path, "home") %>
             <%= sidebar_link("クラス管理", school_classes_path, "class") %>
             <%= sidebar_link("出席確認", attendance_path, "clipboard") %>
             <%= sidebar_link("出席申請", attendance_requests_path, "clipboard-check", @pending_requests_count) %>
-            <%= sidebar_link("QRコード生成", generate_qr_path, "qr") %>
+            <%= sidebar_link("QRコード発行", generate_qr_path, "qr") %>
             <%= sidebar_link("レポート", reports_path, "report") %>
           </ul>
         </div>
@@ -56,7 +62,7 @@
         <div class="sidebar-section">
           <div class="sidebar-section-title">ダッシュボード</div>
           <ul class="sidebar-nav">
-            <%= sidebar_link("ホーム", root_path, "home") %>
+            <%= sidebar_link("ダッシュボード", root_path, "home") %>
           </ul>
         </div>
 
@@ -79,8 +85,8 @@
         <div class="sidebar-section">
           <div class="sidebar-section-title">QR</div>
           <ul class="sidebar-nav">
-            <%= sidebar_link("QRコード生成", generate_qr_path, "qr") %>
-            <%= sidebar_link("スキャンログ", scan_logs_path, "list") %>
+            <%= sidebar_link("QRコード発行", generate_qr_path, "qr") %>
+            <%= sidebar_link("QRスキャンログ", scan_logs_path, "list") %>
           </ul>
         </div>
 
@@ -94,7 +100,8 @@
         <div class="sidebar-section">
           <div class="sidebar-section-title">設定</div>
           <ul class="sidebar-nav">
-            <%= sidebar_link("通知", notifications_path, "bell") %>
+            <%= sidebar_link("プロフィール", profile_path, "user") %>
+            <%= sidebar_link("通知設定", notifications_path, "bell") %>
           </ul>
         </div>
 
