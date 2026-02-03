@@ -11,7 +11,7 @@
       <span class="bottom-nav-label">ダッシュボード</span>
     <% end %>
 
-    <%# QRコードスキャン %>
+    <%# QRスキャン %>
     <%= link_to scan_path, class: "bottom-nav-link #{request.path == scan_path ? 'active' : ''}", "aria-current": (request.path == scan_path ? 'page' : nil) do %>
       <svg class="bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <rect x="3" y="3" width="6" height="6"/>

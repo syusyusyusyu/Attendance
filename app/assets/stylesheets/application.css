@@ -676,6 +676,12 @@ input[type="week"],
   backdrop-filter: blur(12px);
 }
 
+@media (max-width: 640px) {
+  body.sidebar-open .bottom-nav {
+    display: none;
+  }
+}
+
 .bottom-nav-container {
   display: flex;
   justify-content: space-around;
