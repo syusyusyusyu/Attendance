@@ -21,7 +21,7 @@
     </div>
   </div>
 
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
     <%# メインスキャンエリア %>
     <div class="lg:col-span-2">
       <div class="card min-h-[70vh]">
@@ -167,90 +167,5 @@
       </div>
     </div>
 
-    <%# サイドパネル %>
-    <div class="space-y-4">
-      <%# スキャン手順 %>
-      <div class="card">
-        <div class="card-header">
-          <h3 class="font-semibold" style="color: var(--color-text-primary);">スキャン手順</h3>
-        </div>
-        <div class="card-body">
-          <ol class="space-y-3">
-            <li class="flex items-start gap-3">
-              <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style="background-color: var(--color-primary);">1</span>
-              <span class="text-sm" style="color: var(--color-text-primary);">「カメラを開始」を押す</span>
-            </li>
-            <li class="flex items-start gap-3">
-              <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style="background-color: var(--color-primary);">2</span>
-              <span class="text-sm" style="color: var(--color-text-primary);">QRを枠内に合わせる</span>
-            </li>
-            <li class="flex items-start gap-3">
-              <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style="background-color: var(--color-primary);">3</span>
-              <span class="text-sm" style="color: var(--color-text-primary);">読み取り後は自動送信</span>
-            </li>
-          </ol>
-        </div>
-      </div>
-
-      <%# トラブルシューティング %>
-      <div class="card">
-        <div class="card-header">
-          <h3 class="font-semibold" style="color: var(--color-text-primary);">トラブル時の確認</h3>
-        </div>
-        <div class="card-body">
-          <ul class="space-y-2 text-sm" style="color: var(--color-text-secondary);">
-            <li class="flex items-start gap-2">
-              <svg class="h-4 w-4 mt-0.5 flex-shrink-0" style="color: var(--color-text-muted);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"/>
-                <path d="M12 16v-4M12 8h.01"/>
-              </svg>
-              <span>QRが古い/期限切れの場合は再発行を確認</span>
-            </li>
-            <li class="flex items-start gap-2">
-              <svg class="h-4 w-4 mt-0.5 flex-shrink-0" style="color: var(--color-text-muted);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"/>
-                <path d="M12 16v-4M12 8h.01"/>
-              </svg>
-              <span>休講・確定済みの授業はスキャン不可</span>
-            </li>
-            <li class="flex items-start gap-2">
-              <svg class="h-4 w-4 mt-0.5 flex-shrink-0" style="color: var(--color-text-muted);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"/>
-                <path d="M12 16v-4M12 8h.01"/>
-              </svg>
-              <span>履修登録がない場合は教員へ連絡</span>
-            </li>
-            <li class="flex items-start gap-2">
-              <svg class="h-4 w-4 mt-0.5 flex-shrink-0" style="color: var(--color-text-muted);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"/>
-                <path d="M12 16v-4M12 8h.01"/>
-              </svg>
-              <span>推奨: Chrome/Edge (iOSはSafari 16+)</span>
-            </li>
-            <li class="flex items-start gap-2">
-              <svg class="h-4 w-4 mt-0.5 flex-shrink-0" style="color: var(--color-text-muted);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"/>
-                <path d="M12 16v-4M12 8h.01"/>
-              </svg>
-              <span>カメラ不可時は手入力を利用</span>
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      <%# エラー時の対処 %>
-      <div class="card" style="border-color: var(--color-error-light);">
-        <div class="card-header" style="background-color: var(--color-error-light);">
-          <h3 class="font-semibold" style="color: var(--color-error-dark);">エラーが出る場合</h3>
-        </div>
-        <div class="card-body">
-          <ul class="space-y-2 text-sm" style="color: var(--color-text-secondary);">
-            <li><strong>トークン期限切れ:</strong> QRコードは5分で期限切れ。教員に再発行を依頼</li>
-            <li><strong>位置情報エラー:</strong> ブラウザ設定で位置情報を許可し、電波の良い場所で再試行</li>
-            <li><strong>精度エラー:</strong> 屋外や窓際など、GPS受信が良い場所へ移動</li>
-          </ul>
-        </div>
-      </div>
-    </div>
   </div>
 </div>
