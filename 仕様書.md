@@ -432,88 +432,219 @@ flowchart TB
 
 ## データベース設計
 
-### ER図（主要テーブル）
+### ER図（全テーブル詳細）
 
 ```mermaid
 erDiagram
   USERS {
     bigint id PK
-    string email UK
-    string name
-    string role
-    string student_id UK
-    string password_digest
-    jsonb settings
+    string email UK "メールアドレス"
+    string name "氏名"
+    string role "student/teacher/admin"
+    string student_id UK "学籍番号"
+    string password_digest "パスワードハッシュ"
+    jsonb settings "通知設定等"
+    datetime locked_at "ロック日時"
+    integer failed_attempts "ログイン失敗回数"
+    datetime created_at
+    datetime updated_at
   }
+
   SCHOOL_CLASSES {
     bigint id PK
-    bigint teacher_id FK
-    string name
-    string room
-    string subject
-    jsonb schedule
+    bigint teacher_id FK "担当教員"
+    string name "クラス名"
+    string subject "科目名"
+    string room "教室"
+    jsonb schedule "曜日・時限"
+    boolean active "有効フラグ"
+    datetime created_at
+    datetime updated_at
   }
+
   ENROLLMENTS {
     bigint id PK
     bigint school_class_id FK
     bigint student_id FK
+    datetime enrolled_at "履修開始日"
+    datetime dropped_at "履修取消日"
+    datetime created_at
+    datetime updated_at
   }
+
+  CLASS_SESSIONS {
+    bigint id PK
+    bigint school_class_id FK
+    date date "授業日"
+    datetime start_at "開始時刻"
+    datetime end_at "終了時刻"
+    string status "scheduled/completed/canceled"
+    datetime locked_at "確定日時"
+    bigint locked_by_id FK "確定者"
+    datetime created_at
+    datetime updated_at
+  }
+
+  CLASS_SESSION_OVERRIDES {
+    bigint id PK
+    bigint school_class_id FK
+    date original_date "元の日付"
+    date new_date "変更後日付"
+    string override_type "cancel/reschedule/makeup"
+    string reason "理由"
+    bigint created_by_id FK "作成者"
+    datetime created_at
+    datetime updated_at
+  }
+
   ATTENDANCE_RECORDS {
     bigint id PK
     bigint user_id FK
     bigint school_class_id FK
     bigint class_session_id FK
-    date date
-    string status
-    datetime checked_in_at
-    datetime checked_out_at
-    jsonb location
+    date date "出席日"
+    string status "present/late/absent/excused/early_leave"
+    datetime checked_in_at "入室時刻"
+    datetime checked_out_at "退室時刻"
+    integer duration_minutes "滞在時間"
+    jsonb location "位置情報"
+    string verification_method "qrcode/manual/system"
+    datetime created_at
+    datetime updated_at
   }
-  CLASS_SESSIONS {
+
+  ATTENDANCE_REQUESTS {
     bigint id PK
+    bigint user_id FK "申請者"
     bigint school_class_id FK
-    date date
-    datetime start_at
-    datetime end_at
-    string status
-    datetime locked_at
+    bigint class_session_id FK
+    date date "対象日"
+    string request_type "absence/late/excused/correction"
+    string status "pending/approved/rejected"
+    text reason "申請理由"
+    text admin_note "管理者メモ"
+    bigint approved_by_id FK "承認者"
+    datetime approved_at "承認日時"
+    datetime created_at
+    datetime updated_at
   }
-  QR_SESSIONS {
-    bigint id PK
-    bigint school_class_id FK
-    bigint teacher_id FK
-    date attendance_date
-    datetime expires_at
-    datetime revoked_at
-  }
-  QR_SCAN_EVENTS {
-    bigint id PK
-    bigint qr_session_id FK
-    bigint user_id FK
-    string status
-    string token_digest
-    string ip
-  }
+
   ATTENDANCE_CHANGES {
     bigint id PK
     bigint attendance_record_id FK
-    string previous_status
-    string new_status
-    text reason
-    string source
+    bigint changed_by_id FK "変更者"
+    string previous_status "変更前ステータス"
+    string new_status "変更後ステータス"
+    text reason "変更理由"
+    string source "manual/request/system/import"
+    string ip_address "IPアドレス"
+    string user_agent "ブラウザ情報"
+    datetime created_at
   }
 
-  USERS ||--o{ SCHOOL_CLASSES : teaches
-  USERS ||--o{ ENROLLMENTS : enrolls
-  SCHOOL_CLASSES ||--o{ ENROLLMENTS : has
-  SCHOOL_CLASSES ||--o{ CLASS_SESSIONS : has
-  USERS ||--o{ ATTENDANCE_RECORDS : records
-  SCHOOL_CLASSES ||--o{ ATTENDANCE_RECORDS : records
-  CLASS_SESSIONS ||--o{ ATTENDANCE_RECORDS : session
-  SCHOOL_CLASSES ||--o{ QR_SESSIONS : has
-  USERS ||--o{ QR_SESSIONS : issues
-  QR_SESSIONS ||--o{ QR_SCAN_EVENTS : scans
-  ATTENDANCE_RECORDS ||--o{ ATTENDANCE_CHANGES : changes
+  ATTENDANCE_POLICIES {
+    bigint id PK
+    bigint school_class_id FK UK
+    integer late_after_minutes "遅刻判定"
+    integer close_after_minutes "締切"
+    integer minimum_attendance_rate "最低出席率"
+    integer warning_absence_count "警告欠席数"
+    integer warning_attendance_rate "警告出席率"
+    datetime created_at
+    datetime updated_at
+  }
+
+  QR_SESSIONS {
+    bigint id PK
+    bigint school_class_id FK
+    bigint teacher_id FK "発行教員"
+    bigint class_session_id FK
+    date attendance_date "出席対象日"
+    datetime expires_at "有効期限"
+    datetime revoked_at "失効日時"
+    string token_digest "トークンハッシュ"
+    datetime created_at
+    datetime updated_at
+  }
+
+  QR_SCAN_EVENTS {
+    bigint id PK
+    bigint qr_session_id FK
+    bigint user_id FK "スキャン者"
+    string status "success/failure"
+    string error_code "エラーコード"
+    string token_digest "トークンハッシュ"
+    string ip_address "IPアドレス"
+    string user_agent "ブラウザ情報"
+    jsonb location "位置情報"
+    datetime created_at
+  }
+
+  NOTIFICATIONS {
+    bigint id PK
+    bigint user_id FK "受信者"
+    string notification_type "通知種別"
+    string title "タイトル"
+    text body "本文"
+    jsonb data "追加データ"
+    datetime read_at "既読日時"
+    datetime created_at
+    datetime updated_at
+  }
+
+  PUSH_SUBSCRIPTIONS {
+    bigint id PK
+    bigint user_id FK
+    string endpoint UK "Push Endpoint"
+    string p256dh_key "公開鍵"
+    string auth_key "認証キー"
+    datetime created_at
+    datetime updated_at
+  }
+
+  AUDIT_SAVED_SEARCHES {
+    bigint id PK
+    bigint user_id FK "保存者"
+    string name "検索名"
+    jsonb filters "検索条件"
+    datetime created_at
+    datetime updated_at
+  }
+
+  %% ユーザー関連
+  USERS ||--o{ SCHOOL_CLASSES : "teaches(teacher_id)"
+  USERS ||--o{ ENROLLMENTS : "enrolls(student_id)"
+  USERS ||--o{ ATTENDANCE_RECORDS : "has(user_id)"
+  USERS ||--o{ ATTENDANCE_REQUESTS : "creates(user_id)"
+  USERS ||--o{ ATTENDANCE_REQUESTS : "approves(approved_by_id)"
+  USERS ||--o{ ATTENDANCE_CHANGES : "changes(changed_by_id)"
+  USERS ||--o{ QR_SESSIONS : "issues(teacher_id)"
+  USERS ||--o{ QR_SCAN_EVENTS : "scans(user_id)"
+  USERS ||--o{ NOTIFICATIONS : "receives(user_id)"
+  USERS ||--o{ PUSH_SUBSCRIPTIONS : "has(user_id)"
+  USERS ||--o{ AUDIT_SAVED_SEARCHES : "saves(user_id)"
+  USERS ||--o{ CLASS_SESSIONS : "locks(locked_by_id)"
+  USERS ||--o{ CLASS_SESSION_OVERRIDES : "creates(created_by_id)"
+
+  %% クラス関連
+  SCHOOL_CLASSES ||--o{ ENROLLMENTS : "has"
+  SCHOOL_CLASSES ||--o{ CLASS_SESSIONS : "has"
+  SCHOOL_CLASSES ||--o{ CLASS_SESSION_OVERRIDES : "has"
+  SCHOOL_CLASSES ||--o{ ATTENDANCE_RECORDS : "has"
+  SCHOOL_CLASSES ||--o{ ATTENDANCE_REQUESTS : "has"
+  SCHOOL_CLASSES ||--|| ATTENDANCE_POLICIES : "has(1:1)"
+  SCHOOL_CLASSES ||--o{ QR_SESSIONS : "has"
+
+  %% セッション関連
+  CLASS_SESSIONS ||--o{ ATTENDANCE_RECORDS : "has"
+  CLASS_SESSIONS ||--o{ ATTENDANCE_REQUESTS : "has"
+  CLASS_SESSIONS ||--o{ QR_SESSIONS : "has"
+
+  %% QR関連
+  QR_SESSIONS ||--o{ QR_SCAN_EVENTS : "has"
+
+  %% 出席記録関連
+  ATTENDANCE_RECORDS ||--o{ ATTENDANCE_CHANGES : "has"
 ```
 
 <br>
@@ -600,79 +731,585 @@ graph TD
 
 <br>
 
-### クラス図（Backend）
+### クラス図（Backend - Controller層）
 
 ```mermaid
 classDiagram
   direction TB
 
   class ApplicationController {
-    +current_user
-    +require_login
-    +require_role!
+    +current_user() User
+    +logged_in?() bool
+    #require_login()
+    #require_role!(roles)
+    #set_current_user()
+    -session_user() User
   }
+
   class SessionsController {
-    +new
-    +create
-    +destroy
+    +new()
+    +create()
+    +destroy()
+    -login_params()
   }
+
+  class DashboardController {
+    +show()
+    -load_student_data()
+    -load_teacher_data()
+    -load_admin_data()
+  }
+
   class QrScansController {
-    +new
-    +create
+    +new()
+    +create()
+    -scan_params()
+    -process_scan()
   }
+
   class QrCodesController {
-    +show
+    +show()
+    +refresh()
+    -generate_qr_image()
   }
+
   class ClassAttendancesController {
-    +show
-    +update
-    +export
-    +import
+    +show()
+    +update()
+    +bulk_update()
+    +export()
+    +import()
+    -attendance_params()
   }
 
-  class User {
-    +email
-    +name
-    +role
-    +authenticate()
-  }
-  class SchoolClass {
-    +name
-    +schedule
-    +teacher
-  }
-  class AttendanceRecord {
-    +date
-    +status
-    +checked_in_at
-    +checked_out_at
-  }
-  class QrSession {
-    +expires_at
-    +revoked_at
-    +valid?
+  class AttendanceHistoryController {
+    +index()
+    +show()
+    -filter_params()
   }
 
-  class AttendanceToken {
-    +generate()
-    +verify()
+  class AttendanceRequestsController {
+    +index()
+    +new()
+    +create()
+    +approve()
+    +reject()
+    -request_params()
   }
-  class QrScanProcessor {
-    +process()
+
+  class AttendanceChangesController {
+    +index()
+    +show()
+    +export()
+    -search_params()
   }
-  class AttendanceFinalizer {
-    +finalize()
+
+  class ReportsController {
+    +index()
+    +show()
+    +weekly()
+    +daily()
+    +term()
+    +export_pdf()
+    +export_csv()
+  }
+
+  class SchoolClassesController {
+    +index()
+    +show()
+    +new()
+    +create()
+    +edit()
+    +update()
+    +destroy()
+    -class_params()
+  }
+
+  class EnrollmentsController {
+    +index()
+    +create()
+    +destroy()
+    +import()
+    +export()
+  }
+
+  class ClassSessionOverridesController {
+    +new()
+    +create()
+    +destroy()
+    -override_params()
+  }
+
+  class ProfilesController {
+    +show()
+    +edit()
+    +update()
+    -profile_params()
+  }
+
+  class NotificationsController {
+    +index()
+    +mark_read()
+    +mark_all_read()
+  }
+
+  class AdminDashboardController {
+    +index()
+    +users()
+    +pending_requests()
+    -admin_stats()
+  }
+
+  class QrScanEventsController {
+    +index()
+    +show()
+    +export()
+  }
+
+  class PushSubscriptionsController {
+    +create()
+    +destroy()
+  }
+
+  class LegalController {
+    +privacy()
+    +terms()
   }
 
   ApplicationController <|-- SessionsController
+  ApplicationController <|-- DashboardController
   ApplicationController <|-- QrScansController
   ApplicationController <|-- QrCodesController
   ApplicationController <|-- ClassAttendancesController
+  ApplicationController <|-- AttendanceHistoryController
+  ApplicationController <|-- AttendanceRequestsController
+  ApplicationController <|-- AttendanceChangesController
+  ApplicationController <|-- ReportsController
+  ApplicationController <|-- SchoolClassesController
+  ApplicationController <|-- EnrollmentsController
+  ApplicationController <|-- ClassSessionOverridesController
+  ApplicationController <|-- ProfilesController
+  ApplicationController <|-- NotificationsController
+  ApplicationController <|-- AdminDashboardController
+  ApplicationController <|-- QrScanEventsController
+  ApplicationController <|-- PushSubscriptionsController
+  ApplicationController <|-- LegalController
+```
 
-  QrScansController ..> QrScanProcessor : uses
-  QrCodesController ..> AttendanceToken : uses
+<br>
+
+### クラス図（Backend - Model層）
+
+```mermaid
+classDiagram
+  direction TB
+
+  class ApplicationRecord {
+    <<abstract>>
+  }
+
+  class User {
+    +bigint id
+    +string email
+    +string name
+    +string role
+    +string student_id
+    +string password_digest
+    +jsonb settings
+    +datetime locked_at
+    +integer failed_attempts
+    +authenticate(password) bool
+    +student?() bool
+    +teacher?() bool
+    +admin?() bool
+    +can_manage_class?(class) bool
+    +enrolled_in?(class) bool
+    +lock!()
+    +unlock!()
+  }
+
+  class SchoolClass {
+    +bigint id
+    +bigint teacher_id
+    +string name
+    +string subject
+    +string room
+    +jsonb schedule
+    +boolean active
+    +teacher() User
+    +students() User[]
+    +enrollments() Enrollment[]
+    +sessions() ClassSession[]
+    +scheduled_on?(date) bool
+    +current_session() ClassSession
+  }
+
+  class Enrollment {
+    +bigint id
+    +bigint school_class_id
+    +bigint student_id
+    +datetime enrolled_at
+    +datetime dropped_at
+    +school_class() SchoolClass
+    +student() User
+    +active?() bool
+  }
+
+  class ClassSession {
+    +bigint id
+    +bigint school_class_id
+    +date date
+    +datetime start_at
+    +datetime end_at
+    +string status
+    +datetime locked_at
+    +bigint locked_by_id
+    +school_class() SchoolClass
+    +attendance_records() AttendanceRecord[]
+    +active?() bool
+    +locked?() bool
+    +canceled?() bool
+    +lock!(user)
+    +unlock!(user)
+  }
+
+  class ClassSessionOverride {
+    +bigint id
+    +bigint school_class_id
+    +date original_date
+    +date new_date
+    +string override_type
+    +string reason
+    +bigint created_by_id
+    +school_class() SchoolClass
+    +cancel?() bool
+    +reschedule?() bool
+    +makeup?() bool
+  }
+
+  class AttendanceRecord {
+    +bigint id
+    +bigint user_id
+    +bigint school_class_id
+    +bigint class_session_id
+    +date date
+    +string status
+    +datetime checked_in_at
+    +datetime checked_out_at
+    +integer duration_minutes
+    +jsonb location
+    +string verification_method
+    +user() User
+    +school_class() SchoolClass
+    +class_session() ClassSession
+    +present?() bool
+    +late?() bool
+    +absent?() bool
+    +excused?() bool
+    +early_leave?() bool
+    +check_in!(location)
+    +check_out!(location)
+  }
+
+  class AttendanceRequest {
+    +bigint id
+    +bigint user_id
+    +bigint school_class_id
+    +bigint class_session_id
+    +date date
+    +string request_type
+    +string status
+    +text reason
+    +text admin_note
+    +bigint approved_by_id
+    +datetime approved_at
+    +user() User
+    +approver() User
+    +pending?() bool
+    +approved?() bool
+    +rejected?() bool
+    +approve!(user, note)
+    +reject!(user, note)
+  }
+
+  class AttendanceChange {
+    +bigint id
+    +bigint attendance_record_id
+    +bigint changed_by_id
+    +string previous_status
+    +string new_status
+    +text reason
+    +string source
+    +string ip_address
+    +string user_agent
+    +attendance_record() AttendanceRecord
+    +changed_by() User
+  }
+
+  class AttendancePolicy {
+    +bigint id
+    +bigint school_class_id
+    +integer late_after_minutes
+    +integer close_after_minutes
+    +integer minimum_attendance_rate
+    +integer warning_absence_count
+    +integer warning_attendance_rate
+    +school_class() SchoolClass
+    +determine_status(scanned_at, class_start)
+    +should_warn?(absences, rate)
+  }
+
+  class AttendanceStatus {
+    <<enumeration>>
+    PRESENT
+    LATE
+    ABSENT
+    EXCUSED
+    EARLY_LEAVE
+  }
+
+  class QrSession {
+    +bigint id
+    +bigint school_class_id
+    +bigint teacher_id
+    +bigint class_session_id
+    +date attendance_date
+    +datetime expires_at
+    +datetime revoked_at
+    +string token_digest
+    +school_class() SchoolClass
+    +teacher() User
+    +scan_events() QrScanEvent[]
+    +valid?() bool
+    +expired?() bool
+    +revoked?() bool
+    +revoke!()
+  }
+
+  class QrScanEvent {
+    +bigint id
+    +bigint qr_session_id
+    +bigint user_id
+    +string status
+    +string error_code
+    +string token_digest
+    +string ip_address
+    +string user_agent
+    +jsonb location
+    +qr_session() QrSession
+    +user() User
+    +success?() bool
+    +failure?() bool
+  }
+
+  class Notification {
+    +bigint id
+    +bigint user_id
+    +string notification_type
+    +string title
+    +text body
+    +jsonb data
+    +datetime read_at
+    +user() User
+    +read?() bool
+    +mark_read!()
+  }
+
+  class PushSubscription {
+    +bigint id
+    +bigint user_id
+    +string endpoint
+    +string p256dh_key
+    +string auth_key
+    +user() User
+  }
+
+  class AuditSavedSearch {
+    +bigint id
+    +bigint user_id
+    +string name
+    +jsonb filters
+    +user() User
+  }
+
+  ApplicationRecord <|-- User
+  ApplicationRecord <|-- SchoolClass
+  ApplicationRecord <|-- Enrollment
+  ApplicationRecord <|-- ClassSession
+  ApplicationRecord <|-- ClassSessionOverride
+  ApplicationRecord <|-- AttendanceRecord
+  ApplicationRecord <|-- AttendanceRequest
+  ApplicationRecord <|-- AttendanceChange
+  ApplicationRecord <|-- AttendancePolicy
+  ApplicationRecord <|-- QrSession
+  ApplicationRecord <|-- QrScanEvent
+  ApplicationRecord <|-- Notification
+  ApplicationRecord <|-- PushSubscription
+  ApplicationRecord <|-- AuditSavedSearch
+
+  User "1" --o "*" SchoolClass : teaches
+  User "1" --o "*" Enrollment : has
+  User "1" --o "*" AttendanceRecord : has
+  User "1" --o "*" AttendanceRequest : creates
+  User "1" --o "*" QrSession : issues
+  User "1" --o "*" Notification : receives
+
+  SchoolClass "1" --o "*" Enrollment : has
+  SchoolClass "1" --o "*" ClassSession : has
+  SchoolClass "1" --o "*" AttendanceRecord : has
+  SchoolClass "1" --o "1" AttendancePolicy : has
+  SchoolClass "1" --o "*" QrSession : has
+  SchoolClass "1" --o "*" ClassSessionOverride : has
+
+  ClassSession "1" --o "*" AttendanceRecord : has
+  AttendanceRecord "1" --o "*" AttendanceChange : has
+  QrSession "1" --o "*" QrScanEvent : has
+```
+
+<br>
+
+### クラス図（Backend - Service層）
+
+```mermaid
+classDiagram
+  direction TB
+
+  class AttendanceToken {
+    <<service>>
+    +generate(session_id, class_id, expires_at)$ string
+    +verify(token)$ hash
+    -verifier()$ MessageVerifier
+  }
+
+  class QrScanProcessor {
+    <<service>>
+    -token: string
+    -user: User
+    -location: hash
+    -ip: string
+    -user_agent: string
+    +initialize(token, user, location, ip, user_agent)
+    +process() Result
+    -verify_token() bool
+    -verify_session() bool
+    -verify_enrollment() bool
+    -verify_location() bool
+    -verify_rate_limit() bool
+    -create_attendance_record() AttendanceRecord
+    -log_scan_event(status, error)
+    -detect_fraud() array
+  }
+
+  class GeoCalculator {
+    <<service>>
+    +EARTH_RADIUS_KM$ float
+    +distance_km(lat1, lng1, lat2, lng2)$ float
+    +within_radius?(lat, lng, center_lat, center_lng, radius_m)$ bool
+    -to_radians(degrees)$ float
+  }
+
+  class AttendanceFinalizer {
+    <<service>>
+    -class_session: ClassSession
+    +initialize(class_session)
+    +finalize() Result
+    -mark_absent_students()
+    -create_change_logs()
+  }
+
+  class AttendanceStatsCalculator {
+    <<service>>
+    -user: User
+    -school_class: SchoolClass
+    -start_date: date
+    -end_date: date
+    +initialize(user, school_class, start_date, end_date)
+    +calculate() Stats
+    -attendance_rate() float
+    -absence_count() int
+    -late_count() int
+    -present_count() int
+  }
+
+  class TermReportBuilder {
+    <<service>>
+    -school_class: SchoolClass
+    -term_start: date
+    -term_end: date
+    +initialize(school_class, term_start, term_end)
+    +build() Report
+    +to_pdf() binary
+    +to_csv() string
+    -aggregate_stats()
+    -identify_warnings()
+  }
+
+  class FraudDetector {
+    <<service>>
+    +check(user, ip, token_digest)$ array
+    -check_failure_burst(user)$ bool
+    -check_ip_burst(ip)$ bool
+    -check_token_sharing(token_digest)$ bool
+  }
+
+  class NotificationService {
+    <<service>>
+    +send_email(user, type, data)$
+    +send_line(user, message)$
+    +send_push(user, title, body)$
+    +notify_fraud_alert(teacher, alert)$
+    +notify_attendance_warning(user, stats)$
+  }
+
+  class CsvImporter {
+    <<service>>
+    -file: File
+    -school_class: SchoolClass
+    +initialize(file, school_class)
+    +import() Result
+    -parse_csv() array
+    -validate_rows(rows) array
+    -import_enrollments(rows)
+    -import_attendance(rows)
+  }
+
+  class CsvExporter {
+    <<service>>
+    -records: array
+    -type: string
+    +initialize(records, type)
+    +export() string
+    -headers() array
+    -row_data(record) array
+  }
+
+  class Result {
+    <<value object>>
+    +success: bool
+    +data: any
+    +error: string
+    +error_code: string
+    +success?() bool
+    +failure?() bool
+  }
+
+  QrScanProcessor ..> AttendanceToken : uses
+  QrScanProcessor ..> GeoCalculator : uses
+  QrScanProcessor ..> FraudDetector : uses
   QrScanProcessor ..> AttendanceRecord : creates
-  QrScanProcessor ..> QrSession : verifies
+  QrScanProcessor ..> QrScanEvent : creates
+  QrScanProcessor ..> Result : returns
+
+  AttendanceFinalizer ..> AttendanceRecord : updates
+  AttendanceFinalizer ..> AttendanceChange : creates
+  AttendanceFinalizer ..> Result : returns
+
+  AttendanceStatsCalculator ..> AttendanceRecord : reads
+  TermReportBuilder ..> AttendanceStatsCalculator : uses
+  TermReportBuilder ..> AttendanceRecord : reads
+
+  FraudDetector ..> QrScanEvent : reads
+  FraudDetector ..> NotificationService : uses
 ```
 
 <br>
