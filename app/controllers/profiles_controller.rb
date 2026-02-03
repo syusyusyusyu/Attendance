@@ -1,5 +1,6 @@
 class ProfilesController < ApplicationController
   before_action -> { require_permission!("profile.manage") }
+  before_action :check_demo_account, only: [:update]
 
   def show
     @user = current_user
@@ -47,6 +48,12 @@ class ProfilesController < ApplicationController
     if params[:user][:password].blank?
       params[:user].delete(:password)
       params[:user].delete(:password_confirmation)
+    end
+  end
+
+  def check_demo_account
+    if current_user.demo_account?
+      redirect_to profile_path, alert: "デモアカウントのプロフィールは変更できません。"
     end
   end
 end

@@ -109,7 +109,7 @@ end
 
 admin = User.find_or_initialize_by(email: "admin@example.com")
 admin.assign_attributes(
-  name: "システム管理者",
+  name: "管理者",
   role: "admin",
   password: "password",
   password_confirmation: "password"

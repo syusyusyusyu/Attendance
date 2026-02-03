@@ -81,6 +81,13 @@ class User < ApplicationRecord
     settings["line_user_id"].to_s.strip.presence
   end
 
+  # デモアカウントかどうか判定
+  DEMO_EMAILS = %w[admin@example.com teacher@example.com student@example.com].freeze
+
+  def demo_account?
+    DEMO_EMAILS.include?(email)
+  end
+
   private
 
   def normalize_email
