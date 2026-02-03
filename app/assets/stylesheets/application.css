@@ -101,13 +101,19 @@
 body {
   background-color: var(--color-background);
   background-image:
-    radial-gradient(1200px 520px at 8% -15%, rgba(59, 125, 221, 0.08), transparent 60%),
-    radial-gradient(900px 520px at 92% -20%, rgba(28, 187, 140, 0.06), transparent 55%);
+    radial-gradient(1200px 520px at 10% -10%, rgba(59, 125, 221, 0.04), transparent 60%),
+    radial-gradient(900px 520px at 90% -20%, rgba(28, 187, 140, 0.03), transparent 55%);
   color: var(--color-text-primary);
   font-family: var(--font-family);
   margin: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 /* Typography */
@@ -120,21 +126,21 @@ h1, h2, h3, h4, h5, h6 {
 .card {
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
-  margin-bottom: 2rem;
+  margin-bottom: 0;
   display: flex;
   flex-direction: column;
 }
 
 .card-header {
-  padding: 1.25rem 1.5rem;
+  padding: 1rem 1.25rem;
   background-color: transparent;
   border-bottom: 1px solid var(--color-border);
 }
 
 .card-body {
-  padding: 1.5rem;
+  padding: 1.25rem;
   flex: 1 1 auto;
 }
 
@@ -263,13 +269,13 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Topbar */
 .topbar {
-  background-color: var(--color-surface);
+  background-color: rgba(255, 255, 255, 0.95);
   border-bottom: 1px solid var(--color-border);
   box-shadow: var(--shadow-sm);
   height: var(--app-header-height);
   display: flex;
   align-items: center;
-  backdrop-filter: blur(6px);
+  backdrop-filter: saturate(140%) blur(6px);
 }
 
 .topbar-search {
@@ -423,19 +429,20 @@ h1, h2, h3, h4, h5, h6 {
   cursor: pointer;
   font-size: 0.875rem;
   line-height: 1.5;
+  min-height: 44px;
 }
 
 /* KPI Card */
 .kpi-card {
   background-color: var(--color-surface);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-sm);
   padding: 1.5rem;
   position: relative;
   display: flex;
   flex-direction: column;
-  margin-bottom: 1.5rem; /* Add margin bottom */
+  margin-bottom: 0;
 }
 
 .kpi-card-title {
@@ -525,15 +532,19 @@ h1, h2, h3, h4, h5, h6 {
 /* Table */
 .table-container {
   overflow-x: auto;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
 }
 table {
   width: 100%;
   border-collapse: collapse;
 }
 th, td {
-  padding: 0.75rem;
+  padding: 0.85rem 1rem;
   vertical-align: middle;
   border-top: 1px solid var(--color-border);
+  height: 52px;
 }
 
 .data-grid .table-container {
