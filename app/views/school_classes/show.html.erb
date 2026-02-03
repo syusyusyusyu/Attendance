@@ -1,184 +1,197 @@
 <% if turbo_frame_request? %>
   <%= render "card", klass: @school_class %>
 <% else %>
+<%# AdminKit風クラス詳細: カード、DataGrid、フォーム %>
 <div class="max-w-6xl mx-auto space-y-6">
-  <div class="card p-6">
-    <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-      <div>
-        <h1 class="text-2xl font-semibold text-gray-900"><%= @school_class.name %></h1>
-        <p class="text-sm text-gray-500 mt-1"><%= @school_class.schedule_label || "スケジュール未設定" %></p>
-        <div class="mt-2 text-sm text-gray-600 space-y-1">
-          <div>教室: <%= @school_class.room %></div>
-          <div>科目: <%= @school_class.subject %> / <%= @school_class.semester %> / <%= @school_class.year %></div>
-          <div>定員: <%= @school_class.capacity %></div>
+  <%# ページヘッダー %>
+  <div class="card">
+    <div class="card-body">
+      <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+        <div>
+          <h1 class="text-2xl font-semibold" style="color: var(--color-text-primary);"><%= @school_class.name %></h1>
+          <p class="text-sm mt-1" style="color: var(--color-text-secondary);"><%= @school_class.schedule_label || "スケジュール未設定" %></p>
+          <div class="mt-2 text-sm space-y-1" style="color: var(--color-text-secondary);">
+            <div>教室: <%= @school_class.room %></div>
+            <div>科目: <%= @school_class.subject %> / <%= @school_class.semester %> / <%= @school_class.year %></div>
+            <div>定員: <%= @school_class.capacity %></div>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <%= link_to "編集", edit_school_class_path(@school_class), class: "btn btn-secondary text-sm" %>
+          <%= link_to "出席管理", attendance_path(class_id: @school_class.id), class: "btn btn-secondary text-sm" %>
+          <%= link_to "QR生成", generate_qr_path(class_id: @school_class.id), class: "btn btn-primary text-sm" %>
         </div>
       </div>
-      <div class="flex flex-wrap gap-2">
-        <%= link_to "編集", edit_school_class_path(@school_class), class: "btn btn-secondary text-sm" %>
-        <%= link_to "出席管理", attendance_path(class_id: @school_class.id), class: "btn btn-secondary text-sm" %>
-        <%= link_to "QR生成", generate_qr_path(class_id: @school_class.id), class: "btn btn-primary text-sm" %>
-      </div>
+      <% if @school_class.description.present? %>
+        <p class="text-sm mt-4" style="color: var(--color-text-secondary);"><%= @school_class.description %></p>
+      <% end %>
     </div>
-    <% if @school_class.description.present? %>
-      <p class="text-sm text-gray-600 mt-4"><%= @school_class.description %></p>
-    <% end %>
   </div>
 
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <div class="card p-6 space-y-4" data-controller="filter" data-filter-storage-key-value="roster-<%= @school_class.id %>">
-      <div class="flex items-center justify-between">
-        <h2 class="text-lg font-medium text-gray-900">履修者</h2>
-        <span class="text-xs text-gray-500"><%= @enrollments.count %>名</span>
+    <%# 履修者リスト %>
+    <div class="card space-y-4" data-controller="filter" data-filter-storage-key-value="roster-<%= @school_class.id %>">
+      <div class="card-header flex items-center justify-between">
+        <h2 class="text-lg font-medium" style="color: var(--color-text-primary);">履修者</h2>
+        <span class="badg badge-neutral"><%= @enrollments.count %>名</span>
       </div>
-
-      <%= form_with url: school_class_enrollments_path(@school_class), method: :post, class: "flex flex-col sm:flex-row gap-2" do %>
-        <input type="text" name="keyword" class="input flex-1" placeholder="学生ID または メール" />
-        <button type="submit" class="btn btn-secondary">追加</button>
-      <% end %>
-
-      <div class="border border-gray-200 rounded-lg p-4">
-        <h3 class="text-sm font-medium text-gray-700 mb-2">CSV名簿インポート</h3>
-        <%= form_with url: roster_import_school_class_path(@school_class), method: :post, multipart: true, class: "flex flex-col sm:flex-row gap-2 items-end" do |f| %>
-          <div class="flex-1">
-            <%= f.file_field :csv_file, accept: ".csv", class: "input" %>
-          </div>
-          <%= f.submit "インポート", class: "btn btn-secondary" %>
+      
+      <div class="card-body space-y-4 pt-0">
+        <%= form_with url: school_class_enrollments_path(@school_class), method: :post, class: "flex flex-col sm:flex-row gap-2" do %>
+          <input type="text" name="keyword" class="input flex-1" placeholder="学生ID または メール" />
+          <button type="submit" class="btn btn-secondary">追加</button>
         <% end %>
-        <% if current_user.admin? %>
-          <p class="text-xs text-gray-500 mt-2">
-            必須列: 学生ID / 氏名 / メール。パスワードは任意です（未入力の場合は学生IDが初期パスワードになります）。
-          </p>
-        <% else %>
-          <p class="text-xs text-gray-500 mt-2">
-            必須列: 学生ID / 氏名 / メール。パスワードは任意です。新規アカウント作成は管理者のみです。
-          </p>
-        <% end %>
-      </div>
 
-      <div class="relative">
-        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <svg class="h-4 w-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="7" />
-            <path d="M21 21l-4.3-4.3" stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
+        <div class="rounded-lg p-4" style="border: 1px solid var(--color-border);">
+          <h3 class="text-sm font-medium mb-2" style="color: var(--color-text-primary);">CSV名簿インポート</h3>
+          <%= form_with url: roster_import_school_class_path(@school_class), method: :post, multipart: true, class: "flex flex-col sm:flex-row gap-2 items-end" do |f| %>
+            <div class="flex-1">
+              <%= f.file_field :csv_file, accept: ".csv", class: "input" %>
+            </div>
+            <%= f.submit "インポート", class: "btn btn-secondary" %>
+          <% end %>
+          <% if current_user.admin? %>
+            <p class="text-xs mt-2" style="color: var(--color-text-muted);">
+              必須列: 学生ID / 氏名 / メール。パスワードは任意です（未入力の場合は学生IDが初期パスワードになります）。
+            </p>
+          <% else %>
+            <p class="text-xs mt-2" style="color: var(--color-text-muted);">
+              必須列: 学生ID / 氏名 / メール。パスワードは任意です。新規アカウント作成は管理者のみです。
+            </p>
+          <% end %>
         </div>
-        <input
-          type="text"
-          class="input pl-10"
-          placeholder="学生ID / 氏名 / メールで検索"
-          data-filter-target="input"
-          data-action="input->filter#filter"
-        />
-      </div>
 
-      <div class="table-container">
-        <table class="min-w-full divide-y divide-gray-200 text-sm">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">学生ID</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">氏名</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">メール</th>
-              <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            <% if @enrollments.any? %>
-              <% @enrollments.each do |enrollment| %>
-                <tr data-filter-target="row">
-                  <td class="px-4 py-2 text-sm text-gray-500"><%= enrollment.student.student_id %></td>
-                  <td class="px-4 py-2 text-sm text-gray-900"><%= enrollment.student.name %></td>
-                  <td class="px-4 py-2 text-sm text-gray-500"><%= enrollment.student.email %></td>
-                  <td class="px-4 py-2 text-right">
-                    <%= link_to "削除",
-                      school_class_enrollment_path(@school_class, enrollment),
-                      data: { turbo_method: :delete, turbo_confirm: "履修登録を削除しますか？" },
-                      class: "text-sm text-red-500 hover:text-red-700" %>
-                  </td>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="h-4 w-4" style="color: var(--color-text-muted);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="7" />
+              <path d="M21 21l-4.3-4.3" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </div>
+          <input
+            type="text"
+            class="input pl-10"
+            placeholder="学生ID / 氏名 / メールで検索"
+            data-filter-target="input"
+            data-action="input->filter#filter"
+          />
+        </div>
+
+        <div class="table-container" style="border: none; border-radius: 0;">
+          <table class="w-full">
+            <thead>
+              <tr>
+                <th class="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider" style="color: var(--color-text-secondary); background-color: var(--color-surface-hover);">学生ID</th>
+                <th class="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider" style="color: var(--color-text-secondary); background-color: var(--color-surface-hover);">氏名</th>
+                <th class="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider" style="color: var(--color-text-secondary); background-color: var(--color-surface-hover);">メール</th>
+                <th class="px-4 py-2 text-right text-xs font-medium uppercase tracking-wider" style="color: var(--color-text-secondary); background-color: var(--color-surface-hover);">操作</th>
+              </tr>
+            </thead>
+            <tbody style="background-color: var(--color-surface);">
+              <% if @enrollments.any? %>
+                <% @enrollments.each do |enrollment| %>
+                  <tr data-filter-target="row" style="border-bottom: 1px solid var(--color-border);">
+                    <td class="px-4 py-2 text-sm" style="color: var(--color-text-secondary);"><%= enrollment.student.student_id %></td>
+                    <td class="px-4 py-2 text-sm" style="color: var(--color-text-primary);"><%= enrollment.student.name %></td>
+                    <td class="px-4 py-2 text-sm" style="color: var(--color-text-secondary);"><%= enrollment.student.email %></td>
+                    <td class="px-4 py-2 text-right">
+                      <%= link_to "削除",
+                        school_class_enrollment_path(@school_class, enrollment),
+                        data: { turbo_method: :delete, turbo_confirm: "履修登録を削除しますか？" },
+                        class: "text-sm hover:underline",
+                        style: "color: var(--color-error);" %>
+                    </td>
+                  </tr>
+                <% end %>
+              <% else %>
+                <tr>
+                  <td colspan="4" class="px-4 py-6 text-center text-sm" style="color: var(--color-text-muted);">履修者がいません。</td>
                 </tr>
               <% end %>
-            <% else %>
-              <tr>
-                <td colspan="4" class="px-4 py-6 text-center text-sm text-gray-500">履修者がいません。</td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
-    <div class="card p-6 space-y-4">
-      <div class="flex items-center justify-between">
-        <h2 class="text-lg font-medium text-gray-900">特別日程</h2>
-        <span class="text-xs text-gray-500">休講/補講の設定</span>
+    <%# 特別日程 %>
+    <div class="card space-y-4">
+      <div class="card-header flex items-center justify-between">
+        <h2 class="text-lg font-medium" style="color: var(--color-text-primary);">特別日程</h2>
+        <span class="text-xs" style="color: var(--color-text-muted);">休講/補講の設定</span>
       </div>
 
-      <%= form_with model: [@school_class, @override], class: "grid grid-cols-1 md:grid-cols-2 gap-4 items-end" do |f| %>
-        <div class="min-w-0">
-          <%= f.label :date, "日付", class: "block text-sm font-medium text-gray-700 mb-2" %>
-          <%= f.date_field :date, class: "input", required: true %>
-        </div>
-        <div class="min-w-0">
-          <%= f.label :status, "種別", class: "block text-sm font-medium text-gray-700 mb-2" %>
-          <%= f.select :status, [["通常", "regular"], ["補講", "makeup"], ["休講", "canceled"]], {}, class: "input" %>
-        </div>
-        <div class="min-w-0">
-          <%= f.label :start_time, "開始時刻", class: "block text-sm font-medium text-gray-700 mb-2" %>
-          <%= f.time_field :start_time, class: "input" %>
-        </div>
-        <div class="min-w-0">
-          <%= f.label :end_time, "終了時刻", class: "block text-sm font-medium text-gray-700 mb-2" %>
-          <%= f.time_field :end_time, class: "input" %>
-        </div>
-        <div class="md:col-span-2">
-          <%= f.label :note, "メモ", class: "block text-sm font-medium text-gray-700 mb-2" %>
-          <%= f.text_field :note, class: "input" %>
-        </div>
-        <div class="md:col-span-2">
-          <%= f.submit "追加", class: "btn btn-secondary w-full" %>
-        </div>
-      <% end %>
+      <div class="card-body space-y-4 pt-0">
+        <%= form_with model: [@school_class, @override], class: "grid grid-cols-1 md:grid-cols-2 gap-4 items-end" do |f| %>
+          <div class="min-w-0">
+            <%= f.label :date, "日付", class: "block text-sm font-medium mb-2", style: "color: var(--color-text-primary);" %>
+            <%= f.date_field :date, class: "input", required: true %>
+          </div>
+          <div class="min-w-0">
+            <%= f.label :status, "種別", class: "block text-sm font-medium mb-2", style: "color: var(--color-text-primary);" %>
+            <%= f.select :status, [["通常", "regular"], ["補講", "makeup"], ["休講", "canceled"]], {}, class: "input" %>
+          </div>
+          <div class="min-w-0">
+            <%= f.label :start_time, "開始時刻", class: "block text-sm font-medium mb-2", style: "color: var(--color-text-primary);" %>
+            <%= f.time_field :start_time, class: "input" %>
+          </div>
+          <div class="min-w-0">
+            <%= f.label :end_time, "終了時刻", class: "block text-sm font-medium mb-2", style: "color: var(--color-text-primary);" %>
+            <%= f.time_field :end_time, class: "input" %>
+          </div>
+          <div class="md:col-span-2">
+            <%= f.label :note, "メモ", class: "block text-sm font-medium mb-2", style: "color: var(--color-text-primary);" %>
+            <%= f.text_field :note, class: "input" %>
+          </div>
+          <div class="md:col-span-2">
+            <%= f.submit "追加", class: "btn btn-secondary w-full" %>
+          </div>
+        <% end %>
 
-      <div class="table-container">
-        <table class="min-w-full divide-y divide-gray-200 text-sm">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">日付</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">種別</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">時間</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">メモ</th>
-              <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            <% if @overrides.any? %>
-              <% @overrides.each do |override| %>
+        <div class="table-container" style="border: none; border-radius: 0;">
+          <table class="w-full">
+            <thead>
+              <tr>
+                <th class="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider" style="color: var(--color-text-secondary); background-color: var(--color-surface-hover);">日付</th>
+                <th class="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider" style="color: var(--color-text-secondary); background-color: var(--color-surface-hover);">種別</th>
+                <th class="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider" style="color: var(--color-text-secondary); background-color: var(--color-surface-hover);">時間</th>
+                <th class="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider" style="color: var(--color-text-secondary); background-color: var(--color-surface-hover);">メモ</th>
+                <th class="px-4 py-2 text-right text-xs font-medium uppercase tracking-wider" style="color: var(--color-text-secondary); background-color: var(--color-surface-hover);">操作</th>
+              </tr>
+            </thead>
+            <tbody style="background-color: var(--color-surface);">
+              <% if @overrides.any? %>
+                <% @overrides.each do |override| %>
+                  <tr style="border-bottom: 1px solid var(--color-border);">
+                    <td class="px-4 py-2 text-sm" style="color: var(--color-text-secondary);"><%= override.date.strftime("%Y-%m-%d") %></td>
+                    <td class="px-4 py-2 text-sm" style="color: var(--color-text-primary);">
+                      <% label = { "regular" => "通常", "makeup" => "補講", "canceled" => "休講" }[override.status] %>
+                      <span class="badge <%= override.status_canceled? ? "badge-error" : override.status_makeup? ? "badge-info" : "badge-success" %>"><%= label %></span>
+                    </td>
+                    <td class="px-4 py-2 text-sm" style="color: var(--color-text-secondary);">
+                      <%= override.start_time.present? ? "#{override.start_time}-#{override.end_time}" : "-" %>
+                    </td>
+                    <td class="px-4 py-2 text-sm" style="color: var(--color-text-secondary);"><%= override.note.presence || "-" %></td>
+                    <td class="px-4 py-2 text-right">
+                      <%= link_to "削除",
+                        school_class_class_session_override_path(@school_class, override),
+                        data: { turbo_method: :delete, turbo_confirm: "特別日程を削除しますか？" },
+                        class: "text-sm hover:underline",
+                        style: "color: var(--color-error);" %>
+                    </td>
+                  </tr>
+                <% end %>
+              <% else %>
                 <tr>
-                  <td class="px-4 py-2 text-sm text-gray-500"><%= override.date.strftime("%Y-%m-%d") %></td>
-                  <td class="px-4 py-2 text-sm text-gray-700">
-                    <% label = { "regular" => "通常", "makeup" => "補講", "canceled" => "休講" }[override.status] %>
-                    <span class="badge <%= override.status_canceled? ? "badge-error" : override.status_makeup? ? "badge-info" : "badge-success" %>"><%= label %></span>
-                  </td>
-                  <td class="px-4 py-2 text-sm text-gray-500">
-                    <%= override.start_time.present? ? "#{override.start_time}-#{override.end_time}" : "-" %>
-                  </td>
-                  <td class="px-4 py-2 text-sm text-gray-500"><%= override.note.presence || "-" %></td>
-                  <td class="px-4 py-2 text-right">
-                    <%= link_to "削除",
-                      school_class_class_session_override_path(@school_class, override),
-                      data: { turbo_method: :delete, turbo_confirm: "特別日程を削除しますか？" },
-                      class: "text-sm text-red-500 hover:text-red-700" %>
-                  </td>
+                  <td colspan="5" class="px-4 py-6 text-center text-sm" style="color: var(--color-text-muted);">特別日程がありません。</td>
                 </tr>
               <% end %>
-            <% else %>
-              <tr>
-                <td colspan="5" class="px-4 py-6 text-center text-sm text-gray-500">特別日程がありません。</td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
 </div>
 <% end %>
+

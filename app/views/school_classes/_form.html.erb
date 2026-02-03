@@ -10,11 +10,11 @@
 <div class="space-y-6">
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div>
-      <%= f.label :name, "クラス名", class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= f.label :name, "クラス名", class: "block text-sm font-medium mb-2", style: "color: var(--color-text-primary);" %>
       <%= f.text_field :name, class: "input", required: true %>
     </div>
     <div>
-      <%= f.label :room, "教室", class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= f.label :room, "教室", class: "block text-sm font-medium mb-2", style: "color: var(--color-text-primary);" %>
       <%= f.select :room,
         options_for_select(room_options, @school_class.room),
         { include_blank: "教室を選択" },
@@ -22,11 +22,11 @@
         required: true %>
     </div>
     <div>
-      <%= f.label :subject, "科目", class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= f.label :subject, "科目", class: "block text-sm font-medium mb-2", style: "color: var(--color-text-primary);" %>
       <%= f.text_field :subject, class: "input", required: true %>
     </div>
     <div>
-      <%= f.label :semester, "学期", class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= f.label :semester, "学期", class: "block text-sm font-medium mb-2", style: "color: var(--color-text-primary);" %>
       <%= f.select :semester,
         options_for_select(semester_options, @school_class.semester),
         { include_blank: "学期を選択" },
@@ -34,69 +34,69 @@
         required: true %>
     </div>
     <div>
-      <%= f.label :year, "年度", class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= f.label :year, "年度", class: "block text-sm font-medium mb-2", style: "color: var(--color-text-primary);" %>
       <%= f.number_field :year, class: "input", required: true, min: 2000 %>
     </div>
     <div>
-      <%= f.label :capacity, "定員", class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= f.label :capacity, "定員", class: "block text-sm font-medium mb-2", style: "color: var(--color-text-primary);" %>
       <%= f.number_field :capacity, class: "input", required: true, min: 1 %>
     </div>
   </div>
 
   <div>
-    <%= f.label :description, "説明", class: "block text-sm font-medium text-gray-700 mb-2" %>
+    <%= f.label :description, "説明", class: "block text-sm font-medium mb-2", style: "color: var(--color-text-primary);" %>
     <%= f.text_area :description, rows: 3, class: "input" %>
   </div>
 
-  <div class="border border-gray-200 rounded-lg p-4">
-    <h3 class="text-sm font-medium text-gray-700 mb-3">通常スケジュール</h3>
+  <div class="rounded-lg p-4" style="border: 1px solid var(--color-border);">
+    <h3 class="text-sm font-medium mb-3" style="color: var(--color-text-primary);">通常スケジュール</h3>
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
       <div>
-        <%= label_tag :schedule_day_of_week, "曜日", class: "block text-sm font-medium text-gray-700 mb-2" %>
+        <%= label_tag :schedule_day_of_week, "曜日", class: "block text-sm font-medium mb-2", style: "color: var(--color-text-primary);" %>
         <%= select_tag "school_class[schedule_day_of_week]",
           options_for_select(day_names.map.with_index { |label, idx| [label, idx] }, schedule["day_of_week"]),
           include_blank: "未設定",
           class: "input" %>
       </div>
       <div>
-        <%= label_tag :schedule_period, "時限", class: "block text-sm font-medium text-gray-700 mb-2" %>
+        <%= label_tag :schedule_period, "時限", class: "block text-sm font-medium mb-2", style: "color: var(--color-text-primary);" %>
         <%= select_tag "school_class[schedule_period]",
           options_for_select(SchoolClass.period_options, period_value),
           include_blank: "時限を選択",
           class: "input" %>
       </div>
       <div>
-        <%= label_tag :schedule_frequency, "頻度", class: "block text-sm font-medium text-gray-700 mb-2" %>
+        <%= label_tag :schedule_frequency, "頻度", class: "block text-sm font-medium mb-2", style: "color: var(--color-text-primary);" %>
         <%= select_tag "school_class[schedule_frequency]",
           options_for_select([["毎週", "weekly"], ["隔週", "biweekly"]], schedule["frequency"] || "weekly"),
           class: "input" %>
       </div>
     </div>
-    <div class="mt-4 rounded-lg bg-gray-50 p-4">
+    <div class="mt-4 rounded-lg p-4" style="background-color: var(--color-surface-hover);">
       <div class="flex items-center gap-2">
         <%= check_box_tag "school_class[schedule_use_custom_time]", "1", use_custom_time, id: "schedule_use_custom_time" %>
-        <%= label_tag "schedule_use_custom_time", "デモ用: 時限を使わず時間を指定", class: "text-sm text-gray-700" %>
+        <%= label_tag "schedule_use_custom_time", "デモ用: 時限を使わず時間を指定", class: "text-sm", style: "color: var(--color-text-primary);" %>
       </div>
       <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <%= label_tag :schedule_start_time, "開始時刻", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= label_tag :schedule_start_time, "開始時刻", class: "block text-sm font-medium mb-2", style: "color: var(--color-text-primary);" %>
           <%= time_field_tag "school_class[schedule_start_time]", (use_custom_time ? schedule_start_time : nil), class: "input", step: 60 %>
         </div>
         <div>
-          <%= label_tag :schedule_end_time, "終了時刻", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= label_tag :schedule_end_time, "終了時刻", class: "block text-sm font-medium mb-2", style: "color: var(--color-text-primary);" %>
           <%= time_field_tag "school_class[schedule_end_time]", (use_custom_time ? schedule_end_time : nil), class: "input", step: 60 %>
         </div>
       </div>
-      <p class="text-xs text-gray-500 mt-2">チェック時のみ「開始/終了時刻」が反映されます。</p>
+      <p class="text-xs mt-2" style="color: var(--color-text-muted);">チェック時のみ「開始/終了時刻」が反映されます。</p>
     </div>
-    <p class="text-xs text-gray-500 mt-2">授業時間は大阪情報コンピュータ専門学校の時限に固定されています（デモ用時間指定を有効にした場合は上書き）。</p>
+    <p class="text-xs mt-2" style="color: var(--color-text-muted);">授業時間は大阪情報コンピュータ専門学校の時限に固定されています（デモ用時間指定を有効にした場合は上書き）。</p>
   </div>
 
   <% if current_user.admin? %>
-    <div class="border border-gray-200 rounded-lg p-4">
-      <h3 class="text-sm font-medium text-gray-700 mb-2">履修者CSVインポート（任意）</h3>
+    <div class="rounded-lg p-4" style="border: 1px solid var(--color-border);">
+      <h3 class="text-sm font-medium mb-2" style="color: var(--color-text-primary);">履修者CSVインポート（任意）</h3>
       <%= file_field_tag :roster_csv_file, accept: ".csv", class: "input" %>
-      <p class="text-xs text-gray-500 mt-2">
+      <p class="text-xs mt-2" style="color: var(--color-text-muted);">
         必須列: 学生ID / 氏名 / メール。パスワードは任意です（未入力の場合は学生IDが初期パスワードになります）。
       </p>
     </div>
@@ -104,6 +104,6 @@
 
   <div class="flex items-center space-x-2">
     <%= f.check_box :is_active %>
-    <%= f.label :is_active, "運用中", class: "text-sm text-gray-700" %>
+    <%= f.label :is_active, "運用中", class: "text-sm", style: "color: var(--color-text-primary);" %>
   </div>
 </div>

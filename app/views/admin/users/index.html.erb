@@ -15,10 +15,9 @@
     </div>
   </div>
 
-  <%# DataGrid %>
-  <div class="data-grid">
+  <div class="card">
     <%# ツールバー（検索・フィルタ） %>
-    <div class="data-grid-toolbar">
+    <div class="card-body pb-0">
       <%= form_with url: admin_users_path,
         method: :get,
         class: "flex flex-wrap items-center gap-3 w-full",
@@ -28,82 +27,79 @@
         } do |f| %>
 
         <%# 検索ボックス %>
-        <div class="data-grid-search">
-          <div class="relative">
-            <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style="color: var(--color-text-muted);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <div class="relative flex-1 min-w-[200px]">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="h-4 w-4" style="color: var(--color-text-muted);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="11" cy="11" r="8"/>
               <path d="M21 21l-4.35-4.35" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <%= f.text_field :q,
-              value: @query,
-              class: "w-full pl-10 pr-4 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2",
-              style: "border-color: var(--color-border); border-radius: var(--radius-md);",
-              placeholder: "氏名/メール/学籍IDで検索..." %>
           </div>
+          <%= f.text_field :q,
+            value: @query,
+            class: "input pl-10",
+            placeholder: "氏名/メール/学籍IDで検索..." %>
         </div>
 
         <%# フィルタ %>
-        <div class="data-grid-filters">
+        <div class="flex gap-2">
           <%= f.select :role,
             options_for_select(User.roles.keys.map { |role| [role, role] }, @role),
             { include_blank: "すべてのロール" },
-            class: "px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2",
-            style: "border-color: var(--color-border); border-radius: var(--radius-md); min-width: 140px;" %>
+            class: "input min-w-[140px]" %>
 
-          <%= f.submit "検索", class: "btn btn-secondary text-sm px-4 py-2" %>
+          <%= f.submit "検索", class: "btn btn-secondary" %>
 
           <% if session[:admin_users_last_filter].present? %>
-            <%= link_to "前回条件", admin_users_path(session[:admin_users_last_filter]), class: "btn btn-secondary text-sm px-4 py-2" %>
+            <%= link_to "前回条件", admin_users_path(session[:admin_users_last_filter]), class: "btn btn-secondary" %>
           <% end %>
         </div>
       <% end %>
     </div>
 
     <%# テーブル %>
-    <div class="overflow-x-auto">
-      <table class="data-grid-table">
-        <thead>
-          <tr>
-            <th>氏名</th>
-            <th>メール</th>
-            <th>学籍ID</th>
-            <th>ロール</th>
-            <th>最終ログイン</th>
-            <th class="text-right">操作</th>
-          </tr>
-        </thead>
-        <tbody id="admin_users_rows">
-          <%= render partial: "row", collection: @users, as: :user %>
-          <% if @users.empty? %>
-            <tr id="admin_users_empty">
-              <td colspan="6">
-                <div class="empty-state">
-                  <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <circle cx="9" cy="7" r="4" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                  <div class="empty-state-title">該当するユーザーがいません</div>
-                  <div class="empty-state-description">検索条件を変更するか、新規ユーザーを追加してください。</div>
-                </div>
-              </td>
+    <div class="card-body p-0 mt-4">
+      <div class="table-container" style="border: none; border-radius: 0;">
+        <table class="w-full">
+          <thead>
+            <tr>
+              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">氏名</th>
+              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">メール</th>
+              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">学籍ID</th>
+              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">ロール</th>
+              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">最終ログイン</th>
+              <th class="px-4 py-3 text-right text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">操作</th>
             </tr>
-          <% end %>
-        </tbody>
-      </table>
+          </thead>
+          <tbody id="admin_users_rows">
+            <%= render partial: "row", collection: @users, as: :user %>
+            <% if @users.empty? %>
+              <tr id="admin_users_empty">
+                <td colspan="6" class="px-4 py-8 text-center">
+                  <div class="empty-state" style="padding: 0;">
+                    <div class="empty-state-title">該当なし</div>
+                    <div class="text-sm mt-1" style="color: var(--color-text-secondary);">検索条件を変更するか、新規ユーザーを追加してください。</div>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <%# ページネーション（存在する場合） %>
     <% if @users.respond_to?(:total_pages) && @users.total_pages > 1 %>
-      <div class="data-grid-pagination">
-        <div class="text-sm" style="color: var(--color-text-secondary);">
-          全 <%= @users.total_count %> 件中 <%= @users.offset_value + 1 %>-<%= [@users.offset_value + @users.length, @users.total_count].min %> 件を表示
-        </div>
-        <div class="flex items-center gap-2">
-          <%= link_to "前へ", admin_users_path(page: @users.prev_page, q: @query, role: @role),
-            class: "btn btn-secondary text-sm px-3 py-1.5 #{@users.first_page? ? 'opacity-50 pointer-events-none' : ''}" %>
-          <%= link_to "次へ", admin_users_path(page: @users.next_page, q: @query, role: @role),
-            class: "btn btn-secondary text-sm px-3 py-1.5 #{@users.last_page? ? 'opacity-50 pointer-events-none' : ''}" %>
+      <div class="card-body border-t" style="border-color: var(--color-border);">
+        <div class="flex items-center justify-between">
+          <div class="text-sm" style="color: var(--color-text-secondary);">
+            全 <%= @users.total_count %> 件中 <%= @users.offset_value + 1 %>-<%= [@users.offset_value + @users.length, @users.total_count].min %> 件を表示
+          </div>
+          <div class="flex items-center gap-2">
+            <%= link_to "前へ", admin_users_path(page: @users.prev_page, q: @query, role: @role),
+              class: "btn btn-secondary text-sm #{@users.first_page? ? 'opacity-50 pointer-events-none' : ''}" %>
+            <%= link_to "次へ", admin_users_path(page: @users.next_page, q: @query, role: @role),
+              class: "btn btn-secondary text-sm #{@users.last_page? ? 'opacity-50 pointer-events-none' : ''}" %>
+          </div>
         </div>
       </div>
     <% end %>
