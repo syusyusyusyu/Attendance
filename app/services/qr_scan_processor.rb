@@ -79,12 +79,14 @@ class QrScanProcessor
       return alert("許可されていないブラウザからのアクセスです。別のブラウザで再試行してください。")
     end
 
-    location_result = policy.geo_policy.validate(location: @location)
-    unless location_result[:allowed]
-      @logger.log(status: location_result[:status], token: token, qr_session: qr_session)
-      return alert(location_result[:message])
+    unless qr_session.demo_mode
+      location_result = policy.geo_policy.validate(location: @location)
+      unless location_result[:allowed]
+        @logger.log(status: location_result[:status], token: token, qr_session: qr_session)
+        return alert(location_result[:message])
+      end
+      @location = location_result[:location] || {}
     end
-    @location = location_result[:location] || {}
 
     window = school_class.schedule_window(qr_session.attendance_date)
     unless window

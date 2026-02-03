@@ -29,7 +29,8 @@ class QrCodesController < ApplicationController
       teacher: current_user,
       attendance_date: Time.zone.today,
       issued_at: issued_at,
-      expires_at: issued_at + AttendanceToken::TOKEN_TTL
+      expires_at: issued_at + AttendanceToken::TOKEN_TTL,
+      demo_mode: params[:demo_mode] == "1"
     )
     @expires_at = @qr_session.expires_at
     @token = AttendanceToken.generate(qr_session: @qr_session)

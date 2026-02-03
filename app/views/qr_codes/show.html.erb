@@ -24,6 +24,10 @@
               { include_blank: "クラスを選択" },
               class: "input" %>
           </div>
+          <div class="flex items-center">
+            <%= f.check_box :demo_mode, { checked: params[:demo_mode] == "1", class: "h-4 w-4 text-google-blue border-gray-300 rounded focus:ring-google-blue" }, "1", "0" %>
+            <%= f.label :demo_mode, "デモ用（位置情報チェックをスキップ）", class: "ml-2 text-sm text-gray-700" %>
+          </div>
           <%= f.submit "出席QRを発行", class: "btn btn-primary" %>
         <% end %>
       </div>
