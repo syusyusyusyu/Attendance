@@ -896,7 +896,7 @@
     image-rendering: crisp-edges;
   }
 
-  /* === Bottom Navigation (学生SP用: 5アイテム固定) === */
+  /* === Bottom Navigation (SP用: 全ロール5アイテム固定) === */
   .bottom-nav {
     @apply fixed bottom-0 left-0 right-0 z-40;
     background-color: var(--color-surface);
