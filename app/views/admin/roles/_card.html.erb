@@ -31,12 +31,40 @@
 
         <div class="mb-4">
           <label class="block text-sm font-medium mb-3" style="color: var(--color-text-primary);">権限</label>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            <% permissions.each do |permission| %>
-              <label class="flex items-center gap-2 text-sm" style="color: var(--color-text-primary);">
-                <%= check_box_tag "permission_ids[]", permission.id, role.permissions.exists?(permission.id), class: "h-4 w-4 rounded", style: "border-color: var(--color-border); accent-color: var(--color-primary);" %>
-                <span><%= permission.label %></span>
-              </label>
+          <% category_labels = {
+            "admin" => "管理",
+            "attendance" => "出席",
+            "qr" => "QR",
+            "reports" => "レポート",
+            "classes" => "クラス",
+            "enrollments" => "履修",
+            "session" => "授業回",
+            "notifications" => "通知",
+            "profile" => "プロフィール",
+            "history" => "出席履歴",
+            "scan" => "スキャン"
+          } %>
+          <% category_order = category_labels.keys %>
+          <% grouped = permissions.group_by { |permission| permission.key.to_s.split(".").first } %>
+
+          <div class="space-y-3">
+            <% category_order.each do |category| %>
+              <% group_permissions = grouped[category] || [] %>
+              <% next if group_permissions.empty? %>
+              <details open class="rounded-lg" style="border: 1px solid var(--color-border); background-color: var(--color-surface);">
+                <summary class="cursor-pointer px-4 py-3 flex items-center justify-between">
+                  <span class="text-sm font-semibold" style="color: var(--color-text-primary);"><%= category_labels[category] %></span>
+                  <span class="badge badge-neutral"><%= group_permissions.size %></span>
+                </summary>
+                <div class="px-4 pb-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  <% group_permissions.each do |permission| %>
+                    <label class="flex items-center gap-2 text-sm" style="color: var(--color-text-primary);">
+                      <%= check_box_tag "permission_ids[]", permission.id, role.permissions.exists?(permission.id), class: "h-4 w-4 rounded", style: "border-color: var(--color-border); accent-color: var(--color-primary);" %>
+                      <span><%= permission.label %></span>
+                    </label>
+                  <% end %>
+                </div>
+              </details>
             <% end %>
           </div>
         </div>

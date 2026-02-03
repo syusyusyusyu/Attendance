@@ -77,6 +77,34 @@
     </div>
   </div>
 
+  <%# サマリー %>
+  <% status_counts = @requests.group_by(&:status).transform_values(&:count) %>
+  <% kind_counts = @requests.group_by(&:kind).transform_values(&:count) %>
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+    <div class="card">
+      <div class="card-body py-3">
+        <div class="text-xs" style="color: var(--color-text-muted);">表示件数</div>
+        <div class="text-lg font-semibold" style="color: var(--color-text-primary);"><%= @requests.size %>件</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-body py-3">
+        <div class="text-xs" style="color: var(--color-text-muted);">状態内訳</div>
+        <div class="text-sm" style="color: var(--color-text-primary);">
+          審査中 <%= status_counts["pending"].to_i %> / 承認 <%= status_counts["approved"].to_i %> / 却下 <%= status_counts["rejected"].to_i %>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-body py-3">
+        <div class="text-xs" style="color: var(--color-text-muted);">種別内訳</div>
+        <div class="text-sm" style="color: var(--color-text-primary);">
+          修正 <%= kind_counts["attendance_correction"].to_i %> / 確定 <%= kind_counts["attendance_finalize"].to_i %> / 解除 <%= kind_counts["attendance_unlock"].to_i %>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <%# データテーブル %>
   <div class="card">
     <div class="card-body p-0">

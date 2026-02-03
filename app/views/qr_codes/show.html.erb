@@ -87,7 +87,8 @@
               有効期限: <%= @expires_at.strftime("%H:%M") %> (残り <span data-qr-target="timeLeft"><%= ((@expires_at - Time.current).to_i.clamp(0, 300) / 60).to_s %>:<%= ((@expires_at - Time.current).to_i.clamp(0, 300) % 60).to_s.rjust(2, "0") %></span>)
             </span>
           </div>
-          <p class="text-xs mb-6" style="color: var(--color-text-muted);">QRコードは定期的に自動更新されます。</p>
+          <p class="text-xs mb-1" style="color: var(--color-text-muted);">QRコードは定期的に自動更新されます（5分で失効）。</p>
+          <p class="text-xs mb-6" style="color: var(--color-text-muted);">署名付きトークンで改ざん検知を行います。</p>
 
           <%# アクションボタン %>
           <div class="flex gap-3">

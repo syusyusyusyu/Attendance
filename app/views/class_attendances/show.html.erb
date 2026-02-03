@@ -4,7 +4,7 @@
 
 <div class="max-w-6xl mx-auto space-y-6">
   <%# ページヘッダー %>
-  <div class="card">
+  <div class="card sticky top-[calc(var(--app-header-height)+1rem)] z-20">
     <div class="card-body">
       <div class="flex items-center gap-3">
         <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background-color: var(--color-info-light);">
@@ -71,6 +71,15 @@
   </div>
 
   <% if @selected_class %>
+    <%# 管理者承認案内 %>
+    <div class="not-implemented-banner">
+      <svg class="not-implemented-banner-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/>
+        <path d="M12 8v4l3 3"/>
+      </svg>
+      <span class="not-implemented-banner-text">出席修正/確定/解除は管理者の最終承認が必要です。</span>
+    </div>
+
     <%# 出席ポリシーカード %>
     <div class="card">
       <div class="card-header">

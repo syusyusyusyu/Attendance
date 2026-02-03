@@ -1,0 +1,79 @@
+<%# 日別詳細（出席履歴） %>
+<h3 class="text-lg font-medium mb-4" style="color: var(--color-text-primary);">
+  <%= date.strftime("%Y年%m月%d日") %> (<%= day_names[date.wday] %>) の出席状況
+</h3>
+
+<% if records.any? %>
+  <div class="space-y-3">
+    <% records.each do |record| %>
+      <div class="rounded-md p-3" style="border: 1px solid var(--color-border); background-color: var(--color-surface);">
+        <div class="flex justify-between items-start mb-2">
+          <div class="font-medium" style="color: var(--color-text-primary);"><%= record.school_class.name %></div>
+          <span class="badge <%= status_badge_classes[record.status] || "" %>">
+            <%= record.status_label || record.status %>
+          </span>
+        </div>
+        <% if record.class_session %>
+          <div class="mb-2">
+            <%= render "shared/session_status_badges", session: record.class_session %>
+          </div>
+        <% end %>
+
+        <% if record.timestamp %>
+          <div class="text-sm flex items-center" style="color: var(--color-text-secondary);">
+            <svg class="h-4 w-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 7v5l3 3" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            入室 <%= record.checked_in_at&.strftime("%H:%M") || record.timestamp.strftime("%H:%M") %>
+          </div>
+        <% end %>
+        <% if record.checked_out_at %>
+          <div class="text-sm flex items-center mt-1" style="color: var(--color-text-secondary);">
+            <svg class="h-4 w-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 8v4l3 3" stroke-linecap="round" stroke-linejoin="round" />
+              <circle cx="12" cy="12" r="9" />
+            </svg>
+            退室 <%= record.checked_out_at.strftime("%H:%M") %>
+            <% if record.duration_minutes.present? %>
+              <span class="ml-2 text-xs" style="color: var(--color-text-muted);">滞在 <%= record.duration_minutes %>分</span>
+            <% end %>
+          </div>
+          <% policy = policies_by_class[record.school_class_id]&.attendance_policy || AttendancePolicy.new(AttendancePolicy.default_attributes) %>
+          <% required_minutes = record.class_session&.duration_minutes.present? ? policy.required_attendance_minutes(record.class_session.duration_minutes) : nil %>
+          <% if record.status_early_leave? && required_minutes.present? && record.duration_minutes.present? %>
+            <div class="text-xs mt-1" style="color: var(--color-text-muted);">
+              早退判定: 必要 <%= required_minutes %>分 / 実績 <%= record.duration_minutes %>分
+            </div>
+          <% end %>
+        <% end %>
+
+        <% if record.modified_by %>
+          <div class="text-xs mt-2 italic" style="color: var(--color-text-muted);">
+            最終更新: <%= record.modified_at&.strftime("%Y-%m-%d %H:%M") %>
+          </div>
+        <% end %>
+
+        <% request = requests_by_class[record.school_class_id] %>
+        <% if request %>
+          <div class="text-xs mt-2" style="color: var(--color-text-muted);">
+            申請状況:
+            <%= { "pending" => "審査中", "approved" => "承認", "rejected" => "却下" }[request.status] || request.status %>
+            (<%= { "absent" => "欠席", "late" => "遅刻", "excused" => "公欠" }[request.request_type] || request.request_type %>)
+          </div>
+        <% end %>
+
+        <% change = changes_by_record[record.id] %>
+        <% if change&.reason.present? %>
+          <div class="text-xs mt-2" style="color: var(--color-text-muted);">
+            更新理由: <%= change.reason %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <div class="p-4 rounded-md text-center" style="background-color: var(--color-surface); color: var(--color-text-muted);">
+    この日の出席記録はありません。
+  </div>
+<% end %>
