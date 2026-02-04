@@ -77,6 +77,7 @@ role_permissions = {
     attendance.policy.manage
     attendance.finalize
     attendance.request.approve
+    attendance.request.view
     qr.generate
     reports.view
     reports.export
