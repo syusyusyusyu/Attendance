@@ -12,61 +12,61 @@
   --google-grey: #F8F9FA;
   --google-dark-grey: #5F6368;
 
-  /* === Primary Colors (青を主役に) === */
-  --color-primary: #3B7DDD;
-  --color-primary-hover: #2F5FB8;
-  --color-primary-light: #E8F0FE;
-  --color-primary-dark: #2F5FB8;
+  /* === Primary Colors (ミュートインディゴ) === */
+  --color-primary: #5B5BD6;
+  --color-primary-hover: #4B4ACF;
+  --color-primary-light: #F0F0FF;
+  --color-primary-dark: #4B4ACF;
 
   /* === Status Colors === */
-  --color-success: #1CBB8C;
-  --color-success-light: #D1F4EA;
-  --color-success-dark: #129A6E;
+  --color-success: #30A46C;
+  --color-success-light: #DDF3E4;
+  --color-success-dark: #18794E;
 
-  --color-warning: #F4B740;
-  --color-warning-light: #FFF4DB;
-  --color-warning-dark: #D69B28;
+  --color-warning: #F5A623;
+  --color-warning-light: #FFF1E0;
+  --color-warning-dark: #AD6200;
 
-  --color-error: #E2554B;
-  --color-error-light: #FDECEC;
-  --color-error-dark: #C44139;
+  --color-error: #E5484D;
+  --color-error-light: #FFE5E5;
+  --color-error-dark: #CE2C31;
 
-  --color-info: #3B7DDD;
-  --color-info-light: #E8F0FE;
-  --color-info-dark: #2F5FB8;
+  --color-info: #5B5BD6;
+  --color-info-light: #F0F0FF;
+  --color-info-dark: #4B4ACF;
 
   /* === Surface & Background === */
-  --color-background: #F4F7FB;
+  --color-background: #FAFAFA;
   --color-surface: #FFFFFF;
-  --color-surface-hover: #F8FAFC;
+  --color-surface-hover: #F5F5F5;
 
-  /* === Sidebar (濃紺/ダークグレー) === */
-  --sidebar-bg: #222E3C;
-  --sidebar-bg-hover: #2B3A4B;
-  --sidebar-text: #C7D0DD;
-  --sidebar-text-active: #FFFFFF;
-  --sidebar-active-bg: rgba(59, 125, 221, 0.18);
-  --sidebar-active-indicator: #3B7DDD;
-  --sidebar-section-text: #8B97A8;
-  --sidebar-border: rgba(255, 255, 255, 0.06);
-  --sidebar-width: 16.25rem;
+  /* === Sidebar (ライトテーマ) === */
+  --sidebar-bg: #FFFFFF;
+  --sidebar-bg-hover: #F5F5F5;
+  --sidebar-text: #6B7280;
+  --sidebar-text-active: #111827;
+  --sidebar-active-bg: #F0F0FF;
+  --sidebar-active-indicator: #5B5BD6;
+  --sidebar-section-text: #9CA3AF;
+  --sidebar-border: #E5E7EB;
+  --sidebar-width: 15rem;
 
   /* === Text Colors === */
-  --color-text-primary: #1F2937;
+  --color-text-primary: #111827;
   --color-text-secondary: #6B7280;
   --color-text-muted: #9CA3AF;
   --color-text-inverse: #FFFFFF;
 
   /* === Border & Outline === */
-  --color-border: #E2E8F0;
-  --color-border-hover: #CBD5E1;
-  --color-outline-focus: #3B7DDD;
+  --color-border: #E5E7EB;
+  --color-border-hover: #D1D5DB;
+  --color-outline-focus: #5B5BD6;
 
   /* === Radius === */
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 14px;
-  --radius-xl: 16px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 10px;
   --radius-full: 9999px;
 
   /* === Spacing (8px基準) === */
@@ -81,7 +81,7 @@
   --space-12: 48px;
 
   /* === Typography === */
-  --font-family: "Roboto", "Noto Sans JP", sans-serif;
+  --font-family: "Inter", "Noto Sans JP", system-ui, sans-serif;
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
   --font-size-base: 1rem;
@@ -94,10 +94,10 @@
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
 
-  /* === Elevation (控えめな影) === */
-  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
-  --shadow-md: 0 8px 24px rgba(16, 24, 40, 0.08);
-  --shadow-lg: 0 16px 40px rgba(16, 24, 40, 0.12);
+  /* === Elevation (ほぼフラット) === */
+  --shadow-sm: none;
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.06);
 
   /* === Motion === */
   --transition-fast: 150ms ease;
@@ -105,9 +105,9 @@
   --transition-slow: 300ms ease;
 
   /* === Layout === */
-  --app-header-height: 4rem;
+  --app-header-height: 3rem;
   --topbar-bg: #FFFFFF;
-  --topbar-border: #E2E8F0;
+  --topbar-border: #E5E7EB;
 }
 
 @layer base {
@@ -178,10 +178,10 @@
 }
 
 @layer components {
-  /* === Buttons (AdminKit風) === */
+  /* === Buttons (SaaS Minimal) === */
   .btn {
-    @apply px-5 py-2.5 font-medium text-sm sm:text-base flex items-center justify-center gap-2 min-h-[44px];
-    border-radius: var(--radius-lg);
+    @apply px-3 py-1.5 font-medium text-sm sm:text-base flex items-center justify-center gap-2 min-h-[36px];
+    border-radius: var(--radius-md);
     transition: all var(--transition-normal);
   }
 
@@ -249,32 +249,33 @@
   }
 
   .card-header {
-    @apply px-5 py-4 border-b;
+    @apply px-4 py-3 border-b;
     border-color: var(--color-border);
   }
 
   .card-body {
-    @apply px-5 py-4;
+    @apply px-4 py-3;
   }
 
   .card-footer {
-    @apply px-5 py-4 border-t;
+    @apply px-4 py-3 border-t;
     border-color: var(--color-border);
     background-color: var(--color-surface-hover);
   }
 
-  /* === KPI Card (AdminKit風: 右上丸いアイコンバッジ) === */
+  /* === KPI Card (SaaS Minimal) === */
   .kpi-card {
     @apply relative;
     background-color: var(--color-surface);
     border-radius: var(--radius-lg);
     border: 1px solid var(--color-border);
     box-shadow: var(--shadow-sm);
-    padding: var(--space-5);
+    padding: var(--space-4);
   }
 
   .kpi-card-icon {
-    @apply absolute top-4 right-4 w-12 h-12 rounded-full flex items-center justify-center;
+    @apply absolute top-4 right-4 w-8 h-8 flex items-center justify-center;
+    border-radius: var(--radius-md);
     background-color: var(--color-primary-light);
     color: var(--color-primary);
   }
@@ -300,7 +301,7 @@
   }
 
   .kpi-card-value {
-    @apply text-3xl font-bold;
+    @apply text-2xl font-semibold;
     color: var(--color-text-primary);
   }
 
@@ -318,7 +319,7 @@
 
   /* === Input Fields === */
   .input {
-    @apply w-full max-w-full min-w-0 box-border px-4 py-2.5 min-h-[44px] text-base;
+    @apply w-full max-w-full min-w-0 box-border px-3 py-2 min-h-[36px] text-base;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     background-color: var(--color-surface);
@@ -328,7 +329,7 @@
   .input:focus {
     outline: none;
     border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px var(--color-primary-light);
+    box-shadow: 0 0 0 2px var(--color-primary-light);
   }
 
   /* 日付入力フィールドがはみ出さないように修正 */
@@ -340,10 +341,10 @@
     appearance: none;
   }
 
-  /* === Status Pill Badges (AdminKit風: 角丸9999px、淡色背景＋濃い文字) === */
+  /* === Status Pill Badges (SaaS Minimal: 角丸6px) === */
   .badge {
-    @apply px-3 py-1 text-xs font-medium inline-flex items-center;
-    border-radius: var(--radius-full);
+    @apply px-2 py-0.5 text-xs font-medium inline-flex items-center;
+    border-radius: var(--radius-md);
   }
 
   .badge-success,
@@ -375,7 +376,7 @@
     @apply bg-gray-100 text-gray-700;
   }
 
-  /* === Tables (AdminKit風: ヘッダー薄グレー、行間ゆったり 48-56px) === */
+  /* === Tables (SaaS Minimal: コンパクト) === */
   .table-container {
     @apply w-full overflow-x-auto;
     max-width: 100%;
@@ -390,17 +391,18 @@
   }
 
   .table-container th {
-    @apply px-4 py-3 text-left text-sm font-semibold;
-    background-color: var(--color-surface-hover);
+    @apply text-left text-sm font-semibold;
+    padding: 0.625rem 0.75rem;
+    background-color: transparent;
     color: var(--color-text-secondary);
     border-bottom: 1px solid var(--color-border);
   }
 
   .table-container td {
-    @apply px-4 py-3 text-sm;
+    @apply text-sm;
+    padding: 0.625rem 0.75rem;
     color: var(--color-text-primary);
     border-bottom: 1px solid var(--color-border);
-    min-height: 52px;
   }
 
   .table-container tbody tr:last-child td {
@@ -505,7 +507,7 @@
 
   .sidebar-header-title {
     @apply font-semibold text-lg;
-    color: var(--color-text-inverse);
+    color: var(--sidebar-text-active);
   }
 
   .sidebar-section {
@@ -545,7 +547,7 @@
     transform: translateY(-50%);
     width: 3px;
     height: 24px;
-    background-color: var(--color-text-inverse);
+    background-color: var(--sidebar-active-indicator);
     border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
   }
 
@@ -559,11 +561,11 @@
     color: var(--color-text-inverse);
   }
 
-  /* === Topbar (AdminKit風: ライト背景) === */
+  /* === Topbar (SaaS Minimal: フラット) === */
   .topbar {
     background-color: var(--topbar-bg);
     border-bottom: 1px solid var(--topbar-border);
-    box-shadow: var(--shadow-sm);
+    box-shadow: none;
   }
 
   .topbar-search {
@@ -581,7 +583,7 @@
   .topbar-search input:focus {
     outline: none;
     border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px var(--color-primary-light);
+    box-shadow: 0 0 0 2px var(--color-primary-light);
     background-color: var(--color-surface);
   }
 
@@ -592,28 +594,34 @@
 
   /* === Toast (右上、aria-live対応) === */
   .toast {
-    @apply fixed top-20 right-4 z-50 px-4 py-3 rounded-lg shadow-lg max-w-sm;
+    @apply fixed top-14 right-4 z-50 px-4 py-3 max-w-sm;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
     animation: slideIn var(--transition-normal);
   }
 
   .toast-success {
-    background-color: var(--color-success);
-    color: var(--color-text-inverse);
+    background-color: var(--color-success-light);
+    color: var(--color-success-dark);
+    border: 1px solid var(--color-success);
   }
 
   .toast-error {
-    background-color: var(--color-error);
-    color: var(--color-text-inverse);
+    background-color: var(--color-error-light);
+    color: var(--color-error-dark);
+    border: 1px solid var(--color-error);
   }
 
   .toast-warning {
-    background-color: var(--color-warning);
-    color: var(--color-text-primary);
+    background-color: var(--color-warning-light);
+    color: var(--color-warning-dark);
+    border: 1px solid var(--color-warning);
   }
 
   .toast-info {
-    background-color: var(--color-info);
-    color: var(--color-text-inverse);
+    background-color: var(--color-info-light);
+    color: var(--color-info-dark);
+    border: 1px solid var(--color-info);
   }
 
   @keyframes slideIn {
@@ -638,8 +646,7 @@
 
   .drawer-overlay {
     @apply fixed inset-0 z-40;
-    background-color: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(2px);
+    background-color: rgba(0, 0, 0, 0.3);
   }
 
   .drawer-content {
@@ -1013,13 +1020,12 @@
   /* === Login logo === */
   .login-logo {
     background-color: var(--color-primary);
-    box-shadow: var(--shadow-lg);
+    box-shadow: none;
   }
 
   /* === Overlay backdrop === */
   .overlay-backdrop {
-    background-color: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(4px);
+    background-color: rgba(0, 0, 0, 0.3);
   }
 
   /* === Detail field (bordered rounded box) === */
@@ -1070,7 +1076,7 @@
   .floating-bar {
     background-color: var(--color-surface);
     border: 1px solid var(--color-border);
-    box-shadow: var(--shadow-lg);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   }
 
   /* === フォーカスリング強化 (アクセシビリティ) === */
@@ -1348,6 +1354,21 @@ details summary {
     white-space: nowrap;
     word-break: keep-all;
     line-break: normal;
+  }
+
+  .btn {
+    min-height: 44px;
+    padding: 0.55rem 0.85rem;
+  }
+
+  .input {
+    min-height: 44px;
+    padding: 0.55rem 0.85rem;
+  }
+
+  .topbar-icon-button {
+    width: 2.75rem;
+    height: 2.75rem;
   }
 }
 
