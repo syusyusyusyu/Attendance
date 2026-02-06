@@ -28,22 +28,22 @@
     </div>
 
     <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-      <div class="rounded-lg p-4" style="border: 1px solid var(--color-border);">
+      <div class="rounded-lg p-4 border-themed">
         <dt class="text-xs text-body-muted">変更日時</dt>
         <dd class="mt-1 font-medium"><%= l(@change.changed_at, format: :short) %></dd>
       </div>
 
-      <div class="rounded-lg p-4" style="border: 1px solid var(--color-border);">
+      <div class="rounded-lg p-4 border-themed">
         <dt class="text-xs text-body-muted">日付</dt>
         <dd class="mt-1 font-medium"><%= @change.date.strftime("%Y-%m-%d") %></dd>
       </div>
 
-      <div class="rounded-lg p-4" style="border: 1px solid var(--color-border);">
+      <div class="rounded-lg p-4 border-themed">
         <dt class="text-xs text-body-muted">クラス</dt>
         <dd class="mt-1 font-medium"><%= @change.school_class&.name || "-" %></dd>
       </div>
 
-      <div class="rounded-lg p-4" style="border: 1px solid var(--color-border);">
+      <div class="rounded-lg p-4 border-themed">
         <dt class="text-xs text-body-muted">学生</dt>
         <dd class="mt-1 font-medium">
           <%= @change.user&.name || "-" %>
@@ -51,7 +51,7 @@
         </dd>
       </div>
 
-      <div class="rounded-lg p-4" style="border: 1px solid var(--color-border);">
+      <div class="rounded-lg p-4 border-themed">
         <dt class="text-xs text-body-muted">変更</dt>
         <dd class="mt-1 font-medium">
           <%= status_labels[@change.previous_status] || @change.previous_status || "-" %>
@@ -60,27 +60,27 @@
         </dd>
       </div>
 
-      <div class="rounded-lg p-4" style="border: 1px solid var(--color-border);">
+      <div class="rounded-lg p-4 border-themed">
         <dt class="text-xs text-body-muted">種別</dt>
         <dd class="mt-1 font-medium"><%= source_labels[@change.source] || @change.source %></dd>
       </div>
 
-      <div class="rounded-lg p-4 sm:col-span-2" style="border: 1px solid var(--color-border);">
+      <div class="rounded-lg p-4 sm:col-span-2 border-themed">
         <dt class="text-xs text-body-muted">理由</dt>
         <dd class="mt-1 whitespace-pre-wrap"><%= @change.reason.presence || "-" %></dd>
       </div>
 
-      <div class="rounded-lg p-4" style="border: 1px solid var(--color-border);">
+      <div class="rounded-lg p-4 border-themed">
         <dt class="text-xs text-body-muted">操作者</dt>
         <dd class="mt-1 font-medium"><%= @change.modified_by&.name || "-" %></dd>
       </div>
 
-      <div class="rounded-lg p-4" style="border: 1px solid var(--color-border);">
+      <div class="rounded-lg p-4 border-themed">
         <dt class="text-xs text-body-muted">IP</dt>
         <dd class="mt-1 font-medium"><%= @change.ip.presence || "-" %></dd>
       </div>
 
-      <div class="rounded-lg p-4 sm:col-span-2" style="border: 1px solid var(--color-border);">
+      <div class="rounded-lg p-4 sm:col-span-2 border-themed">
         <dt class="text-xs text-body-muted">ブラウザ</dt>
         <dd class="mt-1 break-words"><%= @change.user_agent.presence || "-" %></dd>
       </div>

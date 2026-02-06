@@ -1,9 +1,9 @@
 <%# AdminKit風ログイン画面: ロゴ＋タイトル、アイコン付きフィールド、パスワード表示切替 %>
-<div class="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8" style="background-color: var(--color-background);">
+<div class="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-background">
   <%# ヘッダー %>
   <div class="sm:mx-auto sm:w-full sm:max-w-md">
     <div class="flex justify-center">
-      <div class="w-20 h-20 rounded-full flex items-center justify-center" style="background-color: var(--color-primary); box-shadow: var(--shadow-lg);">
+      <div class="w-20 h-20 rounded-full flex items-center justify-center login-logo">
         <svg class="h-10 w-10 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M9 3h6a2 2 0 012 2v1H7V5a2 2 0 012-2z"/>
           <rect x="5" y="6" width="14" height="15" rx="2" ry="2"/>
@@ -17,7 +17,7 @@
 
   <%# ログインフォーム %>
   <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-    <div class="py-8 px-4 sm:px-10" style="background-color: var(--color-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-md);" data-controller="login">
+    <div class="py-8 px-4 sm:px-10 login-card" data-controller="login">
       <div id="flash"><%= render "shared/flash" %></div>
 
       <%= form_with url: login_path, method: :post, class: "space-y-6" do |f| %>
@@ -99,7 +99,7 @@
             <button
               type="button"
               class="w-full py-2.5 px-4 border font-medium focus:outline-none transition-colors"
-              style="border-radius: var(--radius-md);"
+
               data-action="login#selectStudent"
               data-login-target="roleStudent"
               data-active-classes="bg-[var(--color-primary)] border-[var(--color-primary)] text-white"
@@ -110,7 +110,7 @@
             <button
               type="button"
               class="w-full py-2.5 px-4 border font-medium focus:outline-none transition-colors"
-              style="border-radius: var(--radius-md);"
+
               data-action="login#selectTeacher"
               data-login-target="roleTeacher"
               data-active-classes="bg-[var(--color-info)] border-[var(--color-info)] text-white"
@@ -131,10 +131,10 @@
       <div class="mt-6">
         <div class="relative">
           <div class="absolute inset-0 flex items-center">
-            <div class="w-full" style="border-top: 1px solid var(--color-border);"></div>
+            <div class="w-full border-t-themed"></div>
           </div>
           <div class="relative flex justify-center text-sm">
-            <span class="px-2" style="background-color: var(--color-surface); color: var(--color-text-secondary);">デモ用ログイン</span>
+            <span class="px-2 bg-surface text-body-secondary">デモ用ログイン</span>
           </div>
         </div>
 

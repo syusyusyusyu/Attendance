@@ -13,7 +13,7 @@ end %>
   <div class="card">
     <div class="card-body">
       <div class="flex items-center gap-3">
-        <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background-color: var(--color-primary-light);">
+        <div class="w-12 h-12 rounded-full flex items-center justify-center bg-primary-light">
           <svg class="h-6 w-6 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="7" r="4" />
             <path d="M20 21a8 8 0 1 0-16 0" stroke-linecap="round" stroke-linejoin="round" />
@@ -33,7 +33,7 @@ end %>
       <div class="flex items-center">
         <div class="relative">
           <img src="<%= avatar_url %>" alt="" class="h-20 w-20 rounded-full" />
-          <button type="button" class="absolute bottom-0 right-0 rounded-full p-1 shadow-sm" style="background-color: var(--color-background); border: 1px solid var(--color-border);">
+          <button type="button" class="absolute bottom-0 right-0 rounded-full p-1 shadow-sm bg-background border-themed">
             <span class="sr-only">プロフィール画像を変更</span>
             <svg class="h-4 w-4 text-body-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="7" r="4" />
@@ -48,7 +48,7 @@ end %>
       </div>
     </div>
 
-    <div class="p-6" style="border-top: 1px solid var(--color-border);">
+    <div class="p-6 border-t-themed">
       <%= form_with model: @user, url: profile_path, method: :patch, class: "space-y-6" do |f| %>
         <div>
           <%= f.label :name, "氏名", class: "block text-sm font-medium", style: "color: var(--color-text-primary);" %>
@@ -125,7 +125,7 @@ end %>
       <% webpush_public_key = ENV["WEBPUSH_PUBLIC_KEY"].to_s %>
       <div
         class="rounded-lg p-3 space-y-2"
-        style="border: 1px solid var(--color-border);"
+
         data-controller="push-subscription"
         data-push-subscription-public-key-value="<%= webpush_public_key %>"
       >

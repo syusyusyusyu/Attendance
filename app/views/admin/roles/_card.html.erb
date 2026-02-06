@@ -14,7 +14,7 @@
     </div>
     <div class="card-body">
       <% if local_assigns[:error_message].present? %>
-        <div class="mb-3 text-sm rounded-lg p-3" style="background-color: var(--color-error-light); color: var(--color-error-dark);">権限の更新に失敗しました: <%= error_message %></div>
+        <div class="mb-3 text-sm rounded-lg p-3 bg-error-light text-error-dark">権限の更新に失敗しました: <%= error_message %></div>
       <% end %>
 
       <%= form_with url: admin_role_path(role), method: :patch, scope: :role do |f| %>
@@ -51,7 +51,7 @@
             <% category_order.each do |category| %>
               <% group_permissions = grouped[category] || [] %>
               <% next if group_permissions.empty? %>
-              <details open class="rounded-lg" style="border: 1px solid var(--color-border); background-color: var(--color-surface);">
+              <details open class="rounded-lg border-themed bg-surface">
                 <summary class="cursor-pointer px-4 py-3 flex items-center justify-between">
                   <span class="text-sm font-semibold"><%= category_labels[category] %></span>
                   <span class="badge badge-neutral"><%= group_permissions.size %></span>
@@ -69,7 +69,7 @@
           </div>
         </div>
 
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-4" style="border-top: 1px solid var(--color-border);">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-4 border-t-themed">
           <span class="text-xs text-body-muted">権限を変更して保存すると即時反映されます。</span>
           <%= f.submit "更新する", class: "btn btn-primary sm:w-auto w-full" %>
         </div>

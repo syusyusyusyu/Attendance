@@ -48,7 +48,7 @@
     <%= f.text_area :description, rows: 3, class: "input" %>
   </div>
 
-  <div class="rounded-lg p-4" style="border: 1px solid var(--color-border);">
+  <div class="rounded-lg p-4 border-themed">
     <h3 class="text-sm font-medium mb-3">通常スケジュール</h3>
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
       <div>
@@ -72,7 +72,7 @@
           class: "input" %>
       </div>
     </div>
-    <div class="mt-4 rounded-lg p-4" style="background-color: var(--color-surface-hover);">
+    <div class="mt-4 rounded-lg p-4 bg-surface-hover">
       <div class="flex items-center gap-2">
         <%= check_box_tag "school_class[schedule_use_custom_time]", "1", use_custom_time, id: "schedule_use_custom_time" %>
         <%= label_tag "schedule_use_custom_time", "デモ用: 時限を使わず時間を指定", class: "text-sm", style: "color: var(--color-text-primary);" %>
@@ -93,7 +93,7 @@
   </div>
 
   <% if current_user.admin? %>
-    <div class="rounded-lg p-4" style="border: 1px solid var(--color-border);">
+    <div class="rounded-lg p-4 border-themed">
       <h3 class="text-sm font-medium mb-2">履修者CSVインポート（任意）</h3>
       <%= file_field_tag :roster_csv_file, accept: ".csv", class: "input" %>
       <p class="text-xs mt-2 text-body-muted">

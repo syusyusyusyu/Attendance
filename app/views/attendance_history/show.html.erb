@@ -18,8 +18,8 @@
     <div class="card">
       <div class="card-body">
         <div class="flex items-center gap-3">
-          <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background-color: var(--color-success-light);">
-            <svg class="h-6 w-6" style="color: var(--color-success);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <div class="w-12 h-12 rounded-full flex items-center justify-center bg-success-light">
+            <svg class="h-6 w-6 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="9" />
               <path d="M12 7v5l3 3" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
@@ -64,8 +64,8 @@
         <div class="flex flex-col md:flex-row space-y-6 md:space-y-0 md:space-x-6">
           <%# カレンダー %>
           <div class="md:w-1/2">
-            <div class="rounded-lg overflow-hidden" style="border: 1px solid var(--color-border);">
-              <div class="flex items-center justify-between px-4 py-2" style="border-bottom: 1px solid var(--color-border); background-color: var(--color-background);">
+            <div class="rounded-lg overflow-hidden border-themed">
+              <div class="flex items-center justify-between px-4 py-2 border-b-themed bg-background">
                 <%= link_to history_path(date: @prev_month),
                   class: "p-2 rounded-md hover:opacity-70",
                   data: { turbo_frame: "attendance_history" } do %>
@@ -83,9 +83,9 @@
                 <% end %>
               </div>
 
-              <div class="grid grid-cols-7 gap-px text-xs" style="background-color: var(--color-border); color: var(--color-text-muted);">
+              <div class="grid grid-cols-7 gap-px text-xs bg-[var(--color-border)] text-body-muted">
                 <% day_names.each do |day| %>
-                  <div class="py-2 text-center font-medium" style="background-color: var(--color-surface);"><%= day %></div>
+                  <div class="py-2 text-center font-medium bg-surface"><%= day %></div>
                 <% end %>
 
                 <% weeks.each do |week| %>
@@ -122,19 +122,19 @@
 
             <div class="mt-4 flex flex-wrap items-center gap-3 text-xs text-body-secondary">
               <span class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded" style="background-color: var(--color-success-light);"></span>
+                <span class="w-2.5 h-2.5 rounded bg-success-light"></span>
                 出席
               </span>
               <span class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded" style="background-color: var(--color-warning-light);"></span>
+                <span class="w-2.5 h-2.5 rounded bg-warning-light"></span>
                 遅刻/早退
               </span>
               <span class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded" style="background-color: var(--color-error-light);"></span>
+                <span class="w-2.5 h-2.5 rounded bg-error-light"></span>
                 欠席
               </span>
               <span class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded" style="background-color: var(--color-info-light);"></span>
+                <span class="w-2.5 h-2.5 rounded bg-info-light"></span>
                 公欠
               </span>
             </div>

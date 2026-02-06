@@ -31,20 +31,20 @@ end %>
 
   <%# 初回ガイド（学生のみ） %>
   <% if @user.student? && @show_onboarding %>
-    <div class="card" style="border-color: var(--color-primary-light); background-color: var(--color-primary-light);">
+    <div class="card border-[var(--color-primary-light)] bg-primary-light">
       <div class="card-body">
         <h2 class="text-lg font-semibold mb-3">初回ガイド</h2>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div class="flex items-center gap-3">
-            <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white" style="background-color: var(--color-primary);">1</span>
+            <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white bg-primary">1</span>
             <span>QRを開く</span>
           </div>
           <div class="flex items-center gap-3">
-            <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white" style="background-color: var(--color-primary);">2</span>
+            <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white bg-primary">2</span>
             <span>スキャンで出席</span>
           </div>
           <div class="flex items-center gap-3">
-            <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white" style="background-color: var(--color-primary);">3</span>
+            <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white bg-primary">3</span>
             <span>再スキャンで退室</span>
           </div>
         </div>
@@ -186,8 +186,8 @@ end %>
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
       <%= link_to school_classes_path, class: "card group hover:shadow-md transition-all" do %>
         <div class="card-body text-center">
-          <div class="w-12 h-12 mx-auto rounded-full flex items-center justify-center mb-3" style="background-color: var(--color-info-light);">
-            <svg class="h-6 w-6" style="color: var(--color-info);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <div class="w-12 h-12 mx-auto rounded-full flex items-center justify-center mb-3 bg-info-light">
+            <svg class="h-6 w-6 text-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="8" cy="8" r="3"/>
               <circle cx="17" cy="8" r="3"/>
               <path d="M2 20a6 6 0 0112 0" stroke-linecap="round" stroke-linejoin="round"/>
@@ -201,8 +201,8 @@ end %>
 
       <%= link_to attendance_path, class: "card group hover:shadow-md transition-all" do %>
         <div class="card-body text-center">
-          <div class="w-12 h-12 mx-auto rounded-full flex items-center justify-center mb-3" style="background-color: var(--color-error-light);">
-            <svg class="h-6 w-6" style="color: var(--color-error);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <div class="w-12 h-12 mx-auto rounded-full flex items-center justify-center mb-3 bg-error-light">
+            <svg class="h-6 w-6 text-error" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="9"/>
               <path d="M12 7v5l3 3" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -214,8 +214,8 @@ end %>
 
       <%= link_to generate_qr_path, class: "card group hover:shadow-md transition-all" do %>
         <div class="card-body text-center">
-          <div class="w-12 h-12 mx-auto rounded-full flex items-center justify-center mb-3" style="background-color: var(--color-success-light);">
-            <svg class="h-6 w-6" style="color: var(--color-success);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <div class="w-12 h-12 mx-auto rounded-full flex items-center justify-center mb-3 bg-success-light">
+            <svg class="h-6 w-6 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="3" width="6" height="6"/>
               <rect x="15" y="3" width="6" height="6"/>
               <rect x="3" y="15" width="6" height="6"/>
@@ -230,8 +230,8 @@ end %>
 
       <%= link_to reports_path, class: "card group hover:shadow-md transition-all" do %>
         <div class="card-body text-center">
-          <div class="w-12 h-12 mx-auto rounded-full flex items-center justify-center mb-3" style="background-color: var(--color-warning-light);">
-            <svg class="h-6 w-6" style="color: var(--color-warning);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <div class="w-12 h-12 mx-auto rounded-full flex items-center justify-center mb-3 bg-warning-light">
+            <svg class="h-6 w-6 text-warning" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M3 3v18h18" stroke-linecap="round" stroke-linejoin="round"/>
               <path d="M7 14l3-3 3 3 5-6" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -246,8 +246,8 @@ end %>
     <div class="grid grid-cols-3 gap-4">
       <%= link_to scan_path, class: "card group hover:shadow-md transition-all" do %>
         <div class="card-body text-center">
-          <div class="w-12 h-12 mx-auto rounded-full flex items-center justify-center mb-3" style="background-color: var(--color-success-light);">
-            <svg class="h-6 w-6" style="color: var(--color-success);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <div class="w-12 h-12 mx-auto rounded-full flex items-center justify-center mb-3 bg-success-light">
+            <svg class="h-6 w-6 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="3" width="6" height="6"/>
               <rect x="15" y="3" width="6" height="6"/>
               <rect x="3" y="15" width="6" height="6"/>
@@ -262,8 +262,8 @@ end %>
 
       <%= link_to history_path, class: "card group hover:shadow-md transition-all" do %>
         <div class="card-body text-center">
-          <div class="w-12 h-12 mx-auto rounded-full flex items-center justify-center mb-3" style="background-color: var(--color-info-light);">
-            <svg class="h-6 w-6" style="color: var(--color-info);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <div class="w-12 h-12 mx-auto rounded-full flex items-center justify-center mb-3 bg-info-light">
+            <svg class="h-6 w-6 text-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="9"/>
               <path d="M12 7v5l3 3" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -275,8 +275,8 @@ end %>
 
       <%= link_to attendance_requests_path, class: "card group hover:shadow-md transition-all" do %>
         <div class="card-body text-center">
-          <div class="w-12 h-12 mx-auto rounded-full flex items-center justify-center mb-3" style="background-color: var(--color-error-light);">
-            <svg class="h-6 w-6" style="color: var(--color-error);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <div class="w-12 h-12 mx-auto rounded-full flex items-center justify-center mb-3 bg-error-light">
+            <svg class="h-6 w-6 text-error" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M12 3v18" stroke-linecap="round" stroke-linejoin="round"/>
               <path d="M5 8h14" stroke-linecap="round" stroke-linejoin="round"/>
               <path d="M5 16h14" stroke-linecap="round" stroke-linejoin="round"/>
@@ -303,13 +303,13 @@ end %>
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <% @today_classes.each do |klass| %>
               <% stats = @today_stats[klass.id] %>
-              <div class="p-4" style="border: 1px solid var(--color-border); border-radius: var(--radius-lg);">
+              <div class="p-4 border-themed rounded-theme-lg">
                 <div class="flex items-start justify-between gap-3">
                   <div>
                     <div class="font-medium"><%= klass.name %></div>
                     <div class="text-xs mt-1 text-body-secondary"><%= klass.room %> / <%= klass.schedule_label %></div>
                   </div>
-                  <span class="text-xs px-2 py-1 rounded-full" style="background-color: var(--color-primary-light); color: var(--color-primary);"><%= stats[:total] %>名</span>
+                  <span class="text-xs px-2 py-1 rounded-full bg-primary-light text-primary"><%= stats[:total] %>名</span>
                 </div>
                 <% if @today_sessions[klass.id] %>
                   <div class="mt-2">
@@ -321,8 +321,8 @@ end %>
                     <span>出席率</span>
                     <span class="font-medium"><%= stats[:rate] %>%</span>
                   </div>
-                  <div class="h-2 rounded-full" style="background-color: var(--color-background);">
-                    <div class="h-2 rounded-full" style="background-color: var(--color-success); width: <%= stats[:rate] %>%;"></div>
+                  <div class="h-2 rounded-full bg-background">
+                    <div class="h-2 rounded-full progress-fill-success" style="width: <%= stats[:rate] %>%"></div>
                   </div>
                   <div class="mt-2 text-xs text-body-secondary">
                     出席 <%= stats[:present] %> / 欠席 <%= stats[:absent] %> / 未入力 <%= stats[:missing] %>
@@ -356,7 +356,7 @@ end %>
           <% if @attention_students.any? %>
             <div class="space-y-3">
               <% @attention_students.each do |row| %>
-                <div class="flex items-center justify-between p-3" style="border: 1px solid var(--color-border); border-radius: var(--radius-md);">
+                <div class="flex items-center justify-between p-3 border-themed rounded-theme-md">
                   <div>
                     <div class="text-sm font-medium"><%= row[:student].name %></div>
                     <div class="text-xs text-body-muted"><%= row[:student].student_id %></div>
@@ -382,7 +382,7 @@ end %>
           <% if @pending_requests.any? %>
             <div class="space-y-3">
               <% @pending_requests.each do |request| %>
-                <div class="p-3" style="border: 1px solid var(--color-border); border-radius: var(--radius-md);">
+                <div class="p-3 border-themed rounded-theme-md">
                   <div class="text-sm font-medium"><%= request.user.name %> / <%= request.school_class.name %></div>
                   <div class="flex items-center gap-2 mt-1">
                     <span class="text-xs text-body-secondary"><%= request.date.strftime("%Y-%m-%d") %></span>
@@ -408,7 +408,7 @@ end %>
           <% if @recent_notifications.any? %>
             <div class="space-y-3">
               <% @recent_notifications.each do |notification| %>
-                <div class="p-3" style="border: 1px solid var(--color-border); border-radius: var(--radius-md);">
+                <div class="p-3 border-themed rounded-theme-md">
                   <div class="text-sm font-medium"><%= notification.title %></div>
                   <div class="text-xs mt-1 text-body-secondary"><%= notification.created_at.strftime("%Y-%m-%d %H:%M") %></div>
                 </div>
@@ -433,13 +433,13 @@ end %>
           <% if @student_summary.any? %>
             <div class="space-y-4">
               <% @student_summary.each do |row| %>
-                <div class="p-3" style="border: 1px solid var(--color-border); border-radius: var(--radius-md);">
+                <div class="p-3 border-themed rounded-theme-md">
                   <div class="flex items-center justify-between mb-2">
                     <div class="font-medium"><%= row[:klass].name %></div>
                     <span class="text-sm font-semibold text-primary"><%= row[:rate] %>%</span>
                   </div>
-                  <div class="h-2 rounded-full" style="background-color: var(--color-background);">
-                    <div class="h-2 rounded-full" style="background-color: var(--color-success); width: <%= row[:rate] %>%;"></div>
+                  <div class="h-2 rounded-full bg-background">
+                    <div class="h-2 rounded-full progress-fill-success" style="width: <%= row[:rate] %>%"></div>
                   </div>
                   <div class="flex gap-3 mt-2 text-xs text-body-secondary">
                     <span>出席 <%= row[:present] %></span>
@@ -468,9 +468,9 @@ end %>
           <% if @student_warnings.any? %>
             <div class="space-y-3">
               <% @student_warnings.each do |row| %>
-                <div class="p-3" style="background-color: var(--color-warning-light); border: 1px solid var(--color-warning); border-radius: var(--radius-md);">
+                <div class="p-3 bg-warning-light border border-[var(--color-warning)] rounded-theme-md">
                   <div class="font-medium"><%= row[:klass].name %></div>
-                  <div class="text-sm mt-1" style="color: var(--color-warning-dark);">欠席/早退 <%= row[:absent] + row[:early_leave] %> 回 / 出席率 <%= row[:rate] %>%</div>
+                  <div class="text-sm mt-1 text-warning-dark">欠席/早退 <%= row[:absent] + row[:early_leave] %> 回 / 出席率 <%= row[:rate] %>%</div>
                 </div>
               <% end %>
             </div>
@@ -488,7 +488,7 @@ end %>
       <h2 class="font-semibold"><%= @user.staff? ? (@user.admin? ? "管理クラス" : "担当クラス") : "履修クラス" %></h2>
     </div>
     <% if @classes.any? %>
-      <div class="divide-y" style="border-color: var(--color-border);">
+      <div class="divide-y divide-themed">
         <% @classes.each do |klass| %>
           <div class="p-4 hover:bg-[var(--color-surface-hover)] transition-colors">
             <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">

@@ -49,17 +49,17 @@
     </div>
 
     <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-      <div class="rounded-lg p-4" style="border: 1px solid var(--color-border);">
+      <div class="rounded-lg p-4 border-themed">
         <dt class="text-xs text-body-muted">スキャン日時</dt>
         <dd class="mt-1 font-medium"><%= l(@event.scanned_at, format: :short) %></dd>
       </div>
 
-      <div class="rounded-lg p-4" style="border: 1px solid var(--color-border);">
+      <div class="rounded-lg p-4 border-themed">
         <dt class="text-xs text-body-muted">クラス</dt>
         <dd class="mt-1 font-medium"><%= @event.school_class&.name || "-" %></dd>
       </div>
 
-      <div class="rounded-lg p-4" style="border: 1px solid var(--color-border);">
+      <div class="rounded-lg p-4 border-themed">
         <dt class="text-xs text-body-muted">学生</dt>
         <dd class="mt-1 font-medium">
           <%= @event.user&.name || "-" %>
@@ -67,29 +67,29 @@
         </dd>
       </div>
 
-      <div class="rounded-lg p-4" style="border: 1px solid var(--color-border);">
+      <div class="rounded-lg p-4 border-themed">
         <dt class="text-xs text-body-muted">結果</dt>
         <dd class="mt-1 font-medium"><%= status_labels[@event.status] || @event.status %></dd>
       </div>
 
-      <div class="rounded-lg p-4" style="border: 1px solid var(--color-border);">
+      <div class="rounded-lg p-4 border-themed">
         <dt class="text-xs text-body-muted">出席判定</dt>
         <dd class="mt-1 font-medium">
           <%= @event.attendance_status.present? ? (attendance_labels[@event.attendance_status] || @event.attendance_status) : "-" %>
         </dd>
       </div>
 
-      <div class="rounded-lg p-4" style="border: 1px solid var(--color-border);">
+      <div class="rounded-lg p-4 border-themed">
         <dt class="text-xs text-body-muted">QRセッション</dt>
         <dd class="mt-1 font-medium"><%= @event.qr_session_id || "-" %></dd>
       </div>
 
-      <div class="rounded-lg p-4" style="border: 1px solid var(--color-border);">
+      <div class="rounded-lg p-4 border-themed">
         <dt class="text-xs text-body-muted">IP</dt>
         <dd class="mt-1 font-medium"><%= @event.ip.presence || "-" %></dd>
       </div>
 
-      <div class="rounded-lg p-4 sm:col-span-2" style="border: 1px solid var(--color-border);">
+      <div class="rounded-lg p-4 sm:col-span-2 border-themed">
         <dt class="text-xs text-body-muted">ブラウザ</dt>
         <dd class="mt-1 break-words"><%= @event.user_agent.presence || "-" %></dd>
       </div>

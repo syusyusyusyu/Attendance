@@ -118,7 +118,7 @@
           </div>
           <% if current_user.admin? %>
             <div class="md:col-span-3">
-              <div class="rounded-lg p-4" style="background-color: var(--color-surface-hover);">
+              <div class="rounded-lg p-4 bg-surface-hover">
                 <div class="font-medium">位置情報は大阪情報コンピュータ専門学校に固定</div>
                 <div class="mt-2 text-sm text-body-secondary">〒543-0001 大阪府大阪市天王寺区上本町6-8-4</div>
                 <div class="text-xs mt-1 text-body-muted">校内半径50mで判定します。</div>
@@ -157,7 +157,7 @@
         </div>
         <div class="card-body">
           <% if @session_window&.dig(:canceled) %>
-            <div class="text-sm" style="color: var(--color-error);">この日は休講設定です。</div>
+            <div class="text-sm text-error">この日は休講設定です。</div>
             <% if @session_window[:override]&.note.present? %>
               <div class="text-xs mt-2 text-body-muted">メモ: <%= @session_window[:override].note %></div>
             <% end %>
@@ -191,7 +191,7 @@
               <%= render "shared/session_status_badges", session: @class_session %>
             </div>
             <% if @class_session.locked? %>
-              <div class="mt-2 text-sm" style="color: var(--color-success);">出席は確定済みです。</div>
+              <div class="mt-2 text-sm text-success">出席は確定済みです。</div>
               <div class="mt-3">
                 <%= button_to(current_user.admin? ? "確定を解除" : "確定解除を申請",
                   attendance_unlock_path(class_id: @selected_class.id, date: @date),
@@ -299,7 +299,7 @@
 
       <%# 変更バナー %>
       <div class="sticky top-[calc(var(--app-header-height)+0.5rem)] z-10 hidden px-4" data-attendance-target="changeBanner">
-        <div class="rounded-lg px-4 py-2 text-sm shadow-sm" style="background-color: var(--color-warning-light); border: 1px solid var(--color-warning); color: var(--color-text-primary);">
+        <div class="rounded-lg px-4 py-2 text-sm shadow-sm bg-warning-light border border-[var(--color-warning)]">
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <div class="font-medium">変更中: <span data-attendance-target="changeCount">0</span>件</div>
             <div class="text-xs truncate text-body-secondary" data-attendance-target="changeList"></div>
@@ -320,7 +320,7 @@
             <input
               type="text"
               class="input"
-              style="padding-left: 2.5rem;"
+
               placeholder="学生ID / 氏名で検索..."
               data-attendance-target="search"
               data-action="input->attendance#filter"
@@ -348,7 +348,7 @@
           <%# 修正理由 %>
           <div
             class="rounded-lg p-4 hidden drawer-panel"
-            style="border: 1px solid var(--color-border);"
+
             data-attendance-target="reasonBlock"
             data-controller="drawer"
             data-drawer-open-value="false"

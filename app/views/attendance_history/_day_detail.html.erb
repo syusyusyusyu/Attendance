@@ -6,7 +6,7 @@
 <% if records.any? %>
   <div class="space-y-3">
     <% records.each do |record| %>
-      <div class="rounded-md p-3" style="border: 1px solid var(--color-border); background-color: var(--color-surface);">
+      <div class="rounded-md p-3 border-themed bg-surface">
         <div class="flex justify-between items-start mb-2">
           <div class="font-medium"><%= record.school_class.name %></div>
           <span class="badge <%= status_badge_classes[record.status] || "" %>">
@@ -73,7 +73,7 @@
     <% end %>
   </div>
 <% else %>
-  <div class="p-4 rounded-md text-center" style="background-color: var(--color-surface); color: var(--color-text-muted);">
+  <div class="p-4 rounded-md text-center bg-surface text-body-muted">
     この日の出席記録はありません。
   </div>
 <% end %>

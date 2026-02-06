@@ -53,8 +53,8 @@
               <% @class_stats.each do |stat| %>
                 <% bar_height = [stat[:rate].to_i, 3].max %>
                 <div class="flex flex-col items-center w-20 sm:shrink-0">
-                  <div class="w-full h-20 rounded-md flex items-end" style="background-color: var(--color-surface-hover);">
-                    <div class="w-full rounded-md" style="background-color: var(--color-success); height: <%= bar_height %>%"></div>
+                  <div class="w-full h-20 rounded-md flex items-end bg-surface-hover">
+                    <div class="w-full rounded-md progress-fill-success" style="height: <%= bar_height %>%"></div>
                   </div>
                   <div class="mt-2 text-[10px] truncate w-full text-center text-body-muted"><%= stat[:klass].name %></div>
                   <div class="text-[10px] text-body-muted"><%= stat[:rate] %>%</div>
@@ -66,13 +66,13 @@
           <%# 詳細リスト %>
           <div class="space-y-4">
             <% @class_stats.each do |stat| %>
-              <div class="p-4 rounded-lg" style="border: 1px solid var(--color-border);">
+              <div class="p-4 rounded-lg border-themed">
                 <div class="flex items-center justify-between">
                   <div class="font-medium"><%= stat[:klass].name %></div>
                   <div class="text-sm text-body-secondary"><%= stat[:rate] %>%</div>
                 </div>
-                <div class="mt-2 h-2 rounded-full" style="background-color: var(--color-surface-hover);">
-                  <div class="h-2 rounded-full" style="background-color: var(--color-success); width: <%= stat[:rate] %>%"></div>
+                <div class="mt-2 h-2 rounded-full bg-surface-hover">
+                  <div class="h-2 rounded-full progress-fill-success" style="width: <%= stat[:rate] %>%"></div>
                 </div>
                 <div class="mt-2 text-xs text-body-secondary">
                   出席 <%= stat[:totals][:present] %> / 遅刻 <%= stat[:totals][:late] %> / 公欠 <%= stat[:totals][:excused] %> /
@@ -98,7 +98,7 @@
         <% if @student_ranking.any? %>
           <div class="space-y-3">
             <% @student_ranking.each_with_index do |row, index| %>
-              <div class="flex items-center justify-between p-3 rounded-lg" style="border: 1px solid var(--color-border);">
+              <div class="flex items-center justify-between p-3 rounded-lg border-themed">
                 <div>
                   <div class="text-sm font-medium"><%= "#{index + 1}. #{row[:user].name}" %></div>
                   <div class="text-xs text-body-muted"><%= row[:user].student_id %></div>
@@ -169,13 +169,13 @@
                 <span><%= row[:date].strftime("%Y-%m-%d") %></span>
                 <span>合計 <%= total %></span>
               </div>
-              <div class="mt-1 h-2 rounded-full overflow-hidden flex" style="background-color: var(--color-surface-hover);">
+              <div class="mt-1 h-2 rounded-full overflow-hidden flex bg-surface-hover">
                 <% if total > 0 %>
-                  <div style="background-color: var(--color-success); width: <%= (row[:present] * 100.0 / total).round(2) %>%"></div>
-                  <div style="background-color: var(--color-warning); width: <%= (row[:late] * 100.0 / total).round(2) %>%"></div>
-                  <div style="background-color: var(--color-info); width: <%= (row[:excused] * 100.0 / total).round(2) %>%"></div>
-                  <div style="background-color: #fb923c; width: <%= (row[:early_leave] * 100.0 / total).round(2) %>%"></div>
-                  <div style="background-color: var(--color-error); width: <%= (row[:absent] * 100.0 / total).round(2) %>%"></div>
+                  <div class="progress-fill-success" style="width: <%= (row[:present] * 100.0 / total).round(2) %>%"></div>
+                  <div class="progress-fill-warning" style="width: <%= (row[:late] * 100.0 / total).round(2) %>%"></div>
+                  <div class="progress-fill-info" style="width: <%= (row[:excused] * 100.0 / total).round(2) %>%"></div>
+                  <div class="bg-[#fb923c]" style="width: <%= (row[:early_leave] * 100.0 / total).round(2) %>%"></div>
+                  <div class="progress-fill-error" style="width: <%= (row[:absent] * 100.0 / total).round(2) %>%"></div>
                 <% end %>
               </div>
               <div class="text-xs mt-1 text-body-muted">
@@ -240,7 +240,7 @@
                 <% if @weekly_rates.empty? %>
                   <tr>
                     <td colspan="3" class="px-4 py-8 text-center">
-                      <div class="empty-state" style="padding: 0;">
+                      <div class="empty-state">
                         <div class="empty-state-title">週次データがありません。</div>
                       </div>
                     </td>
@@ -282,7 +282,7 @@
                 <% if @daily_rates.empty? %>
                   <tr>
                     <td colspan="4" class="px-4 py-8 text-center">
-                      <div class="empty-state" style="padding: 0;">
+                      <div class="empty-state">
                         <div class="empty-state-title">日次データがありません。</div>
                       </div>
                     </td>
@@ -326,7 +326,7 @@
                 <% if @risk_students.empty? %>
                   <tr>
                     <td colspan="3" class="px-4 py-8 text-center">
-                      <div class="empty-state" style="padding: 0;">
+                      <div class="empty-state">
                         <div class="empty-state-title">要注意者はいません。</div>
                       </div>
                     </td>
@@ -419,7 +419,7 @@
               <% if @student_trends.empty? %>
                 <tr>
                   <td colspan="<%= 3 + @weekly_keys.size %>" class="px-4 py-8 text-center">
-                    <div class="empty-state" style="padding: 0;">
+                    <div class="empty-state">
                       <div class="empty-state-title">対象データがありません。</div>
                     </div>
                   </td>
