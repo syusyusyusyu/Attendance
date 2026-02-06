@@ -40,15 +40,15 @@
   --color-surface: #FFFFFF;
   --color-surface-hover: #F5F5F5;
 
-  /* === Sidebar (ライトテーマ) === */
-  --sidebar-bg: #FFFFFF;
-  --sidebar-bg-hover: #F5F5F5;
-  --sidebar-text: #6B7280;
-  --sidebar-text-active: #111827;
-  --sidebar-active-bg: #F0F0FF;
+  /* === Sidebar (ダークテーマ) === */
+  --sidebar-bg: #1C1C2E;
+  --sidebar-bg-hover: #2A2A40;
+  --sidebar-text: #A1A1B5;
+  --sidebar-text-active: #FFFFFF;
+  --sidebar-active-bg: rgba(91, 91, 214, 0.18);
   --sidebar-active-indicator: #5B5BD6;
-  --sidebar-section-text: #9CA3AF;
-  --sidebar-border: #E5E7EB;
+  --sidebar-section-text: #6E6E82;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
   --sidebar-width: 15rem;
 
   /* === Text Colors === */
@@ -507,7 +507,7 @@
 
   .sidebar-header-title {
     @apply font-semibold text-lg;
-    color: var(--sidebar-text-active);
+    color: var(--color-text-inverse);
   }
 
   .sidebar-section {
@@ -547,7 +547,7 @@
     transform: translateY(-50%);
     width: 3px;
     height: 24px;
-    background-color: var(--sidebar-active-indicator);
+    background-color: var(--color-text-inverse);
     border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
   }
 

@@ -42,15 +42,15 @@
   --color-text-inverse: #FFFFFF;
 
   /* Sidebar */
-  --sidebar-bg: #FFFFFF;
-  --sidebar-bg-hover: #F5F5F5;
-  --sidebar-text: #6B7280;
-  --sidebar-text-muted: #9CA3AF;
-  --sidebar-active-bg: #F0F0FF;
-  --sidebar-active-text: #111827;
+  --sidebar-bg: #1C1C2E;
+  --sidebar-bg-hover: #2A2A40;
+  --sidebar-text: #A1A1B5;
+  --sidebar-text-muted: #6E6E82;
+  --sidebar-active-bg: rgba(91, 91, 214, 0.18);
+  --sidebar-active-text: #FFFFFF;
   --sidebar-active-border: #5B5BD6;
   --sidebar-active-indicator: #5B5BD6;
-  --sidebar-border: #E5E7EB;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
 
   /* Layout */
   --app-header-height: 3rem; /* 48px */
@@ -157,7 +157,6 @@ h1, h2, h3, h4, h5, h6 {
   width: var(--sidebar-width);
   background: var(--sidebar-bg);
   color: var(--sidebar-text);
-  border-right: 1px solid var(--sidebar-border);
   box-shadow: none;
 }
 
@@ -253,8 +252,8 @@ h1, h2, h3, h4, h5, h6 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-primary-light);
-  color: var(--color-primary);
+  background: rgba(91, 91, 214, 0.25);
+  color: #FFFFFF;
   box-shadow: none;
   font-size: 0.9rem;
   font-weight: 700;
