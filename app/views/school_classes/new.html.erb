@@ -7,9 +7,9 @@
 <% else %>
   <div class="max-w-4xl mx-auto">
     <div class="card">
-      <div class="p-4 bg-google-grey border-b border-gray-200">
-        <h1 class="text-xl font-medium text-gray-800">新規クラス作成</h1>
-        <p class="text-sm text-gray-500 mt-1">授業情報を入力してください。</p>
+      <div class="p-4 bg-surface-hover border-b-themed">
+        <h1 class="text-xl font-medium text-body">新規クラス作成</h1>
+        <p class="text-sm text-body-secondary mt-1">授業情報を入力してください。</p>
       </div>
       <div class="p-6">
         <%= form_with model: @school_class, class: "space-y-6", multipart: true do |f| %>

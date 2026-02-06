@@ -50,23 +50,23 @@
           <summary class="flex items-center max-w-xs rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-primary)] cursor-pointer select-none p-1 hover:bg-[var(--color-surface-hover)] transition-colors">
             <span class="sr-only">ユーザーメニューを開く</span>
             <img class="h-8 w-8 rounded-full object-cover" src="<%= avatar_url %>" alt="" />
-            <span class="ml-2 text-gray-700 hidden sm:block font-medium"><%= current_user.name %></span>
-            <svg class="ml-1 h-4 w-4 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+            <span class="ml-2 text-body-secondary hidden sm:block font-medium"><%= current_user.name %></span>
+            <svg class="ml-1 h-4 w-4 text-body-muted" viewBox="0 0 20 20" fill="currentColor">
               <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.168l3.71-3.938a.75.75 0 1 1 1.08 1.04l-4.25 4.5a.75.75 0 0 1-1.08 0l-4.25-4.5a.75.75 0 0 1 .02-1.06Z" clip-rule="evenodd" />
             </svg>
           </summary>
 
-          <div class="origin-top-right absolute right-0 mt-2 w-48 rounded-lg shadow-lg bg-white ring-1 ring-black ring-opacity-5 overflow-hidden rounded-theme-lg">
+          <div class="origin-top-right absolute right-0 mt-2 w-48 rounded-lg bg-white ring-1 ring-black ring-opacity-5 overflow-hidden rounded-theme-lg" style="box-shadow: var(--shadow-md);">
             <div class="py-1">
-              <%= link_to profile_path, class: "flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors" do %>
-                <svg class="mr-3 h-5 w-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <%= link_to profile_path, class: "flex items-center px-4 py-3 text-sm text-body-secondary hover:bg-[var(--color-surface-hover)] transition-colors" do %>
+                <svg class="mr-3 h-5 w-5 text-body-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M20 21a8 8 0 1 0-16 0" stroke-linecap="round" stroke-linejoin="round" />
                   <circle cx="12" cy="7" r="4" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
                 プロフィール
               <% end %>
-              <%= link_to logout_path, data: { turbo_method: :delete }, class: "flex w-full items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors" do %>
-                <svg class="mr-3 h-5 w-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <%= link_to logout_path, data: { turbo_method: :delete }, class: "flex w-full items-center px-4 py-3 text-sm text-body-secondary hover:bg-[var(--color-surface-hover)] transition-colors" do %>
+                <svg class="mr-3 h-5 w-5 text-body-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke-linecap="round" stroke-linejoin="round" />
                   <path d="M16 17l5-5-5-5" stroke-linecap="round" stroke-linejoin="round" />
                   <path d="M21 12H9" stroke-linecap="round" stroke-linejoin="round" />
