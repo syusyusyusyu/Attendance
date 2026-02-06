@@ -49,7 +49,7 @@
   </div>
 
   <div class="rounded-lg p-4" style="border: 1px solid var(--color-border);">
-    <h3 class="text-sm font-medium mb-3" style="color: var(--color-text-primary);">通常スケジュール</h3>
+    <h3 class="text-sm font-medium mb-3">通常スケジュール</h3>
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
       <div>
         <%= label_tag :schedule_day_of_week, "曜日", class: "block text-sm font-medium mb-2", style: "color: var(--color-text-primary);" %>
@@ -87,16 +87,16 @@
           <%= time_field_tag "school_class[schedule_end_time]", (use_custom_time ? schedule_end_time : nil), class: "input", step: 60 %>
         </div>
       </div>
-      <p class="text-xs mt-2" style="color: var(--color-text-muted);">チェック時のみ「開始/終了時刻」が反映されます。</p>
+      <p class="text-xs mt-2 text-body-muted">チェック時のみ「開始/終了時刻」が反映されます。</p>
     </div>
-    <p class="text-xs mt-2" style="color: var(--color-text-muted);">授業時間は大阪情報コンピュータ専門学校の時限に固定されています（デモ用時間指定を有効にした場合は上書き）。</p>
+    <p class="text-xs mt-2 text-body-muted">授業時間は大阪情報コンピュータ専門学校の時限に固定されています（デモ用時間指定を有効にした場合は上書き）。</p>
   </div>
 
   <% if current_user.admin? %>
     <div class="rounded-lg p-4" style="border: 1px solid var(--color-border);">
-      <h3 class="text-sm font-medium mb-2" style="color: var(--color-text-primary);">履修者CSVインポート（任意）</h3>
+      <h3 class="text-sm font-medium mb-2">履修者CSVインポート（任意）</h3>
       <%= file_field_tag :roster_csv_file, accept: ".csv", class: "input" %>
-      <p class="text-xs mt-2" style="color: var(--color-text-muted);">
+      <p class="text-xs mt-2 text-body-muted">
         必須列: 学生ID / 氏名 / メール。パスワードは任意です（未入力の場合は学生IDが初期パスワードになります）。
       </p>
     </div>

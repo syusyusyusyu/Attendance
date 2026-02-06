@@ -14,14 +14,14 @@ end %>
     <div class="card-body">
       <div class="flex items-center gap-3">
         <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background-color: var(--color-primary-light);">
-          <svg class="h-6 w-6" style="color: var(--color-primary);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg class="h-6 w-6 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="7" r="4" />
             <path d="M20 21a8 8 0 1 0-16 0" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
         </div>
         <div>
-          <h1 class="text-2xl font-semibold" style="color: var(--color-text-primary);">プロフィール</h1>
-          <p class="text-sm mt-1" style="color: var(--color-text-secondary);">基本情報を更新できます。</p>
+          <h1 class="text-2xl font-semibold">プロフィール</h1>
+          <p class="text-sm mt-1 text-body-secondary">基本情報を更新できます。</p>
         </div>
       </div>
     </div>
@@ -35,15 +35,15 @@ end %>
           <img src="<%= avatar_url %>" alt="" class="h-20 w-20 rounded-full" />
           <button type="button" class="absolute bottom-0 right-0 rounded-full p-1 shadow-sm" style="background-color: var(--color-background); border: 1px solid var(--color-border);">
             <span class="sr-only">プロフィール画像を変更</span>
-            <svg class="h-4 w-4" style="color: var(--color-text-muted);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg class="h-4 w-4 text-body-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="7" r="4" />
               <path d="M20 21a8 8 0 1 0-16 0" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
           </button>
         </div>
         <div class="ml-6">
-          <h3 class="text-lg font-medium" style="color: var(--color-text-primary);"><%= @user.name %></h3>
-          <p class="text-sm" style="color: var(--color-text-muted);"><%= role_label %></p>
+          <h3 class="text-lg font-medium"><%= @user.name %></h3>
+          <p class="text-sm text-body-muted"><%= role_label %></p>
         </div>
       </div>
     </div>
@@ -92,7 +92,7 @@ end %>
 
   <%# 通知設定カード %>
   <div class="card p-6">
-    <h2 class="text-lg font-medium mb-4" style="color: var(--color-text-primary);">通知設定</h2>
+    <h2 class="text-lg font-medium mb-4">通知設定</h2>
 
     <%# 未実装バナー (NewUI.md 7.7: 通知設定は未実装であることを明確に表示) %>
     <div class="not-implemented-banner mb-4">
@@ -105,20 +105,20 @@ end %>
     </div>
 
     <%= form_with url: profile_path, method: :patch, scope: :notifications, class: "space-y-4 opacity-60 pointer-events-none" do |f| %>
-      <label class="flex items-center gap-2 text-sm" style="color: var(--color-text-primary);">
+      <label class="flex items-center gap-2 text-sm">
         <%= f.check_box :email, { checked: @notification_preferences["email"] }, "1", "0" %>
         メール通知を受け取る
       </label>
-      <label class="flex items-center gap-2 text-sm" style="color: var(--color-text-primary);">
+      <label class="flex items-center gap-2 text-sm">
         <%= f.check_box :line, { checked: @notification_preferences["line"] }, "1", "0" %>
         LINE通知を受け取る
       </label>
       <div>
         <%= f.label :line_user_id, "LINEユーザーID", class: "block text-sm font-medium mb-2", style: "color: var(--color-text-primary);" %>
         <%= f.text_field :line_user_id, value: @user.line_user_id, class: "input", placeholder: "Uxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" %>
-        <p class="text-xs mt-1" style="color: var(--color-text-muted);">LINEのメッセージ受信ユーザーIDを設定してください。</p>
+        <p class="text-xs mt-1 text-body-muted">LINEのメッセージ受信ユーザーIDを設定してください。</p>
       </div>
-      <label class="flex items-center gap-2 text-sm" style="color: var(--color-text-primary);">
+      <label class="flex items-center gap-2 text-sm">
         <%= f.check_box :push, { checked: @notification_preferences["push"] }, "1", "0" %>
         Push通知を受け取る
       </label>
@@ -129,7 +129,7 @@ end %>
         data-controller="push-subscription"
         data-push-subscription-public-key-value="<%= webpush_public_key %>"
       >
-        <p class="text-xs" style="color: var(--color-text-muted);" data-push-subscription-target="status">
+        <p class="text-xs text-body-muted" data-push-subscription-target="status">
           <% if webpush_public_key.blank? %>
             Push通知の配信キーが未設定です。
           <% elsif @push_subscriptions.any? %>
@@ -151,7 +151,7 @@ end %>
         <%= f.submit "通知設定を更新", class: "btn btn-secondary" %>
       </div>
     <% end %>
-    <p class="text-xs mt-2" style="color: var(--color-text-muted);">配信チャネルの設定は管理者の承認や連携状況により有効化されます。</p>
+    <p class="text-xs mt-2 text-body-muted">配信チャネルの設定は管理者の承認や連携状況により有効化されます。</p>
   </div>
 
 </div>

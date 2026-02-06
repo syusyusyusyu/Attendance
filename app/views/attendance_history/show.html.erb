@@ -25,8 +25,8 @@
             </svg>
           </div>
           <div>
-            <h1 class="text-2xl font-semibold" style="color: var(--color-text-primary);">出席履歴</h1>
-            <p class="text-sm mt-1" style="color: var(--color-text-secondary);">あなたの出席状況をカレンダーで確認できます。</p>
+            <h1 class="text-2xl font-semibold">出席履歴</h1>
+            <p class="text-sm mt-1 text-body-secondary">あなたの出席状況をカレンダーで確認できます。</p>
           </div>
         </div>
       </div>
@@ -35,7 +35,7 @@
     <%# エクスポートカード %>
     <div class="card">
       <div class="card-body">
-        <h3 class="text-sm font-medium mb-3" style="color: var(--color-text-primary);">出席履歴のエクスポート</h3>
+        <h3 class="text-sm font-medium mb-3">出席履歴のエクスポート</h3>
         <%= form_with url: attendance_history_export_path, method: :get, class: "grid grid-cols-1 sm:grid-cols-4 gap-3 items-end", data: { turbo: false } do |f| %>
           <div class="min-w-0">
             <%= f.label :start_date, "開始日", class: "block text-sm font-medium mb-2", style: "color: var(--color-text-primary);" %>
@@ -54,7 +54,7 @@
             </button>
           </div>
         <% end %>
-        <p class="text-xs mt-2" style="color: var(--color-text-muted);">指定期間の履歴を出力できます。</p>
+        <p class="text-xs mt-2 text-body-muted">指定期間の履歴を出力できます。</p>
       </div>
     </div>
 
@@ -69,15 +69,15 @@
                 <%= link_to history_path(date: @prev_month),
                   class: "p-2 rounded-md hover:opacity-70",
                   data: { turbo_frame: "attendance_history" } do %>
-                  <svg class="h-4 w-4" style="color: var(--color-text-secondary);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <svg class="h-4 w-4 text-body-secondary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round" />
                   </svg>
                 <% end %>
-                <div class="text-sm font-medium" style="color: var(--color-text-primary);"><%= @date.strftime("%Y年%m月") %></div>
+                <div class="text-sm font-medium"><%= @date.strftime("%Y年%m月") %></div>
                 <%= link_to history_path(date: @next_month),
                   class: "p-2 rounded-md hover:opacity-70",
                   data: { turbo_frame: "attendance_history" } do %>
-                  <svg class="h-4 w-4" style="color: var(--color-text-secondary);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <svg class="h-4 w-4 text-body-secondary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
                   </svg>
                 <% end %>
@@ -120,7 +120,7 @@
               </div>
             </div>
 
-            <div class="mt-4 flex flex-wrap items-center gap-3 text-xs" style="color: var(--color-text-secondary);">
+            <div class="mt-4 flex flex-wrap items-center gap-3 text-xs text-body-secondary">
               <span class="flex items-center gap-2">
                 <span class="w-2.5 h-2.5 rounded" style="background-color: var(--color-success-light);"></span>
                 出席

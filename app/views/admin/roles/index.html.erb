@@ -1,19 +1,11 @@
 <%# AdminKit風ロール/権限: 権限マトリクス、即時反映 %>
 <div class="max-w-6xl mx-auto space-y-6">
   <%# ページヘッダー %>
-  <div class="card">
-    <div class="card-body">
-      <div class="flex items-center gap-3">
-        <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background-color: var(--color-error-light);">
-          <svg class="h-6 w-6" style="color: var(--color-error);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <div>
-          <h1 class="text-2xl font-semibold" style="color: var(--color-text-primary);">ロール/権限</h1>
-          <p class="text-sm mt-1" style="color: var(--color-text-secondary);">各ロールに付与する権限を管理します。</p>
-        </div>
-      </div>
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">ロール/権限</h1>
+      <p class="page-subtitle">各ロールに付与する権限を管理します。</p>
+      <%= breadcrumb(["管理", admin_path], ["ロール/権限"]) %>
     </div>
   </div>
 

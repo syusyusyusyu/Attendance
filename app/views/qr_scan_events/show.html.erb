@@ -40,58 +40,58 @@
   <div class="card p-6 space-y-4">
     <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
       <div>
-        <h2 class="text-xl font-semibold" style="color: var(--color-text-primary);">スキャン詳細</h2>
-        <p class="text-sm mt-1" style="color: var(--color-text-muted);">監査: いつ / 誰が / 結果 / 判定</p>
+        <h2 class="text-xl font-semibold">スキャン詳細</h2>
+        <p class="text-sm mt-1 text-body-muted">監査: いつ / 誰が / 結果 / 判定</p>
       </div>
-      <button type="button" class="text-sm hover:opacity-70" style="color: var(--color-text-muted);" data-action="drawer#close">
+      <button type="button" class="text-sm hover:opacity-70 text-body-muted" data-action="drawer#close">
         閉じる
       </button>
     </div>
 
     <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
       <div class="rounded-lg p-4" style="border: 1px solid var(--color-border);">
-        <dt class="text-xs" style="color: var(--color-text-muted);">スキャン日時</dt>
-        <dd class="mt-1 font-medium" style="color: var(--color-text-primary);"><%= l(@event.scanned_at, format: :short) %></dd>
+        <dt class="text-xs text-body-muted">スキャン日時</dt>
+        <dd class="mt-1 font-medium"><%= l(@event.scanned_at, format: :short) %></dd>
       </div>
 
       <div class="rounded-lg p-4" style="border: 1px solid var(--color-border);">
-        <dt class="text-xs" style="color: var(--color-text-muted);">クラス</dt>
-        <dd class="mt-1 font-medium" style="color: var(--color-text-primary);"><%= @event.school_class&.name || "-" %></dd>
+        <dt class="text-xs text-body-muted">クラス</dt>
+        <dd class="mt-1 font-medium"><%= @event.school_class&.name || "-" %></dd>
       </div>
 
       <div class="rounded-lg p-4" style="border: 1px solid var(--color-border);">
-        <dt class="text-xs" style="color: var(--color-text-muted);">学生</dt>
-        <dd class="mt-1 font-medium" style="color: var(--color-text-primary);">
+        <dt class="text-xs text-body-muted">学生</dt>
+        <dd class="mt-1 font-medium">
           <%= @event.user&.name || "-" %>
-          <span class="text-xs ml-2" style="color: var(--color-text-muted);"><%= @event.user&.student_id || "-" %></span>
+          <span class="text-xs ml-2 text-body-muted"><%= @event.user&.student_id || "-" %></span>
         </dd>
       </div>
 
       <div class="rounded-lg p-4" style="border: 1px solid var(--color-border);">
-        <dt class="text-xs" style="color: var(--color-text-muted);">結果</dt>
-        <dd class="mt-1 font-medium" style="color: var(--color-text-primary);"><%= status_labels[@event.status] || @event.status %></dd>
+        <dt class="text-xs text-body-muted">結果</dt>
+        <dd class="mt-1 font-medium"><%= status_labels[@event.status] || @event.status %></dd>
       </div>
 
       <div class="rounded-lg p-4" style="border: 1px solid var(--color-border);">
-        <dt class="text-xs" style="color: var(--color-text-muted);">出席判定</dt>
-        <dd class="mt-1 font-medium" style="color: var(--color-text-primary);">
+        <dt class="text-xs text-body-muted">出席判定</dt>
+        <dd class="mt-1 font-medium">
           <%= @event.attendance_status.present? ? (attendance_labels[@event.attendance_status] || @event.attendance_status) : "-" %>
         </dd>
       </div>
 
       <div class="rounded-lg p-4" style="border: 1px solid var(--color-border);">
-        <dt class="text-xs" style="color: var(--color-text-muted);">QRセッション</dt>
-        <dd class="mt-1 font-medium" style="color: var(--color-text-primary);"><%= @event.qr_session_id || "-" %></dd>
+        <dt class="text-xs text-body-muted">QRセッション</dt>
+        <dd class="mt-1 font-medium"><%= @event.qr_session_id || "-" %></dd>
       </div>
 
       <div class="rounded-lg p-4" style="border: 1px solid var(--color-border);">
-        <dt class="text-xs" style="color: var(--color-text-muted);">IP</dt>
-        <dd class="mt-1 font-medium" style="color: var(--color-text-primary);"><%= @event.ip.presence || "-" %></dd>
+        <dt class="text-xs text-body-muted">IP</dt>
+        <dd class="mt-1 font-medium"><%= @event.ip.presence || "-" %></dd>
       </div>
 
       <div class="rounded-lg p-4 sm:col-span-2" style="border: 1px solid var(--color-border);">
-        <dt class="text-xs" style="color: var(--color-text-muted);">ブラウザ</dt>
-        <dd class="mt-1 break-words" style="color: var(--color-text-primary);"><%= @event.user_agent.presence || "-" %></dd>
+        <dt class="text-xs text-body-muted">ブラウザ</dt>
+        <dd class="mt-1 break-words"><%= @event.user_agent.presence || "-" %></dd>
       </div>
     </dl>
   </div>

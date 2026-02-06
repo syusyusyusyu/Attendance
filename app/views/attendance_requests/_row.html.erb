@@ -15,7 +15,7 @@
   "rejected" => "badge badge-error"
 } %>
 
-<tr id="<%= dom_id(request, :row) %>" style="border-bottom: 1px solid var(--color-border);">
+<tr id="<%= dom_id(request, :row) %>">
   <td class="px-4 py-3">
     <input
       type="checkbox"
@@ -29,17 +29,17 @@
       <%= request.status_pending? ? "" : "disabled" %>
     />
   </td>
-  <td class="px-4 py-3 whitespace-normal text-sm" style="color: var(--color-text-secondary);"><%= request.date.strftime("%Y-%m-%d") %></td>
-  <td class="px-4 py-3 text-sm" style="color: var(--color-text-primary);"><%= request.school_class.name %></td>
-  <td class="px-4 py-3 text-sm" style="color: var(--color-text-primary);">
+  <td class="px-4 py-3 whitespace-normal text-sm text-body-secondary"><%= request.date.strftime("%Y-%m-%d") %></td>
+  <td class="px-4 py-3 text-sm"><%= request.school_class.name %></td>
+  <td class="px-4 py-3 text-sm">
     <%= render "shared/session_status_badges", session: request.class_session %>
   </td>
   <td class="px-4 py-3 text-sm">
-    <div style="color: var(--color-text-primary);"><%= request.user.name %></div>
-    <div class="text-xs" style="color: var(--color-text-muted);"><%= request.user.student_id %></div>
+    <div><%= request.user.name %></div>
+    <div class="text-xs text-body-muted"><%= request.user.student_id %></div>
   </td>
-  <td class="px-4 py-3 text-sm" style="color: var(--color-text-primary);"><%= type_labels[request.request_type] || request.request_type %></td>
-  <td class="px-4 py-3 text-sm" style="color: var(--color-text-primary);"><%= request.reason %></td>
+  <td class="px-4 py-3 text-sm"><%= type_labels[request.request_type] || request.request_type %></td>
+  <td class="px-4 py-3 text-sm"><%= request.reason %></td>
   <td class="px-4 py-3">
     <span class="<%= status_badges[request.status] || "badge" %>">
       <%= status_labels[request.status] || request.status %>
@@ -59,7 +59,7 @@
         <%= f.text_area :decision_reason, rows: 2, class: "input", placeholder: "コメント任意" %>
       <% end %>
     <% else %>
-      <div class="text-xs" style="color: var(--color-text-muted);">
+      <div class="text-xs text-body-muted">
         <div><%= request.processed_at&.strftime("%Y-%m-%d %H:%M") %></div>
         <div><%= request.decision_reason.presence || "コメントなし" %></div>
       </div>

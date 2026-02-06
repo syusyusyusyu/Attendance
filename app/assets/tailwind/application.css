@@ -966,6 +966,37 @@
     color: var(--color-warning-dark);
   }
 
+  /* === Breadcrumb (AdminKit風) === */
+  .breadcrumb {
+    @apply flex items-center flex-wrap gap-1 text-sm mt-1;
+  }
+
+  .breadcrumb a {
+    color: var(--color-text-muted);
+    transition: color var(--transition-fast);
+    @apply min-h-0 min-w-0;
+  }
+
+  .breadcrumb a:hover {
+    color: var(--color-primary);
+  }
+
+  .breadcrumb-separator {
+    color: var(--color-text-muted);
+    @apply mx-1 text-xs;
+  }
+
+  .breadcrumb-current {
+    color: var(--color-text-secondary);
+  }
+
+  /* === Table inside card (border不要) === */
+  .card .table-container {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
   /* === フォーカスリング強化 (アクセシビリティ) === */
   .focus-visible-ring:focus-visible {
     outline: 2px solid var(--color-primary);
@@ -1089,6 +1120,19 @@
 
   .rounded-button {
     border-radius: var(--radius-md);
+  }
+
+  /* === Text Body Utilities === */
+  .text-body {
+    color: var(--color-text-primary);
+  }
+
+  .text-body-secondary {
+    color: var(--color-text-secondary);
+  }
+
+  .text-body-muted {
+    color: var(--color-text-muted);
   }
 
   /* === Focus Utilities === */

@@ -3,13 +3,13 @@
   <div class="flex items-start justify-between gap-4">
     <div class="min-w-0">
       <div class="flex items-center gap-2">
-        <span class="text-sm font-medium truncate" style="color: var(--color-text-primary);"><%= notification.title %></span>
+        <span class="text-sm font-medium truncate"><%= notification.title %></span>
         <% if notification.read_at.nil? %>
           <span class="badge badge-error">NEW</span>
         <% end %>
       </div>
       <% if notification.body.present? %>
-        <p class="text-sm mt-2 break-words" style="color: var(--color-text-secondary);"><%= notification.body %></p>
+        <p class="text-sm mt-2 break-words text-body-secondary"><%= notification.body %></p>
       <% end %>
       <div class="mt-3 flex flex-wrap items-center gap-3">
         <% if notification.action_path.present? %>
@@ -24,7 +24,7 @@
         <% end %>
       </div>
     </div>
-    <div class="text-xs whitespace-normal shrink-0" style="color: var(--color-text-muted);">
+    <div class="text-xs whitespace-normal shrink-0 text-body-muted">
       <%= notification.created_at.strftime("%Y-%m-%d %H:%M") %>
     </div>
   </div>

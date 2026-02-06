@@ -22,8 +22,9 @@ end %>
     <div>
       <h1 class="page-title">ダッシュボード</h1>
       <p class="page-subtitle"><%= greeting %>、<%= @user.name %>さん（<%= role_label %>）</p>
+      <%= breadcrumb() %>
     </div>
-    <div class="text-sm" style="color: var(--color-text-secondary);">
+    <div class="text-sm text-body-secondary">
       今日: <%= Time.zone.today.strftime("%Y/%m/%d") %>
     </div>
   </div>
@@ -32,22 +33,22 @@ end %>
   <% if @user.student? && @show_onboarding %>
     <div class="card" style="border-color: var(--color-primary-light); background-color: var(--color-primary-light);">
       <div class="card-body">
-        <h2 class="text-lg font-semibold mb-3" style="color: var(--color-text-primary);">初回ガイド</h2>
+        <h2 class="text-lg font-semibold mb-3">初回ガイド</h2>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div class="flex items-center gap-3">
             <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white" style="background-color: var(--color-primary);">1</span>
-            <span style="color: var(--color-text-primary);">QRを開く</span>
+            <span>QRを開く</span>
           </div>
           <div class="flex items-center gap-3">
             <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white" style="background-color: var(--color-primary);">2</span>
-            <span style="color: var(--color-text-primary);">スキャンで出席</span>
+            <span>スキャンで出席</span>
           </div>
           <div class="flex items-center gap-3">
             <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white" style="background-color: var(--color-primary);">3</span>
-            <span style="color: var(--color-text-primary);">再スキャンで退室</span>
+            <span>再スキャンで退室</span>
           </div>
         </div>
-        <div class="mt-3 text-sm" style="color: var(--color-text-secondary);">困ったら: 手入力 / 出席申請</div>
+        <div class="mt-3 text-sm text-body-secondary">困ったら: 手入力 / 出席申請</div>
       </div>
     </div>
   <% end %>
@@ -151,10 +152,10 @@ end %>
     <div class="card">
       <div class="card-header">
         <div class="flex items-center justify-between">
-          <h2 class="text-lg font-semibold" style="color: var(--color-text-primary);">30日出席推移</h2>
+          <h2 class="text-lg font-semibold">30日出席推移</h2>
           <% if @staff_daily_rates.present? %>
             <% average_rate = (@staff_daily_rates.sum { |row| row[:rate] }.to_f / @staff_daily_rates.size).round %>
-            <span class="text-sm" style="color: var(--color-text-secondary);">平均 <%= average_rate %>%</span>
+            <span class="text-sm text-body-secondary">平均 <%= average_rate %>%</span>
           <% end %>
         </div>
       </div>
@@ -193,8 +194,8 @@ end %>
               <path d="M13 20a6 6 0 019 0" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
-          <h3 class="font-semibold" style="color: var(--color-text-primary);">クラス管理</h3>
-          <p class="text-sm mt-1" style="color: var(--color-text-secondary);">クラス/名簿</p>
+          <h3 class="font-semibold">クラス管理</h3>
+          <p class="text-sm mt-1 text-body-secondary">クラス/名簿</p>
         </div>
       <% end %>
 
@@ -206,8 +207,8 @@ end %>
               <path d="M12 7v5l3 3" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
-          <h3 class="font-semibold" style="color: var(--color-text-primary);">出席確認</h3>
-          <p class="text-sm mt-1" style="color: var(--color-text-secondary);">出席一覧</p>
+          <h3 class="font-semibold">出席確認</h3>
+          <p class="text-sm mt-1 text-body-secondary">出席一覧</p>
         </div>
       <% end %>
 
@@ -222,8 +223,8 @@ end %>
               <path d="M11 11h2v2h-2z"/>
             </svg>
           </div>
-          <h3 class="font-semibold" style="color: var(--color-text-primary);">QRコード発行</h3>
-          <p class="text-sm mt-1" style="color: var(--color-text-secondary);">授業QR</p>
+          <h3 class="font-semibold">QRコード発行</h3>
+          <p class="text-sm mt-1 text-body-secondary">授業QR</p>
         </div>
       <% end %>
 
@@ -235,8 +236,8 @@ end %>
               <path d="M7 14l3-3 3 3 5-6" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
-          <h3 class="font-semibold" style="color: var(--color-text-primary);">レポート</h3>
-          <p class="text-sm mt-1" style="color: var(--color-text-secondary);">集計</p>
+          <h3 class="font-semibold">レポート</h3>
+          <p class="text-sm mt-1 text-body-secondary">集計</p>
         </div>
       <% end %>
     </div>
@@ -254,8 +255,8 @@ end %>
               <path d="M11 11h2v2h-2z"/>
             </svg>
           </div>
-          <h3 class="font-semibold" style="color: var(--color-text-primary);">スキャン</h3>
-          <p class="text-sm mt-1" style="color: var(--color-text-secondary);">出席</p>
+          <h3 class="font-semibold">スキャン</h3>
+          <p class="text-sm mt-1 text-body-secondary">出席</p>
         </div>
       <% end %>
 
@@ -267,8 +268,8 @@ end %>
               <path d="M12 7v5l3 3" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
-          <h3 class="font-semibold" style="color: var(--color-text-primary);">出席履歴</h3>
-          <p class="text-sm mt-1" style="color: var(--color-text-secondary);">履歴</p>
+          <h3 class="font-semibold">出席履歴</h3>
+          <p class="text-sm mt-1 text-body-secondary">履歴</p>
         </div>
       <% end %>
 
@@ -281,8 +282,8 @@ end %>
               <path d="M5 16h14" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
-          <h3 class="font-semibold" style="color: var(--color-text-primary);">出席申請</h3>
-          <p class="text-sm mt-1" style="color: var(--color-text-secondary);">欠席/遅刻</p>
+          <h3 class="font-semibold">出席申請</h3>
+          <p class="text-sm mt-1 text-body-secondary">欠席/遅刻</p>
         </div>
       <% end %>
     </div>
@@ -293,8 +294,8 @@ end %>
     <div class="card">
       <div class="card-header">
         <div class="flex items-center justify-between">
-          <h2 class="text-lg font-semibold" style="color: var(--color-text-primary);">今日の授業</h2>
-          <span class="text-sm" style="color: var(--color-text-secondary);"><%= Time.zone.today.strftime("%Y/%m/%d") %></span>
+          <h2 class="text-lg font-semibold">今日の授業</h2>
+          <span class="text-sm text-body-secondary"><%= Time.zone.today.strftime("%Y/%m/%d") %></span>
         </div>
       </div>
       <div class="card-body">
@@ -305,8 +306,8 @@ end %>
               <div class="p-4" style="border: 1px solid var(--color-border); border-radius: var(--radius-lg);">
                 <div class="flex items-start justify-between gap-3">
                   <div>
-                    <div class="font-medium" style="color: var(--color-text-primary);"><%= klass.name %></div>
-                    <div class="text-xs mt-1" style="color: var(--color-text-secondary);"><%= klass.room %> / <%= klass.schedule_label %></div>
+                    <div class="font-medium"><%= klass.name %></div>
+                    <div class="text-xs mt-1 text-body-secondary"><%= klass.room %> / <%= klass.schedule_label %></div>
                   </div>
                   <span class="text-xs px-2 py-1 rounded-full" style="background-color: var(--color-primary-light); color: var(--color-primary);"><%= stats[:total] %>名</span>
                 </div>
@@ -316,14 +317,14 @@ end %>
                   </div>
                 <% end %>
                 <div class="mt-3">
-                  <div class="flex items-center justify-between text-xs mb-1" style="color: var(--color-text-secondary);">
+                  <div class="flex items-center justify-between text-xs mb-1 text-body-secondary">
                     <span>出席率</span>
                     <span class="font-medium"><%= stats[:rate] %>%</span>
                   </div>
                   <div class="h-2 rounded-full" style="background-color: var(--color-background);">
                     <div class="h-2 rounded-full" style="background-color: var(--color-success); width: <%= stats[:rate] %>%;"></div>
                   </div>
-                  <div class="mt-2 text-xs" style="color: var(--color-text-secondary);">
+                  <div class="mt-2 text-xs text-body-secondary">
                     出席 <%= stats[:present] %> / 欠席 <%= stats[:absent] %> / 未入力 <%= stats[:missing] %>
                   </div>
                 </div>
@@ -347,7 +348,7 @@ end %>
       <div class="card">
         <div class="card-header">
           <div class="flex items-center justify-between">
-            <h2 class="font-semibold" style="color: var(--color-text-primary);">注意学生</h2>
+            <h2 class="font-semibold">注意学生</h2>
             <%= link_to "ログ", attendance_logs_path, class: "text-sm", style: "color: var(--color-primary);" %>
           </div>
         </div>
@@ -357,15 +358,15 @@ end %>
               <% @attention_students.each do |row| %>
                 <div class="flex items-center justify-between p-3" style="border: 1px solid var(--color-border); border-radius: var(--radius-md);">
                   <div>
-                    <div class="text-sm font-medium" style="color: var(--color-text-primary);"><%= row[:student].name %></div>
-                    <div class="text-xs" style="color: var(--color-text-muted);"><%= row[:student].student_id %></div>
+                    <div class="text-sm font-medium"><%= row[:student].name %></div>
+                    <div class="text-xs text-body-muted"><%= row[:student].student_id %></div>
                   </div>
                   <span class="badge badge-error">欠席/早退 <%= row[:absences] %></span>
                 </div>
               <% end %>
             </div>
           <% else %>
-            <div class="text-sm text-center py-4" style="color: var(--color-text-secondary);">要注意の学生はいません。</div>
+            <div class="text-sm text-center py-4 text-body-secondary">要注意の学生はいません。</div>
           <% end %>
         </div>
       </div>
@@ -373,7 +374,7 @@ end %>
       <div class="card">
         <div class="card-header">
           <div class="flex items-center justify-between">
-            <h2 class="font-semibold" style="color: var(--color-text-primary);">承認待ち</h2>
+            <h2 class="font-semibold">承認待ち</h2>
             <%= link_to "申請一覧", attendance_requests_path(status: "pending"), class: "text-sm", style: "color: var(--color-primary);" %>
           </div>
         </div>
@@ -382,16 +383,16 @@ end %>
             <div class="space-y-3">
               <% @pending_requests.each do |request| %>
                 <div class="p-3" style="border: 1px solid var(--color-border); border-radius: var(--radius-md);">
-                  <div class="text-sm font-medium" style="color: var(--color-text-primary);"><%= request.user.name %> / <%= request.school_class.name %></div>
+                  <div class="text-sm font-medium"><%= request.user.name %> / <%= request.school_class.name %></div>
                   <div class="flex items-center gap-2 mt-1">
-                    <span class="text-xs" style="color: var(--color-text-secondary);"><%= request.date.strftime("%Y-%m-%d") %></span>
+                    <span class="text-xs text-body-secondary"><%= request.date.strftime("%Y-%m-%d") %></span>
                     <span class="badge badge-warning"><%= { "absent" => "欠席", "late" => "遅刻", "excused" => "公欠" }[request.request_type] || request.request_type %></span>
                   </div>
                 </div>
               <% end %>
             </div>
           <% else %>
-            <div class="text-sm text-center py-4" style="color: var(--color-text-secondary);">申請待ちはありません。</div>
+            <div class="text-sm text-center py-4 text-body-secondary">申請待ちはありません。</div>
           <% end %>
         </div>
       </div>
@@ -399,7 +400,7 @@ end %>
       <div class="card">
         <div class="card-header">
           <div class="flex items-center justify-between">
-            <h2 class="font-semibold" style="color: var(--color-text-primary);">通知</h2>
+            <h2 class="font-semibold">通知</h2>
             <%= link_to "通知一覧", notifications_path, class: "text-sm", style: "color: var(--color-primary);" %>
           </div>
         </div>
@@ -408,13 +409,13 @@ end %>
             <div class="space-y-3">
               <% @recent_notifications.each do |notification| %>
                 <div class="p-3" style="border: 1px solid var(--color-border); border-radius: var(--radius-md);">
-                  <div class="text-sm font-medium" style="color: var(--color-text-primary);"><%= notification.title %></div>
-                  <div class="text-xs mt-1" style="color: var(--color-text-secondary);"><%= notification.created_at.strftime("%Y-%m-%d %H:%M") %></div>
+                  <div class="text-sm font-medium"><%= notification.title %></div>
+                  <div class="text-xs mt-1 text-body-secondary"><%= notification.created_at.strftime("%Y-%m-%d %H:%M") %></div>
                 </div>
               <% end %>
             </div>
           <% else %>
-            <div class="text-sm text-center py-4" style="color: var(--color-text-secondary);">通知はありません。</div>
+            <div class="text-sm text-center py-4 text-body-secondary">通知はありません。</div>
           <% end %>
         </div>
       </div>
@@ -426,7 +427,7 @@ end %>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
       <div class="card">
         <div class="card-header">
-          <h2 class="font-semibold" style="color: var(--color-text-primary);">出席傾向(30日)</h2>
+          <h2 class="font-semibold">出席傾向(30日)</h2>
         </div>
         <div class="card-body">
           <% if @student_summary.any? %>
@@ -434,13 +435,13 @@ end %>
               <% @student_summary.each do |row| %>
                 <div class="p-3" style="border: 1px solid var(--color-border); border-radius: var(--radius-md);">
                   <div class="flex items-center justify-between mb-2">
-                    <div class="font-medium" style="color: var(--color-text-primary);"><%= row[:klass].name %></div>
-                    <span class="text-sm font-semibold" style="color: var(--color-primary);"><%= row[:rate] %>%</span>
+                    <div class="font-medium"><%= row[:klass].name %></div>
+                    <span class="text-sm font-semibold text-primary"><%= row[:rate] %>%</span>
                   </div>
                   <div class="h-2 rounded-full" style="background-color: var(--color-background);">
                     <div class="h-2 rounded-full" style="background-color: var(--color-success); width: <%= row[:rate] %>%;"></div>
                   </div>
-                  <div class="flex gap-3 mt-2 text-xs" style="color: var(--color-text-secondary);">
+                  <div class="flex gap-3 mt-2 text-xs text-body-secondary">
                     <span>出席 <%= row[:present] %></span>
                     <span>欠席 <%= row[:absent] %></span>
                     <span>遅刻 <%= row[:late] %></span>
@@ -459,7 +460,7 @@ end %>
       <div class="card">
         <div class="card-header">
           <div class="flex items-center justify-between">
-            <h2 class="font-semibold" style="color: var(--color-text-primary);">注意</h2>
+            <h2 class="font-semibold">注意</h2>
             <%= link_to "通知一覧", notifications_path, class: "text-sm", style: "color: var(--color-primary);" %>
           </div>
         </div>
@@ -468,13 +469,13 @@ end %>
             <div class="space-y-3">
               <% @student_warnings.each do |row| %>
                 <div class="p-3" style="background-color: var(--color-warning-light); border: 1px solid var(--color-warning); border-radius: var(--radius-md);">
-                  <div class="font-medium" style="color: var(--color-text-primary);"><%= row[:klass].name %></div>
+                  <div class="font-medium"><%= row[:klass].name %></div>
                   <div class="text-sm mt-1" style="color: var(--color-warning-dark);">欠席/早退 <%= row[:absent] + row[:early_leave] %> 回 / 出席率 <%= row[:rate] %>%</div>
                 </div>
               <% end %>
             </div>
           <% else %>
-            <div class="text-sm text-center py-4" style="color: var(--color-text-secondary);">注意が必要なクラスはありません。</div>
+            <div class="text-sm text-center py-4 text-body-secondary">注意が必要なクラスはありません。</div>
           <% end %>
         </div>
       </div>
@@ -484,7 +485,7 @@ end %>
   <%# クラス一覧 %>
   <div class="card">
     <div class="card-header">
-      <h2 class="font-semibold" style="color: var(--color-text-primary);"><%= @user.staff? ? (@user.admin? ? "管理クラス" : "担当クラス") : "履修クラス" %></h2>
+      <h2 class="font-semibold"><%= @user.staff? ? (@user.admin? ? "管理クラス" : "担当クラス") : "履修クラス" %></h2>
     </div>
     <% if @classes.any? %>
       <div class="divide-y" style="border-color: var(--color-border);">
@@ -492,8 +493,8 @@ end %>
           <div class="p-4 hover:bg-[var(--color-surface-hover)] transition-colors">
             <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
               <div>
-                <h3 class="font-medium" style="color: var(--color-text-primary);"><%= klass.name %></h3>
-                <p class="text-sm mt-1" style="color: var(--color-text-secondary);">
+                <h3 class="font-medium"><%= klass.name %></h3>
+                <p class="text-sm mt-1 text-body-secondary">
                   <%= [klass.schedule_label, "教室: #{klass.room}"].compact.join(" | ") %>
                 </p>
                 <% if @today_sessions[klass.id] %>

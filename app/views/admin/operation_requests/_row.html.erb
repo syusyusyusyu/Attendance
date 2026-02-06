@@ -16,12 +16,12 @@
   "rejected" => "badge badge-error"
 } %>
 
-<tr id="<%= dom_id(operation_request) %>" style="border-bottom: 1px solid var(--color-border);">
-  <td class="px-4 py-3 text-sm" style="color: var(--color-text-secondary);"><%= operation_request.created_at.strftime("%Y-%m-%d %H:%M") %></td>
-  <td class="px-4 py-3 text-sm" style="color: var(--color-text-primary);"><%= kind_labels[operation_request.kind] || operation_request.kind %></td>
-  <td class="px-4 py-3 text-sm" style="color: var(--color-text-primary);"><%= operation_request.school_class&.name || "-" %></td>
-  <td class="px-4 py-3 text-sm" style="color: var(--color-text-primary);"><%= operation_request.user&.name || "-" %></td>
-  <td class="px-4 py-3 text-sm" style="color: var(--color-text-secondary);"><%= operation_request.reason.presence || "-" %></td>
+<tr id="<%= dom_id(operation_request) %>">
+  <td class="px-4 py-3 text-sm text-body-secondary"><%= operation_request.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+  <td class="px-4 py-3 text-sm"><%= kind_labels[operation_request.kind] || operation_request.kind %></td>
+  <td class="px-4 py-3 text-sm"><%= operation_request.school_class&.name || "-" %></td>
+  <td class="px-4 py-3 text-sm"><%= operation_request.user&.name || "-" %></td>
+  <td class="px-4 py-3 text-sm text-body-secondary"><%= operation_request.reason.presence || "-" %></td>
   <td class="px-4 py-3">
     <span class="<%= status_badges[operation_request.status] || "badge" %>">
       <%= status_labels[operation_request.status] || operation_request.status %>
@@ -42,7 +42,7 @@
         <% end %>
       </div>
     <% else %>
-      <div class="text-xs" style="color: var(--color-text-muted);">
+      <div class="text-xs text-body-muted">
         <div><%= operation_request.processed_at&.strftime("%Y-%m-%d %H:%M") || "-" %></div>
         <div><%= operation_request.decision_reason.presence || "コメントなし" %></div>
       </div>

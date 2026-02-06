@@ -4,11 +4,11 @@
     <div class="card-header">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h2 class="text-lg font-semibold" style="color: var(--color-text-primary);"><%= role.label %></h2>
-          <p class="text-xs" style="color: var(--color-text-muted);">key: <%= role.name %></p>
+          <h2 class="text-lg font-semibold"><%= role.label %></h2>
+          <p class="text-xs text-body-muted">key: <%= role.name %></p>
         </div>
         <% if role.updated_at %>
-          <p class="text-xs" style="color: var(--color-text-muted);">更新: <%= l(role.updated_at, format: :short) %></p>
+          <p class="text-xs text-body-muted">更新: <%= l(role.updated_at, format: :short) %></p>
         <% end %>
       </div>
     </div>
@@ -30,7 +30,7 @@
         </div>
 
         <div class="mb-4">
-          <label class="block text-sm font-medium mb-3" style="color: var(--color-text-primary);">権限</label>
+          <label class="block text-sm font-medium mb-3">権限</label>
           <% category_labels = {
             "admin" => "管理",
             "attendance" => "出席",
@@ -53,12 +53,12 @@
               <% next if group_permissions.empty? %>
               <details open class="rounded-lg" style="border: 1px solid var(--color-border); background-color: var(--color-surface);">
                 <summary class="cursor-pointer px-4 py-3 flex items-center justify-between">
-                  <span class="text-sm font-semibold" style="color: var(--color-text-primary);"><%= category_labels[category] %></span>
+                  <span class="text-sm font-semibold"><%= category_labels[category] %></span>
                   <span class="badge badge-neutral"><%= group_permissions.size %></span>
                 </summary>
                 <div class="px-4 pb-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   <% group_permissions.each do |permission| %>
-                    <label class="flex items-center gap-2 text-sm" style="color: var(--color-text-primary);">
+                    <label class="flex items-center gap-2 text-sm">
                       <%= check_box_tag "permission_ids[]", permission.id, role.permissions.exists?(permission.id), class: "h-4 w-4 rounded", style: "border-color: var(--color-border); accent-color: var(--color-primary);" %>
                       <span><%= permission.label %></span>
                     </label>
@@ -70,7 +70,7 @@
         </div>
 
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-4" style="border-top: 1px solid var(--color-border);">
-          <span class="text-xs" style="color: var(--color-text-muted);">権限を変更して保存すると即時反映されます。</span>
+          <span class="text-xs text-body-muted">権限を変更して保存すると即時反映されます。</span>
           <%= f.submit "更新する", class: "btn btn-primary sm:w-auto w-full" %>
         </div>
       <% end %>

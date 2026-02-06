@@ -1,4 +1,25 @@
 module ApplicationHelper
+  # パンくずナビを生成
+  # breadcrumb(["クラス管理", school_classes_path], ["現在のページ"])
+  # 最後の要素はリンクなし（現在のページ）
+  def breadcrumb(*crumbs)
+    items = []
+    items << link_to("ホーム", root_path)
+
+    crumbs.each_with_index do |crumb, index|
+      last = index == crumbs.size - 1
+      if last || crumb.size == 1
+        items << content_tag(:span, crumb[0], class: "breadcrumb-current")
+      else
+        items << link_to(crumb[0], crumb[1])
+      end
+    end
+
+    content_tag(:nav, class: "breadcrumb", aria: { label: "パンくず" }) do
+      safe_join(items, content_tag(:span, "/", class: "breadcrumb-separator"))
+    end
+  end
+
   # サイドバーリンクをレンダリング
   def sidebar_link(name, path, icon, badge = nil)
     active = if path == root_path || (defined?(admin_path) && path == admin_path)

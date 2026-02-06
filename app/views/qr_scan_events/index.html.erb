@@ -90,22 +90,11 @@
 
 <div class="max-w-6xl mx-auto space-y-6">
   <%# ページヘッダー %>
-  <div class="card">
-    <div class="card-body">
-      <div class="flex items-center gap-3">
-        <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background-color: var(--color-primary-light);">
-          <svg class="h-6 w-6" style="color: var(--color-primary);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="3" width="7" height="7"/>
-            <rect x="14" y="3" width="7" height="7"/>
-            <rect x="3" y="14" width="7" height="7"/>
-            <rect x="14" y="14" width="7" height="7"/>
-          </svg>
-        </div>
-        <div>
-          <h1 class="text-2xl font-semibold" style="color: var(--color-text-primary);">QRスキャンログ</h1>
-          <p class="text-sm mt-1" style="color: var(--color-text-secondary);">直近200件まで表示します。</p>
-        </div>
-      </div>
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">QRスキャンログ</h1>
+      <p class="page-subtitle">直近200件まで表示します。</p>
+      <%= breadcrumb(["スキャンログ"]) %>
     </div>
   </div>
 
@@ -115,7 +104,7 @@
   <%# フィルターカード %>
   <div class="card">
     <div class="card-header">
-      <h2 class="font-semibold" style="color: var(--color-text-primary);">絞り込み条件</h2>
+      <h2 class="font-semibold">絞り込み条件</h2>
     </div>
     <div class="card-body" data-controller="filter" data-filter-storage-key-value="scan-logs">
       <%= form_with url: scan_logs_path,
@@ -172,22 +161,22 @@
   <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
     <div class="card">
       <div class="card-body py-3">
-        <div class="text-xs" style="color: var(--color-text-muted);">表示件数</div>
-        <div class="text-lg font-semibold" style="color: var(--color-text-primary);"><%= @scan_events.size %>件</div>
+        <div class="text-xs text-body-muted">表示件数</div>
+        <div class="text-lg font-semibold"><%= @scan_events.size %>件</div>
       </div>
     </div>
     <div class="card">
       <div class="card-body py-3">
-        <div class="text-xs" style="color: var(--color-text-muted);">結果内訳</div>
-        <div class="text-sm" style="color: var(--color-text-primary);">
+        <div class="text-xs text-body-muted">結果内訳</div>
+        <div class="text-sm">
           成功 <%= status_counts["success"].to_i %> / 退室 <%= status_counts["checkout"].to_i %> / エラー <%= status_counts["error"].to_i %>
         </div>
       </div>
     </div>
     <div class="card">
       <div class="card-body py-3">
-        <div class="text-xs" style="color: var(--color-text-muted);">出席判定</div>
-        <div class="text-sm" style="color: var(--color-text-primary);">
+        <div class="text-xs text-body-muted">出席判定</div>
+        <div class="text-sm">
           出席 <%= attendance_counts["present"].to_i %> / 遅刻 <%= attendance_counts["late"].to_i %> / 欠席 <%= attendance_counts["absent"].to_i %>
         </div>
       </div>
@@ -196,10 +185,10 @@
 
   <%# 検索バー %>
   <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
-    <p class="text-xs" style="color: var(--color-text-muted);">検索条件はブラウザに保存されます。</p>
+    <p class="text-xs text-body-muted">検索条件はブラウザに保存されます。</p>
     <div class="relative w-full sm:w-64">
       <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-        <svg class="h-4 w-4" style="color: var(--color-text-muted);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg class="h-4 w-4 text-body-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="11" cy="11" r="7" />
           <path d="M21 21l-4.3-4.3" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
@@ -218,49 +207,49 @@
   <%# データテーブル %>
   <div class="card">
     <div class="card-body p-0">
-      <div class="table-container" style="border: none; border-radius: 0;">
+      <div class="table-container">
         <table class="w-full">
           <thead>
             <tr>
-              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">時刻</th>
-              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">クラス</th>
-              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">学生</th>
-              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">結果</th>
-              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">理由</th>
-              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">出席判定</th>
-              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">IP</th>
-              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">ブラウザ</th>
+              <th>時刻</th>
+              <th>クラス</th>
+              <th>学生</th>
+              <th>結果</th>
+              <th>理由</th>
+              <th>出席判定</th>
+              <th>IP</th>
+              <th>ブラウザ</th>
             </tr>
           </thead>
           <tbody>
             <% if @scan_events.any? %>
               <% @scan_events.each do |event| %>
-                <tr data-filter-target="row" style="border-bottom: 1px solid var(--color-border);">
-                  <td class="px-4 py-3 whitespace-normal text-sm" style="color: var(--color-text-secondary);">
+                <tr data-filter-target="row">
+                  <td class="px-4 py-3 whitespace-normal text-sm text-body-secondary">
                     <%= link_to qr_scan_event_path(event),
                       data: { turbo_frame: "qr_scan_event_detail" },
                       class: "block hover:underline",
                       style: "color: var(--color-primary);" do %>
                       <div><%= event.scanned_at&.strftime("%Y-%m-%d") %></div>
-                      <div class="text-xs" style="color: var(--color-text-muted);"><%= event.scanned_at&.strftime("%H:%M:%S") %></div>
-                    <% end %>
-                  </td>
-                  <td class="px-4 py-3 whitespace-normal text-sm" style="color: var(--color-text-primary);">
-                    <div><%= event.school_class&.name || "-" %></div>
-                    <% if event.qr_session_id %>
-                      <div class="text-xs" style="color: var(--color-text-muted);">session #<%= event.qr_session_id %></div>
+                      <div class="text-xs text-body-muted"><%= event.scanned_at&.strftime("%H:%M:%S") %></div>
                     <% end %>
                   </td>
                   <td class="px-4 py-3 whitespace-normal text-sm">
-                    <div style="color: var(--color-text-primary);"><%= event.user&.name || "-" %></div>
-                    <div class="text-xs" style="color: var(--color-text-muted);"><%= event.user&.student_id || "-" %></div>
+                    <div><%= event.school_class&.name || "-" %></div>
+                    <% if event.qr_session_id %>
+                      <div class="text-xs text-body-muted">session #<%= event.qr_session_id %></div>
+                    <% end %>
+                  </td>
+                  <td class="px-4 py-3 whitespace-normal text-sm">
+                    <div><%= event.user&.name || "-" %></div>
+                    <div class="text-xs text-body-muted"><%= event.user&.student_id || "-" %></div>
                   </td>
                   <td class="px-4 py-3 whitespace-normal">
                     <span class="<%= status_badges[event.status] || "badge" %>">
                       <%= status_labels[event.status] || event.status %>
                     </span>
                   </td>
-                  <td class="px-4 py-3 whitespace-normal text-sm" style="color: var(--color-text-secondary);">
+                  <td class="px-4 py-3 whitespace-normal text-sm text-body-secondary">
                     <%= reason_labels[event.status] || "-" %>
                   </td>
                   <td class="px-4 py-3 whitespace-normal">
@@ -269,11 +258,11 @@
                         <%= attendance_labels[event.attendance_status] || event.attendance_status %>
                       </span>
                     <% else %>
-                      <span class="text-xs" style="color: var(--color-text-muted);">-</span>
+                      <span class="text-xs text-body-muted">-</span>
                     <% end %>
                   </td>
-                  <td class="px-4 py-3 whitespace-normal text-sm" style="color: var(--color-text-secondary);"><%= event.ip || "-" %></td>
-                  <td class="px-4 py-3 whitespace-normal text-sm" style="color: var(--color-text-secondary);">
+                  <td class="px-4 py-3 whitespace-normal text-sm text-body-secondary"><%= event.ip || "-" %></td>
+                  <td class="px-4 py-3 whitespace-normal text-sm text-body-secondary">
                     <%= truncate(event.user_agent.to_s, length: 28) %>
                   </td>
                 </tr>

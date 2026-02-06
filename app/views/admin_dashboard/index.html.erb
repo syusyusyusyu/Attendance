@@ -4,20 +4,17 @@
 
 <div class="max-w-6xl mx-auto space-y-6">
   <%# ページヘッダー %>
-  <div class="card">
-    <div class="card-body">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 class="text-2xl font-semibold" style="color: var(--color-text-primary);">管理者ダッシュボード</h1>
-          <p class="text-sm mt-1" style="color: var(--color-text-secondary);">システム全体の状況を確認できます</p>
-        </div>
-        <div class="flex flex-wrap gap-2">
-          <%= link_to "ユーザー管理", admin_users_path, class: "btn btn-secondary text-sm" %>
-          <%= link_to "ロール/権限", admin_roles_path, class: "btn btn-secondary text-sm" %>
-          <%= link_to "操作申請", admin_operation_requests_path, class: "btn btn-secondary text-sm" %>
-          <%= link_to "監査ログ", attendance_logs_path, class: "btn btn-secondary text-sm" %>
-        </div>
-      </div>
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">管理者ダッシュボード</h1>
+      <p class="page-subtitle">システム全体の状況を確認できます</p>
+      <%= breadcrumb(["管理"]) %>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      <%= link_to "ユーザー管理", admin_users_path, class: "btn btn-secondary text-sm" %>
+      <%= link_to "ロール/権限", admin_roles_path, class: "btn btn-secondary text-sm" %>
+      <%= link_to "操作申請", admin_operation_requests_path, class: "btn btn-secondary text-sm" %>
+      <%= link_to "監査ログ", attendance_logs_path, class: "btn btn-secondary text-sm" %>
     </div>
   </div>
 
@@ -42,7 +39,7 @@
       </div>
       <div class="kpi-card-title">総ユーザー数</div>
       <div class="kpi-card-value"><%= total_users %></div>
-      <div class="kpi-card-diff" style="color: var(--color-text-secondary);">
+      <div class="kpi-card-diff text-body-secondary">
         学生 <%= @role_counts.fetch("student", 0) %> / 教員 <%= @role_counts.fetch("teacher", 0) %> / 管理者 <%= @role_counts.fetch("admin", 0) %>
       </div>
     </div>
@@ -58,7 +55,7 @@
       </div>
       <div class="kpi-card-title">未処理の出席申請</div>
       <div class="kpi-card-value"><%= @pending_requests.size %></div>
-      <div class="kpi-card-diff" style="color: var(--color-text-secondary);">直近10件を下部に表示</div>
+      <div class="kpi-card-diff text-body-secondary">直近10件を下部に表示</div>
     </div>
 
     <%# 直近7日の監査集計 %>
@@ -71,8 +68,8 @@
       </div>
       <div class="kpi-card-title">直近7日の監査集計</div>
       <div class="space-y-1 mt-2">
-        <div class="text-sm" style="color: var(--color-text-primary);">変更ログ: <span class="font-semibold"><%= @change_source_counts.values.sum %></span> 件</div>
-        <div class="text-sm" style="color: var(--color-text-primary);">スキャンログ: <span class="font-semibold"><%= @scan_status_counts.values.sum %></span> 件</div>
+        <div class="text-sm">変更ログ: <span class="font-semibold"><%= @change_source_counts.values.sum %></span> 件</div>
+        <div class="text-sm">スキャンログ: <span class="font-semibold"><%= @scan_status_counts.values.sum %></span> 件</div>
       </div>
     </div>
   </div>
@@ -82,27 +79,27 @@
     <%# 未処理の出席申請 %>
     <div class="card">
       <div class="card-header">
-        <h2 class="text-lg font-semibold" style="color: var(--color-text-primary);">未処理の出席申請</h2>
+        <h2 class="text-lg font-semibold">未処理の出席申請</h2>
       </div>
-      <div class="table-container" style="border: none; border-radius: 0;">
+      <div class="table-container">
         <table class="w-full">
           <thead>
             <tr>
-              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">日付</th>
-              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">クラス</th>
-              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">学生</th>
-              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">種別</th>
+              <th>日付</th>
+              <th>クラス</th>
+              <th>学生</th>
+              <th>種別</th>
             </tr>
           </thead>
           <tbody>
             <% if @pending_requests.any? %>
               <% @pending_requests.each do |request| %>
-                <tr style="border-bottom: 1px solid var(--color-border);">
-                  <td class="px-4 py-3 text-sm" style="color: var(--color-text-secondary);"><%= request.date.strftime("%Y-%m-%d") %></td>
-                  <td class="px-4 py-3 text-sm" style="color: var(--color-text-primary);"><%= request.school_class.name %></td>
+                <tr>
+                  <td class="px-4 py-3 text-sm text-body-secondary"><%= request.date.strftime("%Y-%m-%d") %></td>
+                  <td class="px-4 py-3 text-sm"><%= request.school_class.name %></td>
                   <td class="px-4 py-3 text-sm">
-                    <div style="color: var(--color-text-primary);"><%= request.user.name %></div>
-                    <div class="text-xs" style="color: var(--color-text-muted);"><%= request.user.student_id %></div>
+                    <div><%= request.user.name %></div>
+                    <div class="text-xs text-body-muted"><%= request.user.student_id %></div>
                   </td>
                   <td class="px-4 py-3 text-sm">
                     <span class="badge badge-warning"><%= request.request_type %></span>
@@ -126,28 +123,28 @@
     <%# 未処理の操作申請 %>
     <div class="card">
       <div class="card-header">
-        <h2 class="text-lg font-semibold" style="color: var(--color-text-primary);">未処理の操作申請</h2>
+        <h2 class="text-lg font-semibold">未処理の操作申請</h2>
       </div>
-      <div class="table-container" style="border: none; border-radius: 0;">
+      <div class="table-container">
         <table class="w-full">
           <thead>
             <tr>
-              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">申請者</th>
-              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">クラス</th>
-              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">種別</th>
-              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">申請日時</th>
+              <th>申請者</th>
+              <th>クラス</th>
+              <th>種別</th>
+              <th>申請日時</th>
             </tr>
           </thead>
           <tbody>
             <% if @pending_operations.any? %>
               <% @pending_operations.each do |request| %>
-                <tr style="border-bottom: 1px solid var(--color-border);">
-                  <td class="px-4 py-3 text-sm" style="color: var(--color-text-primary);"><%= request.user&.name || "-" %></td>
-                  <td class="px-4 py-3 text-sm" style="color: var(--color-text-primary);"><%= request.school_class&.name || "-" %></td>
+                <tr>
+                  <td class="px-4 py-3 text-sm"><%= request.user&.name || "-" %></td>
+                  <td class="px-4 py-3 text-sm"><%= request.school_class&.name || "-" %></td>
                   <td class="px-4 py-3 text-sm">
                     <span class="badge badge-info"><%= request.kind %></span>
                   </td>
-                  <td class="px-4 py-3 text-sm" style="color: var(--color-text-secondary);"><%= request.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+                  <td class="px-4 py-3 text-sm text-body-secondary"><%= request.created_at.strftime("%Y-%m-%d %H:%M") %></td>
                 </tr>
               <% end %>
             <% else %>
@@ -170,26 +167,26 @@
     <%# 最近の出席変更ログ %>
     <div class="card">
       <div class="card-header">
-        <h2 class="text-lg font-semibold" style="color: var(--color-text-primary);">最近の出席変更ログ</h2>
+        <h2 class="text-lg font-semibold">最近の出席変更ログ</h2>
       </div>
-      <div class="table-container" style="border: none; border-radius: 0;">
+      <div class="table-container">
         <table class="w-full">
           <thead>
             <tr>
-              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">日時</th>
-              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">学生</th>
-              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">変更</th>
-              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">理由</th>
+              <th>日時</th>
+              <th>学生</th>
+              <th>変更</th>
+              <th>理由</th>
             </tr>
           </thead>
           <tbody>
             <% if @recent_changes.any? %>
               <% @recent_changes.each do |change| %>
-                <tr style="border-bottom: 1px solid var(--color-border);">
-                  <td class="px-4 py-3 text-sm" style="color: var(--color-text-secondary);"><%= change.changed_at&.strftime("%m/%d %H:%M") %></td>
-                  <td class="px-4 py-3 text-sm" style="color: var(--color-text-primary);"><%= change.user&.name || "-" %></td>
-                  <td class="px-4 py-3 text-sm" style="color: var(--color-text-primary);"><%= "#{change.previous_status || '-'} → #{change.new_status}" %></td>
-                  <td class="px-4 py-3 text-sm" style="color: var(--color-text-secondary);"><%= change.reason.presence || "-" %></td>
+                <tr>
+                  <td class="px-4 py-3 text-sm text-body-secondary"><%= change.changed_at&.strftime("%m/%d %H:%M") %></td>
+                  <td class="px-4 py-3 text-sm"><%= change.user&.name || "-" %></td>
+                  <td class="px-4 py-3 text-sm"><%= "#{change.previous_status || '-'} → #{change.new_status}" %></td>
+                  <td class="px-4 py-3 text-sm text-body-secondary"><%= change.reason.presence || "-" %></td>
                 </tr>
               <% end %>
             <% else %>
@@ -209,24 +206,24 @@
     <%# 最近のQRスキャン %>
     <div class="card">
       <div class="card-header">
-        <h2 class="text-lg font-semibold" style="color: var(--color-text-primary);">最近のQRスキャン</h2>
+        <h2 class="text-lg font-semibold">最近のQRスキャン</h2>
       </div>
-      <div class="table-container" style="border: none; border-radius: 0;">
+      <div class="table-container">
         <table class="w-full">
           <thead>
             <tr>
-              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">時刻</th>
-              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">学生</th>
-              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">結果</th>
-              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">クラス</th>
+              <th>時刻</th>
+              <th>学生</th>
+              <th>結果</th>
+              <th>クラス</th>
             </tr>
           </thead>
           <tbody>
             <% if @recent_scans.any? %>
               <% @recent_scans.each do |scan| %>
-                <tr style="border-bottom: 1px solid var(--color-border);">
-                  <td class="px-4 py-3 text-sm" style="color: var(--color-text-secondary);"><%= scan.scanned_at&.strftime("%m/%d %H:%M") %></td>
-                  <td class="px-4 py-3 text-sm" style="color: var(--color-text-primary);"><%= scan.user&.name || "-" %></td>
+                <tr>
+                  <td class="px-4 py-3 text-sm text-body-secondary"><%= scan.scanned_at&.strftime("%m/%d %H:%M") %></td>
+                  <td class="px-4 py-3 text-sm"><%= scan.user&.name || "-" %></td>
                   <td class="px-4 py-3 text-sm">
                     <%
                       status_class = case scan.status
@@ -238,7 +235,7 @@
                     %>
                     <span class="badge <%= status_class %>"><%= scan.status %></span>
                   </td>
-                  <td class="px-4 py-3 text-sm" style="color: var(--color-text-secondary);"><%= scan.school_class&.name || "-" %></td>
+                  <td class="px-4 py-3 text-sm text-body-secondary"><%= scan.school_class&.name || "-" %></td>
                 </tr>
               <% end %>
             <% else %>

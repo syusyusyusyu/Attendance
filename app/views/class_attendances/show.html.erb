@@ -4,28 +4,18 @@
 
 <div class="max-w-6xl mx-auto space-y-6">
   <%# ページヘッダー %>
-  <div class="card sticky top-[calc(var(--app-header-height)+1rem)] z-20">
-    <div class="card-body">
-      <div class="flex items-center gap-3">
-        <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background-color: var(--color-info-light);">
-          <svg class="h-6 w-6" style="color: var(--color-info);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
-            <rect x="9" y="3" width="6" height="4" rx="1"/>
-            <path d="M9 14l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <div>
-          <h1 class="text-2xl font-semibold" style="color: var(--color-text-primary);">クラス出席管理</h1>
-          <p class="text-sm mt-1" style="color: var(--color-text-secondary);">クラスと日付を選択して出席状況を更新します。</p>
-        </div>
-      </div>
+  <div class="page-header sticky top-[calc(var(--app-header-height)+1rem)] z-20">
+    <div>
+      <h1 class="page-title">クラス出席管理</h1>
+      <p class="page-subtitle">クラスと日付を選択して出席状況を更新します。</p>
+      <%= breadcrumb(["出席確認"]) %>
     </div>
   </div>
 
   <%# クラス・日付選択カード %>
   <div class="card">
     <div class="card-header">
-      <h2 class="font-semibold" style="color: var(--color-text-primary);">クラス・日付選択</h2>
+      <h2 class="font-semibold">クラス・日付選択</h2>
     </div>
     <div class="card-body">
       <%= form_with url: attendance_path,
@@ -46,13 +36,13 @@
           <%= f.label :date, "日付", class: "block text-sm font-medium mb-2", style: "color: var(--color-text-primary);" %>
           <div class="flex">
             <%= link_to attendance_path(class_id: @selected_class&.id, date: prev_date), class: "px-3 py-2 border rounded-l-md hover:bg-[var(--color-surface-hover)]", style: "background-color: var(--color-surface); border-color: var(--color-border);" do %>
-              <svg class="h-4 w-4" style="color: var(--color-text-muted);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg class="h-4 w-4 text-body-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             <% end %>
             <%= f.date_field :date, value: @date, class: "flex-1 py-2 px-3 border-t border-b focus:outline-none focus:ring-2", style: "border-color: var(--color-border); --tw-ring-color: var(--color-primary);" %>
             <%= link_to attendance_path(class_id: @selected_class&.id, date: next_date), class: "px-3 py-2 border rounded-r-md hover:bg-[var(--color-surface-hover)]", style: "background-color: var(--color-surface); border-color: var(--color-border);" do %>
-              <svg class="h-4 w-4" style="color: var(--color-text-muted);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg class="h-4 w-4 text-body-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             <% end %>
@@ -83,23 +73,23 @@
     <%# 出席ポリシーカード %>
     <div class="card">
       <div class="card-header">
-        <h2 class="font-semibold" style="color: var(--color-text-primary);">出席ポリシー</h2>
+        <h2 class="font-semibold">出席ポリシー</h2>
       </div>
       <div class="card-body">
-        <p class="text-sm mb-4" style="color: var(--color-text-secondary);">
+        <p class="text-sm mb-4 text-body-secondary">
           授業時間: <%= @selected_class.schedule_label || "未設定" %>
         </p>
         <%= form_with url: attendance_policy_path, method: :patch, scope: :attendance_policy, class: "grid grid-cols-1 md:grid-cols-3 gap-4 items-end" do |f| %>
           <%= hidden_field_tag :class_id, @selected_class.id %>
           <%= hidden_field_tag :date, @date %>
           <div>
-            <span class="block text-sm font-medium mb-2" style="color: var(--color-text-primary);">出席判定</span>
-            <div class="text-sm" style="color: var(--color-text-secondary);">出席QRを発行してスキャンした記録は出席扱い</div>
+            <span class="block text-sm font-medium mb-2">出席判定</span>
+            <div class="text-sm text-body-secondary">出席QRを発行してスキャンした記録は出席扱い</div>
             <%= f.hidden_field :late_after_minutes, value: AttendancePolicy::DEFAULTS[:late_after_minutes] %>
           </div>
           <div>
-            <span class="block text-sm font-medium mb-2" style="color: var(--color-text-primary);">欠席判定</span>
-            <div class="text-sm" style="color: var(--color-text-secondary);">授業開始20分以降は欠席</div>
+            <span class="block text-sm font-medium mb-2">欠席判定</span>
+            <div class="text-sm text-body-secondary">授業開始20分以降は欠席</div>
             <%= f.hidden_field :close_after_minutes, value: AttendancePolicy::DEFAULTS[:close_after_minutes] %>
           </div>
           <div>
@@ -129,9 +119,9 @@
           <% if current_user.admin? %>
             <div class="md:col-span-3">
               <div class="rounded-lg p-4" style="background-color: var(--color-surface-hover);">
-                <div class="font-medium" style="color: var(--color-text-primary);">位置情報は大阪情報コンピュータ専門学校に固定</div>
-                <div class="mt-2 text-sm" style="color: var(--color-text-secondary);">〒543-0001 大阪府大阪市天王寺区上本町6-8-4</div>
-                <div class="text-xs mt-1" style="color: var(--color-text-muted);">校内半径50mで判定します。</div>
+                <div class="font-medium">位置情報は大阪情報コンピュータ専門学校に固定</div>
+                <div class="mt-2 text-sm text-body-secondary">〒543-0001 大阪府大阪市天王寺区上本町6-8-4</div>
+                <div class="text-xs mt-1 text-body-muted">校内半径50mで判定します。</div>
               </div>
             </div>
           <% end %>
@@ -148,12 +138,12 @@
           </div>
         <% end %>
         <div class="mt-4 space-y-1">
-          <p class="text-xs" style="color: var(--color-text-muted);">出席QRのスキャンは出席扱いです。授業開始20分以降は欠席として扱います。</p>
-          <p class="text-xs" style="color: var(--color-text-muted);">IP制限を設定すると条件に一致しないQRスキャンはブロックされます。</p>
-          <p class="text-xs" style="color: var(--color-text-muted);">位置情報は必須のため、取得できない端末は出席登録できません。</p>
-          <p class="text-xs" style="color: var(--color-text-muted);">校内の中心と半径の範囲外のスキャンは拒否されます。</p>
-          <p class="text-xs" style="color: var(--color-text-muted);">最低出席率は入室/退室の滞在時間に基づき早退判定に利用されます。</p>
-          <p class="text-xs" style="color: var(--color-text-muted);">警告欠席回数・警告出席率はダッシュボードの注意アラートに反映されます。</p>
+          <p class="text-xs text-body-muted">出席QRのスキャンは出席扱いです。授業開始20分以降は欠席として扱います。</p>
+          <p class="text-xs text-body-muted">IP制限を設定すると条件に一致しないQRスキャンはブロックされます。</p>
+          <p class="text-xs text-body-muted">位置情報は必須のため、取得できない端末は出席登録できません。</p>
+          <p class="text-xs text-body-muted">校内の中心と半径の範囲外のスキャンは拒否されます。</p>
+          <p class="text-xs text-body-muted">最低出席率は入室/退室の滞在時間に基づき早退判定に利用されます。</p>
+          <p class="text-xs text-body-muted">警告欠席回数・警告出席率はダッシュボードの注意アラートに反映されます。</p>
         </div>
       </div>
     </div>
@@ -163,16 +153,16 @@
       <%# 選択日スケジュール %>
       <div class="card">
         <div class="card-header">
-          <h3 class="font-semibold" style="color: var(--color-text-primary);">選択日スケジュール</h3>
+          <h3 class="font-semibold">選択日スケジュール</h3>
         </div>
         <div class="card-body">
           <% if @session_window&.dig(:canceled) %>
             <div class="text-sm" style="color: var(--color-error);">この日は休講設定です。</div>
             <% if @session_window[:override]&.note.present? %>
-              <div class="text-xs mt-2" style="color: var(--color-text-muted);">メモ: <%= @session_window[:override].note %></div>
+              <div class="text-xs mt-2 text-body-muted">メモ: <%= @session_window[:override].note %></div>
             <% end %>
           <% elsif @session_window.present? %>
-            <div class="text-sm" style="color: var(--color-text-primary);">
+            <div class="text-sm">
               <%= @session_window[:start_at].strftime("%H:%M") %> - <%= @session_window[:end_at].strftime("%H:%M") %>
             </div>
             <% if @class_session %>
@@ -181,10 +171,10 @@
               </div>
             <% end %>
             <% if @session_window[:override]&.note.present? %>
-              <div class="text-xs mt-2" style="color: var(--color-text-muted);">メモ: <%= @session_window[:override].note %></div>
+              <div class="text-xs mt-2 text-body-muted">メモ: <%= @session_window[:override].note %></div>
             <% end %>
           <% else %>
-            <div class="text-sm" style="color: var(--color-text-muted);">スケジュールが未設定です。</div>
+            <div class="text-sm text-body-muted">スケジュールが未設定です。</div>
           <% end %>
         </div>
       </div>
@@ -192,11 +182,11 @@
       <%# 授業回ステータス %>
       <div class="card">
         <div class="card-header">
-          <h3 class="font-semibold" style="color: var(--color-text-primary);">授業回ステータス</h3>
+          <h3 class="font-semibold">授業回ステータス</h3>
         </div>
         <div class="card-body">
           <% if @class_session %>
-            <div class="text-sm" style="color: var(--color-text-secondary);">授業回ID: <%= @class_session.id %></div>
+            <div class="text-sm text-body-secondary">授業回ID: <%= @class_session.id %></div>
             <div class="mt-2">
               <%= render "shared/session_status_badges", session: @class_session %>
             </div>
@@ -210,10 +200,10 @@
                   class: "btn btn-secondary w-full") %>
               </div>
               <% unless current_user.admin? %>
-                <div class="mt-2 text-xs" style="color: var(--color-text-muted);">教員は承認申請となります。</div>
+                <div class="mt-2 text-xs text-body-muted">教員は承認申請となります。</div>
               <% end %>
             <% else %>
-              <div class="mt-2 text-sm" style="color: var(--color-text-secondary);">出席は未確定です。</div>
+              <div class="mt-2 text-sm text-body-secondary">出席は未確定です。</div>
               <% if @finalize_available %>
                 <div class="mt-3">
                   <%= button_to(current_user.admin? ? "出席を確定" : "出席確定を申請",
@@ -223,14 +213,14 @@
                     class: "btn btn-primary w-full") %>
                 </div>
                 <% unless current_user.admin? %>
-                  <div class="mt-2 text-xs" style="color: var(--color-text-muted);">教員は承認申請となります。</div>
+                  <div class="mt-2 text-xs text-body-muted">教員は承認申請となります。</div>
                 <% end %>
               <% else %>
-                <div class="mt-2 text-xs" style="color: var(--color-text-muted);">授業終了後に確定できます。</div>
+                <div class="mt-2 text-xs text-body-muted">授業終了後に確定できます。</div>
               <% end %>
             <% end %>
           <% else %>
-            <div class="text-sm" style="color: var(--color-text-muted);">授業回が未生成です。スケジュールを設定してください。</div>
+            <div class="text-sm text-body-muted">授業回が未生成です。スケジュールを設定してください。</div>
           <% end %>
         </div>
       </div>
@@ -238,7 +228,7 @@
       <%# CSVエクスポート %>
       <div class="card">
         <div class="card-header">
-          <h3 class="font-semibold" style="color: var(--color-text-primary);">CSVエクスポート</h3>
+          <h3 class="font-semibold">CSVエクスポート</h3>
         </div>
         <div class="card-body">
           <%= form_with url: attendance_export_path, method: :get, class: "space-y-3" do |f| %>
@@ -255,7 +245,7 @@
             </div>
             <%= f.submit "CSVダウンロード", class: "btn btn-secondary w-full text-sm" %>
           <% end %>
-          <p class="text-xs mt-2" style="color: var(--color-text-muted);">同日を指定すると1日分のみ出力</p>
+          <p class="text-xs mt-2 text-body-muted">同日を指定すると1日分のみ出力</p>
         </div>
       </div>
     </div>
@@ -263,7 +253,7 @@
     <%# CSVインポート %>
     <div class="card">
       <div class="card-header">
-        <h3 class="font-semibold" style="color: var(--color-text-primary);">CSVインポート</h3>
+        <h3 class="font-semibold">CSVインポート</h3>
       </div>
       <div class="card-body">
         <%= form_with url: attendance_import_path, method: :post, multipart: true, class: "grid grid-cols-1 md:grid-cols-3 gap-4 items-end" do |f| %>
@@ -279,11 +269,11 @@
               data: { turbo_confirm: "CSVを反映します。よろしいですか？" }) %>
           </div>
         <% end %>
-        <p class="text-xs mt-2" style="color: var(--color-text-muted);">
+        <p class="text-xs mt-2 text-body-muted">
           必須列: 日付 / 学生ID / 出席状況(出席・遅刻・欠席・公欠)。備考は任意です。
         </p>
         <% unless current_user.admin? %>
-          <p class="text-xs" style="color: var(--color-text-muted);">教員は承認申請として登録されます。</p>
+          <p class="text-xs text-body-muted">教員は承認申請として登録されます。</p>
         <% end %>
       </div>
     </div>
@@ -294,8 +284,8 @@
       <div class="card-header">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h3 class="text-lg font-semibold" style="color: var(--color-text-primary);"><%= @selected_class.name %></h3>
-            <p class="text-sm" style="color: var(--color-text-secondary);">教室: <%= @selected_class.room %></p>
+            <h3 class="text-lg font-semibold"><%= @selected_class.name %></h3>
+            <p class="text-sm text-body-secondary">教室: <%= @selected_class.room %></p>
           </div>
           <button type="button" class="btn btn-primary" data-attendance-target="editButton" data-action="attendance#edit">
             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -312,7 +302,7 @@
         <div class="rounded-lg px-4 py-2 text-sm shadow-sm" style="background-color: var(--color-warning-light); border: 1px solid var(--color-warning); color: var(--color-text-primary);">
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <div class="font-medium">変更中: <span data-attendance-target="changeCount">0</span>件</div>
-            <div class="text-xs truncate" style="color: var(--color-text-secondary);" data-attendance-target="changeList"></div>
+            <div class="text-xs truncate text-body-secondary" data-attendance-target="changeList"></div>
           </div>
         </div>
       </div>
@@ -322,7 +312,7 @@
         <div class="mb-4 flex flex-col sm:flex-row gap-2">
           <div class="relative flex-1">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg class="h-4 w-4" style="color: var(--color-text-muted);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg class="h-4 w-4 text-body-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="11" cy="11" r="7" />
                 <path d="M21 21l-4.3-4.3" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
@@ -365,21 +355,21 @@
           >
             <%= label_tag :reason, "修正理由", class: "block text-sm font-medium mb-2", style: "color: var(--color-text-primary);" %>
             <%= text_area_tag :reason, nil, rows: 2, class: "input", placeholder: "例: 公欠申請・遅延連絡" %>
-            <p class="text-xs mt-2" style="color: var(--color-text-muted);">出席状況を変更する場合は理由の入力が必須です。</p>
+            <p class="text-xs mt-2 text-body-muted">出席状況を変更する場合は理由の入力が必須です。</p>
           </div>
 
           <%# テーブル %>
-          <div class="table-container" style="border: none; border-radius: 0;">
+          <div class="table-container">
             <table class="w-full">
               <thead>
                 <tr>
-                  <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">学生ID</th>
-                  <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">氏名</th>
-                  <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">出席状況</th>
-                  <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">入室</th>
-                  <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">退室</th>
-                  <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">滞在(分)</th>
-                  <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">申請</th>
+                  <th>学生ID</th>
+                  <th>氏名</th>
+                  <th>出席状況</th>
+                  <th>入室</th>
+                  <th>退室</th>
+                  <th>滞在(分)</th>
+                  <th>申請</th>
                 </tr>
               </thead>
               <tbody>

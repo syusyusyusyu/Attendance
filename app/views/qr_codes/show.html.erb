@@ -1,30 +1,18 @@
 <%# AdminKit風出席QR発行: カード、タイマー表示 %>
 <div class="max-w-2xl mx-auto space-y-6">
   <%# ページヘッダー %>
-  <div class="card">
-    <div class="card-body">
-      <div class="flex items-center gap-3">
-        <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background-color: var(--color-success-light);">
-          <svg class="h-6 w-6" style="color: var(--color-success);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="3" width="6" height="6"/>
-            <rect x="15" y="3" width="6" height="6"/>
-            <rect x="3" y="15" width="6" height="6"/>
-            <path d="M15 15h6v6h-6z"/>
-            <path d="M11 11h2v2h-2z"/>
-          </svg>
-        </div>
-        <div>
-          <h1 class="text-2xl font-semibold" style="color: var(--color-text-primary);">出席QR発行</h1>
-          <p class="text-sm mt-1" style="color: var(--color-text-secondary);">授業を選択して出席QRを発行します。</p>
-        </div>
-      </div>
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">出席QR発行</h1>
+      <p class="page-subtitle">授業を選択して出席QRを発行します。</p>
+      <%= breadcrumb(["QRコード発行"]) %>
     </div>
   </div>
 
   <%# QR発行カード %>
   <div class="card">
     <div class="card-header">
-      <h2 class="font-semibold" style="color: var(--color-text-primary);">クラス選択</h2>
+      <h2 class="font-semibold">クラス選択</h2>
     </div>
     <div
       class="card-body"
@@ -67,9 +55,9 @@
 
           <%# クラス情報 %>
           <div class="mb-4 text-center">
-            <div class="text-sm font-medium mb-1" style="color: var(--color-text-muted);">クラス情報:</div>
-            <div class="text-lg font-semibold" style="color: var(--color-text-primary);"><%= @selected_class.name %></div>
-            <div class="text-sm" style="color: var(--color-text-secondary);"><%= @selected_class.room %></div>
+            <div class="text-sm font-medium mb-1 text-body-muted">クラス情報:</div>
+            <div class="text-lg font-semibold"><%= @selected_class.name %></div>
+            <div class="text-sm text-body-secondary"><%= @selected_class.room %></div>
             <% if @class_session %>
               <div class="mt-2 flex justify-center">
                 <%= render "shared/session_status_badges", session: @class_session %>
@@ -83,12 +71,12 @@
               <circle cx="12" cy="12" r="9" />
               <path d="M12 7v5l3 3" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
-            <span class="text-sm" style="color: var(--color-text-primary);">
+            <span class="text-sm">
               有効期限: <%= @expires_at.strftime("%H:%M") %> (残り <span data-qr-target="timeLeft"><%= ((@expires_at - Time.current).to_i.clamp(0, 300) / 60).to_s %>:<%= ((@expires_at - Time.current).to_i.clamp(0, 300) % 60).to_s.rjust(2, "0") %></span>)
             </span>
           </div>
-          <p class="text-xs mb-1" style="color: var(--color-text-muted);">QRコードは定期的に自動更新されます（5分で失効）。</p>
-          <p class="text-xs mb-6" style="color: var(--color-text-muted);">署名付きトークンで改ざん検知を行います。</p>
+          <p class="text-xs mb-1 text-body-muted">QRコードは定期的に自動更新されます（5分で失効）。</p>
+          <p class="text-xs mb-6 text-body-muted">署名付きトークンで改ざん検知を行います。</p>
 
           <%# アクションボタン %>
           <div class="flex gap-3">

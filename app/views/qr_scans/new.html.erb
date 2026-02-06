@@ -1,23 +1,11 @@
 ﻿<%# AdminKit風QRスキャン: フルスクリーン化、成功アニメーション、位置情報案内 %>
 <div class="max-w-none space-y-6 -mx-6 md:-mx-8 lg:-mx-10 px-6 md:px-8 lg:px-10">
-  <%# ヘッダーカード %>
-  <div class="card">
-    <div class="card-body">
-      <div class="flex items-center gap-3">
-        <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background-color: var(--color-success-light);">
-          <svg class="h-6 w-6" style="color: var(--color-success);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="3" width="6" height="6"/>
-            <rect x="15" y="3" width="6" height="6"/>
-            <rect x="3" y="15" width="6" height="6"/>
-            <path d="M15 15h6v6h-6z"/>
-            <path d="M11 11h2v2h-2z"/>
-          </svg>
-        </div>
-        <div>
-          <h1 class="text-xl font-bold" style="color: var(--color-text-primary);">QRスキャン</h1>
-          <p class="text-sm" style="color: var(--color-text-secondary);">カメラでQRコードを読み取って出席登録</p>
-        </div>
-      </div>
+  <%# ヘッダー %>
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">QRスキャン</h1>
+      <p class="page-subtitle">カメラでQRコードを読み取って出席登録</p>
+      <%= breadcrumb(["QRスキャン"]) %>
     </div>
   </div>
 
@@ -137,8 +125,8 @@
               </svg>
             </div>
             <div>
-              <h3 class="font-semibold" style="color: var(--color-text-primary);">位置情報について</h3>
-              <p class="text-sm mt-1" style="color: var(--color-text-secondary);">
+              <h3 class="font-semibold">位置情報について</h3>
+              <p class="text-sm mt-1 text-body-secondary">
                 出席登録には位置情報の許可が必要です。大阪情報コンピュータ専門学校の校内（半径50m以内）でのみ有効です。位置情報の精度が150mを超える場合は登録できません。
               </p>
             </div>
@@ -157,8 +145,8 @@
               </svg>
             </div>
             <div>
-              <h3 class="font-semibold" style="color: var(--color-text-primary);">入室/退室について</h3>
-              <p class="text-sm mt-1" style="color: var(--color-text-secondary);">
+              <h3 class="font-semibold">入室/退室について</h3>
+              <p class="text-sm mt-1 text-body-secondary">
                 1回目のスキャンで「入室」、2回目のスキャンで「退室」が記録されます。早退判定や滞在時間の計算に使用されます。
               </p>
             </div>

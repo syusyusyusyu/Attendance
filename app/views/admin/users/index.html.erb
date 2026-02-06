@@ -1,18 +1,15 @@
 <%# AdminKit風DataGrid: 検索/絞り込み対応テーブル %>
 <div class="max-w-6xl mx-auto space-y-6">
   <%# ページヘッダー %>
-  <div class="card">
-    <div class="card-body">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 class="text-2xl font-semibold" style="color: var(--color-text-primary);">ユーザー管理</h1>
-          <p class="text-sm mt-1" style="color: var(--color-text-secondary);">システムに登録されているユーザーの一覧と管理</p>
-        </div>
-        <%= link_to "新規ユーザー",
-          new_admin_user_path,
-          class: "btn btn-primary" %>
-      </div>
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">ユーザー管理</h1>
+      <p class="page-subtitle">システムに登録されているユーザーの一覧と管理</p>
+      <%= breadcrumb(["管理", admin_path], ["ユーザー"]) %>
     </div>
+    <%= link_to "新規ユーザー",
+      new_admin_user_path,
+      class: "btn btn-primary" %>
   </div>
 
   <div class="data-grid">
@@ -30,7 +27,7 @@
         <div class="data-grid-search">
           <div class="relative">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg class="h-4 w-4" style="color: var(--color-text-muted);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg class="h-4 w-4 text-body-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="11" cy="11" r="8"/>
                 <path d="M21 21l-4.35-4.35" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
@@ -78,7 +75,7 @@
               <td colspan="6" class="px-4 py-8 text-center">
                 <div class="empty-state" style="padding: 0;">
                   <div class="empty-state-title">該当なし</div>
-                  <div class="text-sm mt-1" style="color: var(--color-text-secondary);">検索条件を変更するか、新規ユーザーを追加してください。</div>
+                  <div class="text-sm mt-1 text-body-secondary">検索条件を変更するか、新規ユーザーを追加してください。</div>
                 </div>
               </td>
             </tr>
@@ -90,7 +87,7 @@
     <%# ページネーション（存在する場合） %>
     <% if @users.respond_to?(:total_pages) && @users.total_pages > 1 %>
       <div class="data-grid-pagination">
-        <div class="text-sm" style="color: var(--color-text-secondary);">
+        <div class="text-sm text-body-secondary">
           全 <%= @users.total_count %> 件中 <%= @users.offset_value + 1 %>-<%= [@users.offset_value + @users.length, @users.total_count].min %> 件を表示
         </div>
         <div class="flex items-center gap-2">

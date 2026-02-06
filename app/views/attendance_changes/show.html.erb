@@ -19,41 +19,41 @@
   <div class="card p-6 space-y-4">
     <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
       <div>
-        <h2 class="text-xl font-semibold" style="color: var(--color-text-primary);">変更詳細</h2>
-        <p class="text-sm mt-1" style="color: var(--color-text-muted);">監査: 誰が / いつ / 何を / 理由</p>
+        <h2 class="text-xl font-semibold">変更詳細</h2>
+        <p class="text-sm mt-1 text-body-muted">監査: 誰が / いつ / 何を / 理由</p>
       </div>
-      <button type="button" class="text-sm hover:opacity-70" style="color: var(--color-text-muted);" data-action="drawer#close">
+      <button type="button" class="text-sm hover:opacity-70 text-body-muted" data-action="drawer#close">
         閉じる
       </button>
     </div>
 
     <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
       <div class="rounded-lg p-4" style="border: 1px solid var(--color-border);">
-        <dt class="text-xs" style="color: var(--color-text-muted);">変更日時</dt>
-        <dd class="mt-1 font-medium" style="color: var(--color-text-primary);"><%= l(@change.changed_at, format: :short) %></dd>
+        <dt class="text-xs text-body-muted">変更日時</dt>
+        <dd class="mt-1 font-medium"><%= l(@change.changed_at, format: :short) %></dd>
       </div>
 
       <div class="rounded-lg p-4" style="border: 1px solid var(--color-border);">
-        <dt class="text-xs" style="color: var(--color-text-muted);">日付</dt>
-        <dd class="mt-1 font-medium" style="color: var(--color-text-primary);"><%= @change.date.strftime("%Y-%m-%d") %></dd>
+        <dt class="text-xs text-body-muted">日付</dt>
+        <dd class="mt-1 font-medium"><%= @change.date.strftime("%Y-%m-%d") %></dd>
       </div>
 
       <div class="rounded-lg p-4" style="border: 1px solid var(--color-border);">
-        <dt class="text-xs" style="color: var(--color-text-muted);">クラス</dt>
-        <dd class="mt-1 font-medium" style="color: var(--color-text-primary);"><%= @change.school_class&.name || "-" %></dd>
+        <dt class="text-xs text-body-muted">クラス</dt>
+        <dd class="mt-1 font-medium"><%= @change.school_class&.name || "-" %></dd>
       </div>
 
       <div class="rounded-lg p-4" style="border: 1px solid var(--color-border);">
-        <dt class="text-xs" style="color: var(--color-text-muted);">学生</dt>
-        <dd class="mt-1 font-medium" style="color: var(--color-text-primary);">
+        <dt class="text-xs text-body-muted">学生</dt>
+        <dd class="mt-1 font-medium">
           <%= @change.user&.name || "-" %>
-          <span class="text-xs ml-2" style="color: var(--color-text-muted);"><%= @change.user&.student_id || "-" %></span>
+          <span class="text-xs ml-2 text-body-muted"><%= @change.user&.student_id || "-" %></span>
         </dd>
       </div>
 
       <div class="rounded-lg p-4" style="border: 1px solid var(--color-border);">
-        <dt class="text-xs" style="color: var(--color-text-muted);">変更</dt>
-        <dd class="mt-1 font-medium" style="color: var(--color-text-primary);">
+        <dt class="text-xs text-body-muted">変更</dt>
+        <dd class="mt-1 font-medium">
           <%= status_labels[@change.previous_status] || @change.previous_status || "-" %>
           →
           <%= status_labels[@change.new_status] || @change.new_status %>
@@ -61,28 +61,28 @@
       </div>
 
       <div class="rounded-lg p-4" style="border: 1px solid var(--color-border);">
-        <dt class="text-xs" style="color: var(--color-text-muted);">種別</dt>
-        <dd class="mt-1 font-medium" style="color: var(--color-text-primary);"><%= source_labels[@change.source] || @change.source %></dd>
+        <dt class="text-xs text-body-muted">種別</dt>
+        <dd class="mt-1 font-medium"><%= source_labels[@change.source] || @change.source %></dd>
       </div>
 
       <div class="rounded-lg p-4 sm:col-span-2" style="border: 1px solid var(--color-border);">
-        <dt class="text-xs" style="color: var(--color-text-muted);">理由</dt>
-        <dd class="mt-1 whitespace-pre-wrap" style="color: var(--color-text-primary);"><%= @change.reason.presence || "-" %></dd>
+        <dt class="text-xs text-body-muted">理由</dt>
+        <dd class="mt-1 whitespace-pre-wrap"><%= @change.reason.presence || "-" %></dd>
       </div>
 
       <div class="rounded-lg p-4" style="border: 1px solid var(--color-border);">
-        <dt class="text-xs" style="color: var(--color-text-muted);">操作者</dt>
-        <dd class="mt-1 font-medium" style="color: var(--color-text-primary);"><%= @change.modified_by&.name || "-" %></dd>
+        <dt class="text-xs text-body-muted">操作者</dt>
+        <dd class="mt-1 font-medium"><%= @change.modified_by&.name || "-" %></dd>
       </div>
 
       <div class="rounded-lg p-4" style="border: 1px solid var(--color-border);">
-        <dt class="text-xs" style="color: var(--color-text-muted);">IP</dt>
-        <dd class="mt-1 font-medium" style="color: var(--color-text-primary);"><%= @change.ip.presence || "-" %></dd>
+        <dt class="text-xs text-body-muted">IP</dt>
+        <dd class="mt-1 font-medium"><%= @change.ip.presence || "-" %></dd>
       </div>
 
       <div class="rounded-lg p-4 sm:col-span-2" style="border: 1px solid var(--color-border);">
-        <dt class="text-xs" style="color: var(--color-text-muted);">ブラウザ</dt>
-        <dd class="mt-1 break-words" style="color: var(--color-text-primary);"><%= @change.user_agent.presence || "-" %></dd>
+        <dt class="text-xs text-body-muted">ブラウザ</dt>
+        <dd class="mt-1 break-words"><%= @change.user_agent.presence || "-" %></dd>
       </div>
     </dl>
   </div>

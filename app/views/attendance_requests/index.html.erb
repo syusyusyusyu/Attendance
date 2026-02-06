@@ -17,21 +17,11 @@
 
 <div class="max-w-6xl mx-auto space-y-6">
   <%# ページヘッダー %>
-  <div class="card">
-    <div class="card-body">
-      <div class="flex items-center gap-3">
-        <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background-color: var(--color-warning-light);">
-          <svg class="h-6 w-6" style="color: var(--color-warning);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M9 3h6a2 2 0 012 2v1H7V5a2 2 0 012-2z"/>
-            <rect x="5" y="6" width="14" height="15" rx="2" ry="2"/>
-            <path d="M9 14l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <div>
-          <h1 class="text-2xl font-semibold" style="color: var(--color-text-primary);">出席申請</h1>
-          <p class="text-sm mt-1" style="color: var(--color-text-secondary);"><%= current_user.staff? ? "学生からの申請を処理します。" : "欠席・遅刻・公欠の申請を行います。" %></p>
-        </div>
-      </div>
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">出席申請</h1>
+      <p class="page-subtitle"><%= current_user.staff? ? "学生からの申請を処理します。" : "欠席・遅刻・公欠の申請を行います。" %></p>
+      <%= breadcrumb(["出席申請"]) %>
     </div>
   </div>
 
@@ -50,7 +40,7 @@
     <%# フィルターカード %>
     <div class="card">
       <div class="card-header">
-        <h2 class="font-semibold" style="color: var(--color-text-primary);">絞り込み条件</h2>
+        <h2 class="font-semibold">絞り込み条件</h2>
       </div>
       <div class="card-body">
         <%= form_with url: attendance_requests_path,
@@ -104,14 +94,14 @@
     <%# 一括処理カード %>
     <div class="card mt-4">
       <div class="card-header">
-        <h2 class="font-semibold" style="color: var(--color-text-primary);">一括処理</h2>
+        <h2 class="font-semibold">一括処理</h2>
       </div>
       <div class="card-body">
         <%= form_with url: bulk_update_attendance_requests_path, method: :patch, id: "bulk-requests-form", class: "grid grid-cols-1 lg:grid-cols-3 gap-4 items-end" do %>
           <%= hidden_field_tag :class_id, @selected_class&.id %>
           <%= hidden_field_tag :filter_status, @status %>
           <div class="lg:col-span-2">
-            <label class="block text-sm font-medium mb-2" style="color: var(--color-text-primary);">コメント任意</label>
+            <label class="block text-sm font-medium mb-2">コメント任意</label>
             <%= text_area_tag :decision_reason, nil, rows: 2, class: "input", placeholder: "一括処理のコメントを入力" %>
           </div>
           <div class="flex flex-col sm:flex-row gap-2">
@@ -123,7 +113,7 @@
             </button>
           </div>
         <% end %>
-        <p class="text-xs mt-2" style="color: var(--color-text-muted);">表のチェックボックスで対象申請を選択してください。ショートカット: Shift + A = 承認 / Shift + R = 却下</p>
+        <p class="text-xs mt-2 text-body-muted">表のチェックボックスで対象申請を選択してください。ショートカット: Shift + A = 承認 / Shift + R = 却下</p>
       </div>
     </div>
 
@@ -131,11 +121,11 @@
     <div class="card mt-4">
       <div class="card-body p-0">
         <div data-controller="bulk-select" data-bulk-select-form-id-value="bulk-requests-form">
-          <div class="table-container" style="border: none; border-radius: 0;">
+          <div class="table-container">
             <table class="w-full">
               <thead>
                 <tr>
-                  <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">
+                  <th>
                     <input
                       type="checkbox"
                       class="h-4 w-4 rounded"
@@ -144,14 +134,14 @@
                       data-action="bulk-select#toggleAll"
                     />
                   </th>
-                  <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">日付</th>
-                  <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">クラス</th>
-                  <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">授業回</th>
-                  <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">学生</th>
-                  <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">種別</th>
-                  <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">理由</th>
-                  <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">状況</th>
-                  <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">処理</th>
+                  <th>日付</th>
+                  <th>クラス</th>
+                  <th>授業回</th>
+                  <th>学生</th>
+                  <th>種別</th>
+                  <th>理由</th>
+                  <th>状況</th>
+                  <th>処理</th>
                 </tr>
               </thead>
               <tbody>
@@ -178,8 +168,8 @@
             data-bulk-select-target="floating"
           >
             <div class="rounded-full backdrop-blur px-4 py-3 flex items-center gap-3" style="background-color: var(--color-surface); border: 1px solid var(--color-border); box-shadow: var(--shadow-lg);">
-              <div class="text-xs" style="color: var(--color-text-secondary);">
-                選択: <span class="font-semibold" style="color: var(--color-text-primary);" data-bulk-select-target="count">0</span>件
+              <div class="text-xs text-body-secondary">
+                選択: <span class="font-semibold" data-bulk-select-target="count">0</span>件
               </div>
               <button type="button" class="btn btn-primary text-xs px-3 py-2" data-action="bulk-select#approveSelected">
                 承認
@@ -197,7 +187,7 @@
   <%# 学生用: 新規申請フォーム %>
   <div class="card">
     <div class="card-header">
-      <h2 class="font-semibold" style="color: var(--color-text-primary);">新規申請</h2>
+      <h2 class="font-semibold">新規申請</h2>
     </div>
     <div class="card-body">
       <%= form_with model: @request, url: attendance_requests_path, method: :post, class: "grid grid-cols-1 md:grid-cols-2 gap-4" do |f| %>
@@ -260,45 +250,45 @@
           <%= f.submit "申請を送信", class: "btn btn-primary w-full" %>
         </div>
       <% end %>
-      <p class="text-xs mt-2" style="color: var(--color-text-muted);">申請は承認されるまで出席に反映されません。</p>
+      <p class="text-xs mt-2 text-body-muted">申請は承認されるまで出席に反映されません。</p>
     </div>
   </div>
 
   <%# 学生用: 申請履歴 %>
   <div class="card">
     <div class="card-header">
-      <h2 class="font-semibold" style="color: var(--color-text-primary);">申請履歴</h2>
+      <h2 class="font-semibold">申請履歴</h2>
     </div>
     <div class="card-body p-0">
-      <div class="table-container" style="border: none; border-radius: 0;">
+      <div class="table-container">
         <table class="w-full">
           <thead>
             <tr>
-              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">日付</th>
-              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">クラス</th>
-              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">種別</th>
-              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">授業回</th>
-              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">理由</th>
-              <th class="px-4 py-3 text-left text-sm font-semibold" style="background-color: var(--color-surface-hover); color: var(--color-text-secondary);">状況</th>
+              <th>日付</th>
+              <th>クラス</th>
+              <th>種別</th>
+              <th>授業回</th>
+              <th>理由</th>
+              <th>状況</th>
             </tr>
           </thead>
           <tbody>
             <% if @requests.any? %>
               <% @requests.each do |request| %>
-                <tr style="border-bottom: 1px solid var(--color-border);">
-                  <td class="px-4 py-3 text-sm" style="color: var(--color-text-secondary);"><%= request.date.strftime("%Y-%m-%d") %></td>
-                  <td class="px-4 py-3 text-sm" style="color: var(--color-text-primary);"><%= request.school_class.name %></td>
-                  <td class="px-4 py-3 text-sm" style="color: var(--color-text-primary);"><%= type_labels[request.request_type] || request.request_type %></td>
-                  <td class="px-4 py-3 text-sm" style="color: var(--color-text-primary);">
+                <tr>
+                  <td class="px-4 py-3 text-sm text-body-secondary"><%= request.date.strftime("%Y-%m-%d") %></td>
+                  <td class="px-4 py-3 text-sm"><%= request.school_class.name %></td>
+                  <td class="px-4 py-3 text-sm"><%= type_labels[request.request_type] || request.request_type %></td>
+                  <td class="px-4 py-3 text-sm">
                     <%= render "shared/session_status_badges", session: request.class_session %>
                   </td>
-                  <td class="px-4 py-3 text-sm" style="color: var(--color-text-primary);"><%= request.reason %></td>
+                  <td class="px-4 py-3 text-sm"><%= request.reason %></td>
                   <td class="px-4 py-3">
                     <span class="<%= status_badges[request.status] || "badge" %>">
                       <%= status_labels[request.status] || request.status %>
                     </span>
                     <% if request.decision_reason.present? %>
-                      <div class="text-xs mt-1" style="color: var(--color-text-muted);"><%= request.decision_reason %></div>
+                      <div class="text-xs mt-1 text-body-muted"><%= request.decision_reason %></div>
                     <% end %>
                   </td>
                 </tr>
