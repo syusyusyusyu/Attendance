@@ -21,7 +21,7 @@ end %>
         </div>
         <div>
           <h1 class="text-2xl font-semibold">プロフィール</h1>
-          <p class="text-sm mt-1 text-body-secondary">基本情報を更新できます。</p>
+          <p class="text-sm mt-1 text-body-secondary"><%= current_user.demo_account? ? "通知設定を変更できます。" : "基本情報を更新できます。" %></p>
         </div>
       </div>
     </div>
@@ -33,13 +33,15 @@ end %>
       <div class="flex items-center">
         <div class="relative">
           <img src="<%= avatar_url %>" alt="" class="h-20 w-20 rounded-full" />
-          <button type="button" class="absolute bottom-0 right-0 rounded-full p-1 shadow-sm bg-background border-themed">
-            <span class="sr-only">プロフィール画像を変更</span>
-            <svg class="h-4 w-4 text-body-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="7" r="4" />
-              <path d="M20 21a8 8 0 1 0-16 0" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-          </button>
+          <% unless current_user.demo_account? %>
+            <button type="button" class="absolute bottom-0 right-0 rounded-full p-1 shadow-sm bg-background border-themed">
+              <span class="sr-only">プロフィール画像を変更</span>
+              <svg class="h-4 w-4 text-body-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="7" r="4" />
+                <path d="M20 21a8 8 0 1 0-16 0" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </button>
+          <% end %>
         </div>
         <div class="ml-6">
           <h3 class="text-lg font-medium"><%= @user.name %></h3>
@@ -49,43 +51,63 @@ end %>
     </div>
 
     <div class="p-6 border-t-themed">
-      <%= form_with model: @user, url: profile_path, method: :patch, class: "space-y-6" do |f| %>
-        <div>
-          <%= f.label :name, "氏名", class: "block text-sm font-medium", style: "color: var(--color-text-primary);" %>
-          <%= f.text_field :name, class: "input mt-1", data: { profile_target: "field" }, disabled: !@user.errors.any? %>
-        </div>
-
-        <div>
-          <%= f.label :email, "メールアドレス", class: "block text-sm font-medium", style: "color: var(--color-text-primary);" %>
-          <%= f.email_field :email, class: "input mt-1", data: { profile_target: "field" }, disabled: !@user.errors.any? %>
-        </div>
-
-        <% if @user.student? %>
+      <% if current_user.demo_account? %>
+        <p class="text-sm text-body-muted mb-4">デモアカウントのプロフィールは変更できません。</p>
+        <div class="space-y-6 opacity-60">
           <div>
-            <%= f.label :student_id, "学生ID", class: "block text-sm font-medium", style: "color: var(--color-text-primary);" %>
-            <%= f.text_field :student_id, class: "input mt-1", data: { profile_target: "field" }, disabled: !@user.errors.any? %>
+            <span class="block text-sm font-medium" style="color: var(--color-text-primary);">氏名</span>
+            <p class="input mt-1 bg-gray-50"><%= @user.name %></p>
+          </div>
+          <div>
+            <span class="block text-sm font-medium" style="color: var(--color-text-primary);">メールアドレス</span>
+            <p class="input mt-1 bg-gray-50"><%= @user.email %></p>
+          </div>
+          <% if @user.student? %>
+            <div>
+              <span class="block text-sm font-medium" style="color: var(--color-text-primary);">学生ID</span>
+              <p class="input mt-1 bg-gray-50"><%= @user.student_id %></p>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <%= form_with model: @user, url: profile_path, method: :patch, class: "space-y-6" do |f| %>
+          <div>
+            <%= f.label :name, "氏名", class: "block text-sm font-medium", style: "color: var(--color-text-primary);" %>
+            <%= f.text_field :name, class: "input mt-1", data: { profile_target: "field" }, disabled: !@user.errors.any? %>
+          </div>
+
+          <div>
+            <%= f.label :email, "メールアドレス", class: "block text-sm font-medium", style: "color: var(--color-text-primary);" %>
+            <%= f.email_field :email, class: "input mt-1", data: { profile_target: "field" }, disabled: !@user.errors.any? %>
+          </div>
+
+          <% if @user.student? %>
+            <div>
+              <%= f.label :student_id, "学生ID", class: "block text-sm font-medium", style: "color: var(--color-text-primary);" %>
+              <%= f.text_field :student_id, class: "input mt-1", data: { profile_target: "field" }, disabled: !@user.errors.any? %>
+            </div>
+          <% end %>
+
+          <div>
+            <%= f.label :password, "パスワード", class: "block text-sm font-medium", style: "color: var(--color-text-primary);" %>
+            <%= f.password_field :password, class: "input mt-1", data: { profile_target: "field" }, disabled: !@user.errors.any? %>
+          </div>
+
+          <div>
+            <%= f.label :password_confirmation, "パスワード(確認)", class: "block text-sm font-medium", style: "color: var(--color-text-primary);" %>
+            <%= f.password_field :password_confirmation, class: "input mt-1", data: { profile_target: "field" }, disabled: !@user.errors.any? %>
+          </div>
+
+          <div class="flex justify-end space-x-3">
+            <button type="button" class="btn btn-secondary hidden" data-profile-target="cancelButton" data-action="profile#cancel">
+              キャンセル
+            </button>
+            <%= f.submit "更新", class: "btn btn-primary hidden", data: { profile_target: "saveButton" } %>
+            <button type="button" class="btn btn-primary" data-profile-target="editButton" data-action="profile#edit">
+              編集
+            </button>
           </div>
         <% end %>
-
-        <div>
-          <%= f.label :password, "パスワード", class: "block text-sm font-medium", style: "color: var(--color-text-primary);" %>
-          <%= f.password_field :password, class: "input mt-1", data: { profile_target: "field" }, disabled: !@user.errors.any? %>
-        </div>
-
-        <div>
-          <%= f.label :password_confirmation, "パスワード(確認)", class: "block text-sm font-medium", style: "color: var(--color-text-primary);" %>
-          <%= f.password_field :password_confirmation, class: "input mt-1", data: { profile_target: "field" }, disabled: !@user.errors.any? %>
-        </div>
-
-        <div class="flex justify-end space-x-3">
-          <button type="button" class="btn btn-secondary hidden" data-profile-target="cancelButton" data-action="profile#cancel">
-            キャンセル
-          </button>
-          <%= f.submit "更新", class: "btn btn-primary hidden", data: { profile_target: "saveButton" } %>
-          <button type="button" class="btn btn-primary" data-profile-target="editButton" data-action="profile#edit">
-            編集
-          </button>
-        </div>
       <% end %>
     </div>
   </div>

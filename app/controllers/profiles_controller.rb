@@ -52,7 +52,7 @@ class ProfilesController < ApplicationController
   end
 
   def check_demo_account
-    if current_user.demo_account?
+    if current_user.demo_account? && params[:user].present?
       redirect_to profile_path, alert: "デモアカウントのプロフィールは変更できません。"
     end
   end
