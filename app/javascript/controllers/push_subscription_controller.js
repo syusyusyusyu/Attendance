@@ -26,6 +26,7 @@ export default class extends Controller {
 
   async subscribe() {
     if (!this.supported || !this.publicKeyValue) return
+    if (!confirm("Push通知を有効化しますか？\nブラウザから通知の許可を求められます。")) return
 
     const registration = await navigator.serviceWorker.register("/service-worker.js")
     let subscription = await registration.pushManager.getSubscription()
@@ -44,6 +45,7 @@ export default class extends Controller {
 
   async unsubscribe() {
     if (!this.subscription) return
+    if (!confirm("Push通知を解除しますか？")) return
 
     await this.deleteSubscription(this.subscription)
     await this.subscription.unsubscribe()
