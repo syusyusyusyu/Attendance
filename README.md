@@ -94,7 +94,7 @@ RoR出席管理システムは、QRコードによる出席登録と位置情報
 | **出席申請** | 欠席/遅刻/公欠の申請 → 教員承認ワークフロー |
 | **監査ログ** | すべての操作を記録、CSV出力対応 |
 | **レポート** | 週次/日次の出席率推移、要注意者抽出、期末PDF/CSV |
-| **通知** | メール/LINE/Push通知 ⚠️ **未実装** |
+| **通知** | メール/LINE/Push通知 |
 
 <br>
 
@@ -173,7 +173,7 @@ RoR出席管理システムは、QRコードによる出席登録と位置情報
 |:---|:---|
 | **位置情報認証** | Geolocation API + ジオフェンス判定 |
 | **レート制限** | クラス10回/分、学生6回/分のスロットル |
-| **不正検知** | 失敗多発/IP集中/トークン共有を検知→教員通知 ⚠️ **通知は未実装** |
+| **不正検知** | 失敗多発/IP集中/トークン共有を検知→教員通知 |
 | **IP/ブラウザ制限** | 許可範囲外からのアクセスをブロック |
 | **承認ワークフロー** | 出席修正/確定/解除は管理者承認を必須化 |
 
@@ -183,7 +183,7 @@ RoR出席管理システムは、QRコードによる出席登録と位置情報
 |:---|:---|
 | **Tailwind CSS** | ユーティリティファーストでレスポンシブ対応 |
 | **Stimulus** | 最小限のJSでインタラクション実装（サイドバースワイプジェスチャー等） |
-| **PWA対応** | Service WorkerでPush通知対応 ⚠️ **未実装** |
+| **PWA対応** | Service WorkerでPush通知対応 |
 | **BarcodeDetector + jsQR** | カメラQRスキャン（フォールバック付き） |
 
 ### UI刷新
@@ -285,7 +285,7 @@ graph TD
   H --> H1[出席率推移]
   H --> H2[要注意者抽出]
   H --> H3[期末PDF/CSV]
-  A --> I[通知 ⚠️未実装]
+  A --> I[通知]
   I --> I1[メール/LINE/Push]
   A --> J[管理者機能]
   J --> J1[ユーザー管理]
@@ -1555,10 +1555,10 @@ bin/render-build.sh
 | DATABASE_URL | DB接続URL |
 | RAILS_MASTER_KEY | Rails暗号化キー |
 | QR_TOKEN_SECRET | QRトークン署名用 |
-| SENDGRID_API_KEY | メール送信 ⚠️ 未実装 |
-| LINE_CHANNEL_ACCESS_TOKEN | LINE通知 ⚠️ 未実装 |
-| WEBPUSH_PUBLIC_KEY | Push通知公開鍵 ⚠️ 未実装 |
-| WEBPUSH_PRIVATE_KEY | Push通知秘密鍵 ⚠️ 未実装 |
+| SENDGRID_API_KEY | メール送信 |
+| LINE_CHANNEL_ACCESS_TOKEN | LINE通知 |
+| WEBPUSH_PUBLIC_KEY | Push通知公開鍵（`rake webpush:generate_keys` で生成） |
+| WEBPUSH_PRIVATE_KEY | Push通知秘密鍵（`rake webpush:generate_keys` で生成） |
 
 <br>
 
@@ -1573,5 +1573,5 @@ bin/render-build.sh
 | **UI** | Tailwind CSS |
 | **QR生成** | RQRCode |
 | **PDF生成** | Prawn |
-| **Push通知** | webpush gem ⚠️ 未実装 |
+| **Push通知** | webpush gem |
 

@@ -2,7 +2,7 @@ class NotificationsController < ApplicationController
   before_action -> { require_permission!("notifications.view") }
 
   def index
-    @notifications = current_user.notifications.order(created_at: :desc)
+    @notifications = current_user.notifications.order(created_at: :desc).limit(50)
   end
 
   def mark_read

@@ -94,17 +94,7 @@ end %>
   <div class="card p-6">
     <h2 class="text-lg font-medium mb-4">通知設定</h2>
 
-    <%# 未実装バナー (NewUI.md 7.7: 通知設定は未実装であることを明確に表示) %>
-    <div class="not-implemented-banner mb-4">
-      <svg class="not-implemented-banner-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke-linecap="round" stroke-linejoin="round"/>
-        <line x1="12" y1="9" x2="12" y2="13"/>
-        <line x1="12" y1="17" x2="12.01" y2="17"/>
-      </svg>
-      <span class="not-implemented-banner-text">⚠️ 通知機能（メール/LINE/Push）は現在未実装です</span>
-    </div>
-
-    <%= form_with url: profile_path, method: :patch, scope: :notifications, class: "space-y-4 opacity-60 pointer-events-none" do |f| %>
+    <%= form_with url: profile_path, method: :patch, scope: :notifications, class: "space-y-4" do |f| %>
       <label class="flex items-center gap-2 text-sm">
         <%= f.check_box :email, { checked: @notification_preferences["email"] }, "1", "0" %>
         メール通知を受け取る
