@@ -21,7 +21,7 @@ end %>
         </div>
         <div>
           <h1 class="text-2xl font-semibold">プロフィール</h1>
-          <p class="text-sm mt-1 text-body-secondary"><%= current_user.demo_account? ? "通知設定を変更できます。" : "基本情報を更新できます。" %></p>
+          <p class="text-sm mt-1 text-body-secondary">基本情報を確認・更新できます。</p>
         </div>
       </div>
     </div>
@@ -112,58 +112,10 @@ end %>
     </div>
   </div>
 
-  <%# 通知設定カード %>
+  <%# 通知設定カード（未実装） %>
   <div class="card p-6">
     <h2 class="text-lg font-medium mb-4">通知設定</h2>
-
-    <%= form_with url: profile_path, method: :patch, scope: :notifications, class: "space-y-4" do |f| %>
-      <label class="flex items-center gap-2 text-sm">
-        <%= f.check_box :email, { checked: @notification_preferences["email"] }, "1", "0" %>
-        メール通知を受け取る
-      </label>
-      <label class="flex items-center gap-2 text-sm">
-        <%= f.check_box :line, { checked: @notification_preferences["line"] }, "1", "0" %>
-        LINE通知を受け取る
-      </label>
-      <div>
-        <%= f.label :line_user_id, "LINEユーザーID", class: "block text-sm font-medium mb-2", style: "color: var(--color-text-primary);" %>
-        <%= f.text_field :line_user_id, value: @user.line_user_id, class: "input", placeholder: "Uxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" %>
-        <p class="text-xs mt-1 text-body-muted">LINEのメッセージ受信ユーザーIDを設定してください。</p>
-      </div>
-      <label class="flex items-center gap-2 text-sm">
-        <%= f.check_box :push, { checked: @notification_preferences["push"] }, "1", "0" %>
-        Push通知を受け取る
-      </label>
-      <% webpush_public_key = ENV["WEBPUSH_PUBLIC_KEY"].to_s %>
-      <div
-        class="rounded-lg p-3 space-y-2"
-
-        data-controller="push-subscription"
-        data-push-subscription-public-key-value="<%= webpush_public_key %>"
-      >
-        <p class="text-xs text-body-muted" data-push-subscription-target="status">
-          <% if webpush_public_key.blank? %>
-            Push通知の配信キーが未設定です。
-          <% elsif @push_subscriptions.any? %>
-            Push通知は有効化されています。
-          <% else %>
-            Push通知は未設定です。
-          <% end %>
-        </p>
-        <div class="flex flex-col sm:flex-row gap-2">
-          <button type="button" class="btn btn-primary" data-action="push-subscription#subscribe" data-push-subscription-target="subscribeButton">
-            Push通知を有効化
-          </button>
-          <button type="button" class="btn btn-secondary" data-action="push-subscription#unsubscribe" data-push-subscription-target="unsubscribeButton">
-            Push通知を解除
-          </button>
-        </div>
-      </div>
-      <div>
-        <%= f.submit "通知設定を更新", class: "btn btn-secondary" %>
-      </div>
-    <% end %>
-    <p class="text-xs mt-2 text-body-muted">配信チャネルの設定は管理者の承認や連携状況により有効化されます。</p>
+    <p class="text-sm text-body-muted">この機能は現在開発中です。今後のアップデートで利用可能になります。</p>
   </div>
 
 </div>
