@@ -702,6 +702,17 @@ input[type="week"],
 .text-error { color: var(--color-error); }
 .bg-background { background-color: var(--color-background); }
 
+/* Main content bottom padding (SP: ボトムナビ + セーフエリア分) */
+.main-with-bottom-nav {
+  padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+}
+
+@media (min-width: 640px) {
+  .main-with-bottom-nav {
+    padding-bottom: 0;
+  }
+}
+
 /* Bottom Nav (SP) */
 .bottom-nav {
   position: fixed;

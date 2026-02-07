@@ -2,7 +2,7 @@
 <html>
   <head>
     <title><%= content_for(:title) || "RoR出席管理システム" %></title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
@@ -39,7 +39,7 @@
             class="fixed inset-0 z-20 hidden lg:hidden overlay-backdrop"
           ></div>
           <%= render "shared/sidebar" %>
-          <main id="main-content" class="flex-1 w-full lg:ml-[var(--sidebar-width)] min-w-0 pb-20 sm:pb-0">
+          <main id="main-content" class="flex-1 w-full lg:ml-[var(--sidebar-width)] min-w-0 main-with-bottom-nav sm:pb-0">
             <div class="max-w-[1600px] mx-auto p-6 md:p-8 lg:p-10 w-full">
               <div id="flash"><%= render "shared/flash" %></div>
               <%= yield %>
