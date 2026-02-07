@@ -116,12 +116,12 @@ end %>
   <div class="card p-6" data-controller="push-subscription" data-push-subscription-public-key-value="<%= ENV['WEBPUSH_PUBLIC_KEY'].to_s %>">
     <h2 class="text-lg font-medium mb-4">通知設定</h2>
 
-    <div class="space-y-4">
+    <div class="space-y-5">
       <%# Push通知 %>
-      <div class="flex items-center justify-between">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p class="text-sm font-medium" style="color: var(--color-text-primary);">Push通知</p>
-          <p class="text-xs text-body-muted">ブラウザのPush通知で出席関連のお知らせを受け取ります。</p>
+          <p class="text-xs text-body-muted mt-1">ブラウザのPush通知で出席関連のお知らせを受け取ります。</p>
         </div>
         <div class="flex items-center gap-2">
           <button type="button" class="btn btn-primary btn-sm" data-push-subscription-target="subscribeButton" data-action="push-subscription#subscribe">
@@ -135,21 +135,21 @@ end %>
       <p class="text-xs text-body-muted" data-push-subscription-target="status"></p>
 
       <%# メール通知（未実装） %>
-      <div class="flex items-center justify-between opacity-50">
+      <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between opacity-50">
         <div>
           <p class="text-sm font-medium" style="color: var(--color-text-primary);">メール通知</p>
-          <p class="text-xs text-body-muted">メールで通知を受け取ります。（今後対応予定）</p>
+          <p class="text-xs text-body-muted mt-1">メールで通知を受け取ります。（今後対応予定）</p>
         </div>
-        <span class="text-xs text-body-muted">未実装</span>
+        <span class="text-xs text-body-muted shrink-0">未実装</span>
       </div>
 
       <%# LINE通知（未実装） %>
-      <div class="flex items-center justify-between opacity-50">
+      <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between opacity-50">
         <div>
           <p class="text-sm font-medium" style="color: var(--color-text-primary);">LINE通知</p>
-          <p class="text-xs text-body-muted">LINEで通知を受け取ります。（今後対応予定）</p>
+          <p class="text-xs text-body-muted mt-1">LINEで通知を受け取ります。（今後対応予定）</p>
         </div>
-        <span class="text-xs text-body-muted">未実装</span>
+        <span class="text-xs text-body-muted shrink-0">未実装</span>
       </div>
     </div>
   </div>
