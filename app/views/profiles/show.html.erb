@@ -112,10 +112,46 @@ end %>
     </div>
   </div>
 
-  <%# 通知設定カード（未実装） %>
-  <div class="card p-6">
+  <%# 通知設定カード %>
+  <div class="card p-6" data-controller="push-subscription" data-push-subscription-public-key-value="<%= ENV['WEBPUSH_PUBLIC_KEY'].to_s %>">
     <h2 class="text-lg font-medium mb-4">通知設定</h2>
-    <p class="text-sm text-body-muted">この機能は現在開発中です。今後のアップデートで利用可能になります。</p>
+
+    <div class="space-y-4">
+      <%# Push通知 %>
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium" style="color: var(--color-text-primary);">Push通知</p>
+          <p class="text-xs text-body-muted">ブラウザのPush通知で出席関連のお知らせを受け取ります。</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button type="button" class="btn btn-primary btn-sm" data-push-subscription-target="subscribeButton" data-action="push-subscription#subscribe">
+            有効化
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm" data-push-subscription-target="unsubscribeButton" data-action="push-subscription#unsubscribe" disabled>
+            解除
+          </button>
+        </div>
+      </div>
+      <p class="text-xs text-body-muted" data-push-subscription-target="status"></p>
+
+      <%# メール通知（未実装） %>
+      <div class="flex items-center justify-between opacity-50">
+        <div>
+          <p class="text-sm font-medium" style="color: var(--color-text-primary);">メール通知</p>
+          <p class="text-xs text-body-muted">メールで通知を受け取ります。（今後対応予定）</p>
+        </div>
+        <span class="text-xs text-body-muted">未実装</span>
+      </div>
+
+      <%# LINE通知（未実装） %>
+      <div class="flex items-center justify-between opacity-50">
+        <div>
+          <p class="text-sm font-medium" style="color: var(--color-text-primary);">LINE通知</p>
+          <p class="text-xs text-body-muted">LINEで通知を受け取ります。（今後対応予定）</p>
+        </div>
+        <span class="text-xs text-body-muted">未実装</span>
+      </div>
+    </div>
   </div>
 
 </div>

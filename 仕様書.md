@@ -99,7 +99,7 @@ RoR出席管理システムは、QRコードによる出席登録と位置情報
 | **出席申請** | 欠席/遅刻/公欠の申請 → 教員承認ワークフロー |
 | **監査ログ** | すべての操作を記録、CSV出力対応 |
 | **レポート** | 週次/日次の出席率推移、要注意者抽出、期末PDF/CSV |
-| **通知** | メール/LINE/Push通知（未実装） |
+| **通知** | Push通知 / メール・LINE通知（未実装） |
 
 <br>
 
@@ -245,7 +245,7 @@ QR出席は利便性が高い一方、以下のセキュリティ課題が存在
 |:---|:---|
 | **Tailwind CSS** | ユーティリティファーストでレスポンシブ対応 |
 | **Stimulus** | 最小限のJSでインタラクション実装（サイドバースワイプジェスチャー等） |
-| **PWA対応** | Service WorkerでPush通知対応（未実装） |
+| **PWA対応** | Service WorkerでPush通知対応、ホーム画面インストール |
 | **BarcodeDetector + jsQR** | カメラQRスキャン（フォールバック付き） |
 
 ### UI刷新
@@ -310,7 +310,7 @@ flowchart LR
   User -->|Geolocation| GPS["位置情報API"]
   User -->|Camera| QR["QRスキャン"]
   Rails -.->|メール（未実装）| SMTP["SendGrid"]
-  Rails -.->|Push（未実装）| WebPush["Web Push API"]
+  Rails -->|Push通知| WebPush["Web Push API"]
   Rails -.->|LINE（未実装）| LINE["LINE Messaging API"]
 ```
 
@@ -354,8 +354,9 @@ graph TD
   H --> H1[出席率推移]
   H --> H2[要注意者抽出]
   H --> H3[期末PDF/CSV]
-  A --> I[通知（未実装）]
-  I --> I1[メール/LINE/Push]
+  A --> I[通知]
+  I --> I1[Push通知（実装済）]
+  I --> I2[メール/LINE（未実装）]
   A --> J[管理者機能]
   J --> J1[ユーザー管理]
   J --> J2[権限管理]
@@ -1655,8 +1656,8 @@ bin/render-build.sh
 | QR_TOKEN_SECRET | QRトークン署名用 |
 | SENDGRID_API_KEY | メール送信（未実装） |
 | LINE_CHANNEL_ACCESS_TOKEN | LINE通知（未実装） |
-| WEBPUSH_PUBLIC_KEY | Push通知公開鍵（未実装） |
-| WEBPUSH_PRIVATE_KEY | Push通知秘密鍵（未実装） |
+| WEBPUSH_PUBLIC_KEY | Push通知公開鍵 |
+| WEBPUSH_PRIVATE_KEY | Push通知秘密鍵 |
 
 <br>
 
