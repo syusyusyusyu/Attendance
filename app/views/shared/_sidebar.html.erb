@@ -51,6 +51,7 @@
             <%= sidebar_link("ダッシュボード", root_path, "home") %>
             <%= sidebar_link("クラス管理", school_classes_path, "class") %>
             <%= sidebar_link("出席確認", attendance_path, "clipboard") %>
+            <%= sidebar_link("点呼モード", roll_call_path, "users") %>
             <%= sidebar_link("出席申請", attendance_requests_path, "clipboard-check", @pending_requests_count) %>
             <%= sidebar_link("QRコード発行", generate_qr_path, "qr") %>
             <%= sidebar_link("レポート", reports_path, "report") %>
@@ -85,6 +86,7 @@
           <div class="sidebar-section-title">出席</div>
           <ul class="sidebar-nav">
             <%= sidebar_link("出席確認", attendance_path, "clipboard") %>
+            <%= sidebar_link("点呼モード", roll_call_path, "users") %>
             <%= sidebar_link("出席申請", attendance_requests_path, "clipboard-check", @pending_requests_count) %>
             <%= sidebar_link("出席変更ログ", attendance_logs_path, "history") %>
           </ul>

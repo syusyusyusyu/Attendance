@@ -21,6 +21,8 @@ Rails.application.routes.draw do
   get "/scan", to: "qr_scans#new"
   post "/scan", to: "qr_scans#create"
   get "/generate-qr", to: "qr_codes#show"
+  get "/roll-call", to: "roll_calls#show"
+  patch "/roll-call", to: "roll_calls#update"
   get "/scan-logs", to: "qr_scan_events#index"
   get "/attendance-logs", to: "attendance_changes#index", as: :attendance_logs
   get "/attendance-logs/:id", to: "attendance_changes#show", as: :attendance_log

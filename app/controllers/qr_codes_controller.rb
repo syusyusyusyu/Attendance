@@ -1,4 +1,7 @@
 class QrCodesController < ApplicationController
+  ROTATION_INTERVAL = 10 # seconds
+  ROTATION_TTL = 30.seconds
+
   before_action -> { require_role!(%w[teacher admin]) }
   before_action -> { require_permission!("qr.generate") }
 
@@ -18,18 +21,23 @@ class QrCodesController < ApplicationController
 
     @class_session = ClassSessionResolver.new(school_class: @selected_class, date: Time.zone.today).resolve&.dig(:session)
 
-    QrSession
-      .where(school_class: @selected_class, attendance_date: Time.zone.today, revoked_at: nil)
-      .where("expires_at > ?", Time.current)
-      .update_all(revoked_at: Time.current)
+    auto_refresh = request.format.json?
+
+    unless auto_refresh
+      QrSession
+        .where(school_class: @selected_class, attendance_date: Time.zone.today, revoked_at: nil)
+        .where("expires_at > ?", Time.current)
+        .update_all(revoked_at: Time.current)
+    end
 
     issued_at = Time.current
+    ttl = auto_refresh ? ROTATION_TTL : AttendanceToken::TOKEN_TTL
     @qr_session = QrSession.create!(
       school_class: @selected_class,
       teacher: current_user,
       attendance_date: Time.zone.today,
       issued_at: issued_at,
-      expires_at: issued_at + AttendanceToken::TOKEN_TTL,
+      expires_at: issued_at + ttl,
       demo_mode: params[:demo_mode] == "1"
     )
     @expires_at = @qr_session.expires_at

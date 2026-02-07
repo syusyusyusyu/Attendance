@@ -18,7 +18,8 @@ class AttendanceRecord < ApplicationRecord
     manual: "manual",
     gps: "gps",
     beacon: "beacon",
-    system: "system"
+    system: "system",
+    roll_call: "roll_call"
   }, prefix: true
 
   validates :date, :status, :verification_method, presence: true

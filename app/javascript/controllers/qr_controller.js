@@ -11,7 +11,7 @@ export default class extends Controller {
     }
 
     if (this.hasRefreshUrlValue) {
-      const interval = this.hasRefreshIntervalValue ? this.refreshIntervalValue : 60
+      const interval = this.hasRefreshIntervalValue ? this.refreshIntervalValue : 10
       this.refreshTimer = setInterval(() => this.refresh(), interval * 1000)
     }
   }

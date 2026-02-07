@@ -23,7 +23,7 @@ RoR出席管理システムは、QRコードによる出席登録と位置情報
 |:---|:---|
 | **概要** | 1分でわかる RoR出席管理システム / 展示ポイント / デモの流れ |
 | **プロダクト** | システム概要 / ユーザーロール / OIC運用設定 |
-| **技術** | 技術的な特徴 / 技術の見せ場 / システム仕様詳細 |
+| **技術** | 技術的な特徴 / QR出席の課題と多層防御 / 技術の見せ場 / システム仕様詳細 |
 | **設計** | 設計・DB・API・モジュール |
 | **品質・運用** | テスト仕様 / 展示チェックリスト / 開発・デプロイ / ライセンス |
 
@@ -52,6 +52,8 @@ RoR出席管理システムは、QRコードによる出席登録と位置情報
 | ポイント | 説明 |
 |:---|:---|
 | **校内でしか出席できない** | 位置情報（半径50m）による不正防止 |
+| **QR高速ローテーション** | 10秒ごとにQR自動更新、スクショ共有を時間的に無効化 |
+| **点呼モード** | 教員が対面で顔と名前を確認しながらワンタップで出席登録 |
 | **リアルタイム反映** | Hotwireで出席状況が即座に更新 |
 | **3ロール運用** | 学生・教員・管理者の権限分離設計 |
 
@@ -60,13 +62,15 @@ RoR出席管理システムは、QRコードによる出席登録と位置情報
 ## デモの流れ（展示用）
 
 ```
-1. 教員ログイン → QRコード発行
+1. 教員ログイン → QRコード発行（10秒ごと自動更新）
        ↓
 2. 学生ログイン → QRスキャン → 出席完了
        ↓
 3. 出席管理画面でリアルタイム確認
        ↓
-4. レポート画面で出席率・要注意者を確認
+4. 点呼モードで対面確認（任意）
+       ↓
+5. レポート画面で出席率・要注意者を確認
 ```
 
 <br>
@@ -88,7 +92,8 @@ RoR出席管理システムは、QRコードによる出席登録と位置情報
 
 | 機能 | 内容 |
 |:---|:---|
-| **QR出席** | 署名付きトークンによる安全な出席登録 |
+| **QR出席** | 署名付きトークンによる安全な出席登録（10秒ごと自動更新） |
+| **点呼モード** | 教員が履修者リストで対面確認しながらワンタップで出席登録 |
 | **位置情報認証** | OIC校内（半径50m）でのみ出席可能 |
 | **入室/退室記録** | 2回スキャンで滞在時間・早退を自動判定 |
 | **出席申請** | 欠席/遅刻/公欠の申請 → 教員承認ワークフロー |
@@ -107,7 +112,7 @@ RoR出席管理システムは、QRコードによる出席登録と位置情報
 | ロール | 対象 | 主な機能 | 特徴 |
 |:---|:---|:---|:---|
 | **学生** | 履修者 | QRスキャン、出席履歴、出席申請 | 自分の出席状況を管理 |
-| **教員** | 担当教員 | QR発行、出席確認・修正、申請承認、レポート | クラス単位の出席管理 |
+| **教員** | 担当教員 | QR発行、点呼モード、出席確認・修正、申請承認、レポート | クラス単位の出席管理 |
 | **管理者** | システム管理 | ユーザー管理、権限設定、操作申請承認 | 全体管理と最終承認 |
 
 <br>
@@ -171,11 +176,68 @@ RoR出席管理システムは、QRコードによる出席登録と位置情報
 
 | カテゴリ | 内容 |
 |:---|:---|
+| **QR高速ローテーション** | 10秒ごとにQR自動更新（TTL 30秒）、スクショ共有を時間的に無効化 |
+| **点呼モード** | 教員が対面で顔と名前を確認、QR出席済みの学生はスキップ |
 | **位置情報認証** | Geolocation API + ジオフェンス判定 |
 | **レート制限** | クラス10回/分、学生6回/分のスロットル |
 | **不正検知** | 失敗多発/IP集中/トークン共有を検知→教員通知 |
 | **IP/ブラウザ制限** | 許可範囲外からのアクセスをブロック |
 | **承認ワークフロー** | 出席修正/確定/解除は管理者承認を必須化 |
+
+### QR出席の課題と対策
+
+QR出席は利便性が高い一方、以下のセキュリティ課題が存在する。本システムでは多層防御で対策を講じている。
+
+#### 課題一覧
+
+| 課題 | リスク | 深刻度 |
+|:---|:---|:---:|
+| **QRスクショ共有** | QR画像を共有し、校内の別の学生が代理スキャン | 高 |
+| **GPS偽装** | Spoofingアプリで位置情報を偽装し、遠隔地から出席 | 高 |
+| **対面確認の欠如** | 教員が学生の顔を確認する機会がなく、代返を見抜けない | 中 |
+| **端末依存** | スマホの充電切れ・カメラ故障時に出席登録不可 | 中 |
+| **校内代理スキャン** | 校内にいれば他人のスマホでもスキャン可能 | 中 |
+
+#### 対策マトリクス（実装済み）
+
+| 対策 | 防げる不正 | 仕組み |
+|:---|:---|:---|
+| **QR高速ローテーション（10秒）** | QRスクショ共有 | 10秒ごとにQRを自動更新（TTL 30秒）。スクショを撮って共有する時間がない |
+| **点呼モード** | 対面確認の欠如・端末依存 | 教員が履修者リストで顔と名前を確認しながらワンタップで出席登録。QR出席済みの学生はバッジ表示でスキップ |
+| **ジオフェンス（半径50m）** | 遠隔地からの代返 | Geolocation APIで校内在席を検証。精度150m超は拒否 |
+| **レート制限** | 連続試行 | クラス10回/分、学生6回/分のスロットル |
+| **不正検知** | 組織的代返 | 同一IPからの多数スキャン、トークン共有パターンを検知→教員通知 |
+| **IP/ブラウザ制限** | 校外ネットワーク | 許可IP範囲外・許可ブラウザ外をブロック |
+| **署名付きトークン** | QR改ざん | MessageVerifierで署名検証、改ざん不可 |
+| **監査ログ** | 事後追跡 | 全スキャンをIP・ブラウザ・位置情報付きで記録 |
+
+#### 防御層の構成（多層防御）
+
+```
+第1層: トークン署名検証（改ざん防止）
+第2層: セッション検証（期限・失効・日付）
+第3層: 履修確認（未登録者排除）
+第4層: レート制限（連続試行防止）
+第5層: IP/ブラウザ制限（ネットワーク制御）
+第6層: 位置情報認証（ジオフェンス）
+第7層: 不正検知（パターン分析）
+第8層: QR高速ローテーション（10秒更新・共有無効化）
+第9層: 点呼モード（対面確認・最終防御）
+第10層: 監査ログ（事後追跡・抑止力）
+```
+
+#### 今後の改善案
+
+| 改善案 | 概要 | 効果 | 実装難度 |
+|:---|:---|:---|:---:|
+| **顔認証との併用** | スキャン時にカメラで顔を撮影し、登録済み顔写真と照合 | 代理出席を完全に防止 | 高 |
+| **Bluetooth近接検証** | 教室にBLEビーコンを設置し、端末の近接を物理的に検証 | GPS偽装を無効化 | 中 |
+| **WiFi BSSID検証** | 教室WiFiのアクセスポイント情報を検証し、室内在席を確認 | 精度の高い室内位置証明 | 中 |
+| **確認コード** | QR発行時にランダムコードを表示、スキャン後に入力必須で在席証明 | スクショ共有防止 | 低 |
+| **デバイスバインディング** | 学生アカウントに端末を1台だけ紐付け | 他人の端末での代理スキャン防止 | 中 |
+| **行動スコアリング** | 複数シグナルを組み合わせたリスクスコアで不審行動を検知 | 長期的な不正抑止 | 中 |
+
+<br>
 
 ### Frontend (Tailwind + Stimulus)
 
@@ -221,6 +283,9 @@ Google系 → AdminKit風（中間段階） → **SaaSモダンミニマル（�
 | ポイント | 詳細 |
 |:---|:---|
 | **署名付きQRトークン** | MessageVerifierで改ざん検知、5分で自動失効 |
+| **QR高速ローテーション** | 10秒ごとにQR自動更新（TTL 30秒）、スクショ共有を時間的に無効化 |
+| **点呼モード** | 対面確認による出席登録、QR出席との併用可能 |
+| **多層防御（10層）** | トークン署名→位置情報→不正検知→高速ローテーション→点呼の多段階検証 |
 | **ジオフェンス認証** | 校内50m判定で代返を物理的に防止 |
 | **リアルタイム更新** | Turbo Streamで出席状況が即座に反映 |
 | **監査ログ** | 全操作をIP/ブラウザ付きで記録、追跡可能 |
@@ -264,9 +329,13 @@ graph TD
   C --> C2[学生：履修一覧・QRスキャン導線]
   C --> C3[管理者：承認・監査導線]
   A --> D[QR出席]
-  D --> D1[教員：QRトークン生成]
+  D --> D1[教員：QRトークン生成（10秒ローテーション）]
   D --> D2[学生：QRスキャン・出席登録]
   D --> D3[入室/退室記録]
+  A --> D2a[点呼モード]
+  D2a --> D2a1[教員：履修者リスト対面確認]
+  D2a --> D2a2[ワンタップ出席登録]
+  D2a --> D2a3[QR出席済み学生スキップ]
   A --> E[出席管理]
   E --> E1[学生：出席履歴]
   E --> E2[教員：出席確認・修正]
@@ -308,7 +377,7 @@ flowchart TB
 
   subgraph QRGen[QRトークン生成]
     QG_In[Input: class_id]
-    QG_Proc[Process: QrSession作成 → AttendanceToken.generate]
+    QG_Proc[Process: QrSession作成 → AttendanceToken.generate（10秒ローテーション）]
     QG_Out[Output: QRコード表示、期限表示]
     QG_In --> QG_Proc --> QG_Out
   end
@@ -318,6 +387,13 @@ flowchart TB
     QS_Proc[Process: トークン検証 → セッション検証 → 履修確認 → 位置検証 → 出席記録]
     QS_Out[Output: 成功/失敗メッセージ、スキャンログ]
     QS_In --> QS_Proc --> QS_Out
+  end
+
+  subgraph RollCall[点呼モード]
+    RC_In[Input: class_id, date, student_ids]
+    RC_Proc[Process: クラス選択 → 履修者リスト表示 → 対面確認 → 一括出席登録]
+    RC_Out[Output: 出席レコード作成、QR済み学生はスキップ]
+    RC_In --> RC_Proc --> RC_Out
   end
 
   subgraph Report[レポート生成]
@@ -338,6 +414,7 @@ stateDiagram-v2
   state "ダッシュボード (/)" as Dashboard
   state "QRスキャン (/scan)" as Scan
   state "QR生成 (/generate-qr)" as QRGen
+  state "点呼モード (/roll-call)" as RollCall
   state "出席履歴 (/history)" as History
   state "出席確認 (/attendance)" as Attendance
   state "出席申請 (/attendance_requests)" as Requests
@@ -350,20 +427,22 @@ stateDiagram-v2
   [*] --> Login
   Login --> Dashboard: ログイン成功
   Login --> Login: ログイン失敗
-  
+
   Dashboard --> Scan: 学生
   Dashboard --> History: 学生
   Dashboard --> QRGen: 教員
   Dashboard --> Attendance: 教員
+  Dashboard --> RollCall: 教員
   Dashboard --> Reports: 教員
   Dashboard --> Classes: 教員
   Dashboard --> Requests: 全員
   Dashboard --> Notifications: 全員
   Dashboard --> Profile: 全員
   Dashboard --> Admin: 管理者
-  
+
   Scan --> Scan: 結果表示
-  QRGen --> QRGen: 自動更新
+  QRGen --> QRGen: 10秒自動更新
+  RollCall --> RollCall: 点呼完了
 ```
 
 <br>
@@ -380,8 +459,13 @@ mindmap
         セッション管理
       QR出席
         トークン生成
+        高速ローテーション
         スキャン/検証
         入室/退室記録
+      点呼モード
+        履修者リスト表示
+        対面確認/ワンタップ登録
+        QR済み学生スキップ
       出席管理
         履歴参照
         確認/修正
@@ -398,6 +482,7 @@ mindmap
     非機能要件
       セキュリティ
         署名トークン
+        高速ローテーション
         位置情報認証
         レート制限
         不正検知
@@ -439,7 +524,8 @@ flowchart TB
 | DELETE | `/logout` | ログアウト | ログイン必須 |
 | GET | `/` | ダッシュボード | ログイン必須 |
 | GET/POST | `/scan` | QRスキャン | 学生のみ |
-| GET | `/generate-qr` | QR生成 | 教員/管理者 |
+| GET | `/generate-qr` | QR生成（10秒ローテーション） | 教員/管理者 |
+| GET/PATCH | `/roll-call` | 点呼モード | 教員/管理者 |
 | GET | `/history` | 出席履歴 | 学生のみ |
 | GET/PATCH | `/attendance` | 出席確認・修正 | 教員/管理者 |
 | GET/POST | `/attendance_requests` | 出席申請 | 全員 |
@@ -535,7 +621,7 @@ erDiagram
     datetime checked_out_at "退室時刻"
     integer duration_minutes "滞在時間"
     jsonb location "位置情報"
-    string verification_method "qrcode/manual/system"
+    string verification_method "qrcode/manual/system/roll_call"
     datetime created_at
     datetime updated_at
   }
@@ -598,7 +684,7 @@ erDiagram
     bigint id PK
     bigint qr_session_id FK
     bigint user_id FK "スキャン者"
-    string status "success/failure"
+    string status "success/failure/..."
     string error_code "エラーコード"
     string token_digest "トークンハッシュ"
     string ip_address "IPアドレス"
@@ -704,7 +790,7 @@ erDiagram
 | checked_out_at | datetime | 退室時刻 |
 | duration_minutes | integer | 滞在時間 |
 | location | jsonb | 位置情報 |
-| verification_method | string | qrcode/manual/system |
+| verification_method | string | qrcode/manual/system/roll_call |
 
 <br>
 
@@ -893,6 +979,12 @@ classDiagram
     +export()
   }
 
+  class RollCallsController {
+    +show()
+    +update()
+    -load_students()
+  }
+
   class PushSubscriptionsController {
     +create()
     +destroy()
@@ -919,6 +1011,7 @@ classDiagram
   ApplicationController <|-- NotificationsController
   ApplicationController <|-- AdminDashboardController
   ApplicationController <|-- QrScanEventsController
+  ApplicationController <|-- RollCallsController
   ApplicationController <|-- PushSubscriptionsController
   ApplicationController <|-- LegalController
 ```
@@ -1413,6 +1506,7 @@ flowchart LR
 | AttendancePolicy | 出席ポリシー | 遅刻/締切/警告の閾値 |
 | AttendanceToken | トークン生成/検証 | 署名付きQRトークン |
 | QrScanProcessor | スキャン処理 | 検証→記録の統括 |
+| RollCallsController | 点呼モード | 対面確認による出席一括登録 |
 | AttendanceFinalizer | 自動確定 | 締切後の欠席確定 |
 | TermReportBuilder | レポート生成 | 期末集計 |
 
@@ -1430,6 +1524,7 @@ app/
 │   ├── qr_scans_controller.rb
 │   ├── qr_codes_controller.rb
 │   ├── class_attendances_controller.rb
+│   ├── roll_calls_controller.rb
 │   └── admin/
 │
 ├── models/               # Model層
@@ -1495,6 +1590,9 @@ app/
 | 07 | 申請承認 | 教員が承認ボタンを押す | 出席記録に反映される |
 | 08 | 出席確定 | 教員が確定を実行 | 管理者承認待ちになる |
 | 09 | 権限エラー | 学生が教員ページにアクセス | リダイレクトされる |
+| 10 | 点呼モード | 教員がクラス選択→学生リスト表示 | 履修者一覧が表示される |
+| 11 | 点呼出席登録 | 教員が学生を選択して「点呼を完了」 | verification_method=roll_call で出席登録 |
+| 12 | 点呼QR済みスキップ | QR出席済みの学生を点呼で登録 | QR出席が上書きされない |
 
 <br>
 

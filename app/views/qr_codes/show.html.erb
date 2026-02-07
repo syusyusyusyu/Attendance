@@ -21,7 +21,7 @@
         data-qr-expires-at-value="<%= @expires_at.to_i %>"
         data-qr-filename-value="qrcode-<%= @selected_class.id %>.png"
         data-qr-refresh-url-value="<%= generate_qr_path(class_id: @selected_class.id, format: :json) %>"
-        data-qr-refresh-interval-value="60"
+        data-qr-refresh-interval-value="<%= QrCodesController::ROTATION_INTERVAL %>"
       <% end %>
     >
       <div class="mb-6">
@@ -75,7 +75,7 @@
               有効期限: <%= @expires_at.strftime("%H:%M") %> (残り <span data-qr-target="timeLeft"><%= ((@expires_at - Time.current).to_i.clamp(0, 300) / 60).to_s %>:<%= ((@expires_at - Time.current).to_i.clamp(0, 300) % 60).to_s.rjust(2, "0") %></span>)
             </span>
           </div>
-          <p class="text-xs mb-1 text-body-muted">QRコードは定期的に自動更新されます（5分で失効）。</p>
+          <p class="text-xs mb-1 text-body-muted">QRコードは<%= QrCodesController::ROTATION_INTERVAL %>秒ごとに自動更新されます。</p>
           <p class="text-xs mb-6 text-body-muted">署名付きトークンで改ざん検知を行います。</p>
 
           <%# アクションボタン %>
