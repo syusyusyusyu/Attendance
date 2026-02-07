@@ -7,8 +7,11 @@ export default class extends Controller {
   connect() {
     this.supported = "serviceWorker" in navigator && "PushManager" in window
     this.updateButtons()
-    if (!this.supported || !this.publicKeyValue) {
+    if (!this.supported) {
       this.updateStatus("このブラウザではPush通知を利用できません。")
+      return
+    }
+    if (!this.publicKeyValue) {
       return
     }
 
