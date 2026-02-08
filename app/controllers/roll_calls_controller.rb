@@ -29,6 +29,8 @@ class RollCallsController < ApplicationController
     redirect_to roll_call_path, alert: "日付の形式が正しくありません。"
   end
 
+  VALID_STATUSES = %w[present absent late excused early_leave].freeze
+
   def update
     selected_class = current_user.manageable_classes.find(params[:class_id])
     date = params[:date].present? ? Date.parse(params[:date]) : Date.current
@@ -41,12 +43,14 @@ class RollCallsController < ApplicationController
                   alert: "出席が確定済みのため修正できません。" and return
     end
 
-    student_ids = Array(params[:student_ids]).map(&:to_i)
+    attendance = params[:attendance] || {}
     registered = 0
 
-    student_ids.each do |student_id|
+    attendance.each do |student_id, status|
+      next unless VALID_STATUSES.include?(status)
+
       record = AttendanceRecord.find_or_initialize_by(
-        user_id: student_id,
+        user_id: student_id.to_i,
         school_class: selected_class,
         date: date
       )
@@ -54,7 +58,7 @@ class RollCallsController < ApplicationController
       next if record.persisted? && record.verification_method_qrcode?
 
       previous_status = record.status
-      record.status = "present"
+      record.status = status
       record.verification_method = "roll_call"
       record.timestamp ||= Time.current
       record.modified_by = current_user

@@ -1,30 +1,34 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["counter", "progressBar"]
+  static targets = ["counter", "progressBar", "radio"]
 
-  toggle(event) {
-    const checkbox = event.target
-    const card = checkbox.closest(".card")
-    const toggle = checkbox.nextElementSibling
+  statusChanged() {
+    this.updateProgress()
+  }
 
-    if (checkbox.checked) {
-      toggle.style.background = "var(--color-success)"
-    } else {
-      toggle.style.background = "var(--color-bg-hover)"
-    }
-
+  selectAll() {
+    // QR確認済み以外の学生の「出席(present)」ラジオボタンを全選択
+    const radios = this.radioTargets.filter(r => r.value === "present")
+    radios.forEach(radio => {
+      radio.checked = true
+    })
     this.updateProgress()
   }
 
   updateProgress() {
     if (!this.hasCounterTarget || !this.hasProgressBarTarget) return
 
-    const checkboxes = this.element.querySelectorAll('input[name="student_ids[]"]')
-    const checked = this.element.querySelectorAll('input[name="student_ids[]"]:checked').length
-    const qrConfirmed = document.querySelectorAll("[data-roll-call-qr]").length
+    // ラジオボタンが選択されている学生数をカウント（＝何らかのステータスが入った）
+    const allNames = new Set(this.radioTargets.map(r => r.name))
+    const selectedNames = new Set(
+      this.radioTargets.filter(r => r.checked).map(r => r.name)
+    )
+
+    // QR確認済み（ラジオなし）の学生数
     const total = parseInt(this.counterTarget.textContent.split("/")[1]) || 0
-    const confirmed = checked + qrConfirmed
+    const qrConfirmed = total - allNames.size
+    const confirmed = selectedNames.size + qrConfirmed
 
     this.counterTarget.textContent = `${confirmed} / ${total} 人`
     const percent = total > 0 ? Math.round((confirmed / total) * 100) : 0

@@ -1,4 +1,4 @@
-<div class="max-w-4xl mx-auto space-y-6">
+<div class="max-w-5xl mx-auto space-y-6">
   <%# ページヘッダー %>
   <div class="page-header">
     <div>
@@ -34,80 +34,115 @@
   </div>
 
   <% if @selected_class && @students %>
-    <%# 進捗バー %>
-    <div class="card">
-      <div class="card-body">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-sm font-medium">確認済み</span>
-          <span class="text-sm font-semibold" data-roll-call-target="counter">
-            <%= @confirmed %> / <%= @total %> 人
-          </span>
-        </div>
-        <div class="w-full rounded-full h-3" style="background: var(--color-bg-hover);">
-          <div
-            class="rounded-full h-3 transition-all duration-300"
-            style="width: <%= @total > 0 ? (@confirmed * 100.0 / @total).round : 0 %>%; background: var(--color-success);"
-            data-roll-call-target="progressBar"
-          ></div>
-        </div>
-      </div>
-    </div>
+    <%
+      statuses = [
+        ["present", "出席"],
+        ["absent", "欠席"],
+        ["late", "遅刻"],
+        ["excused", "公欠"],
+        ["early_leave", "早退"]
+      ]
+    %>
 
-    <%# 学生リスト %>
+    <%# 学生リスト（テーブル形式） %>
     <%= form_with url: roll_call_path, method: :patch, data: { controller: "roll-call" } do |f| %>
       <%= f.hidden_field :class_id, value: @selected_class.id %>
       <%= f.hidden_field :date, value: @date %>
 
-      <div class="space-y-2">
-        <% @students.each do |student| %>
-          <% record = @records[student.id] %>
-          <% qr_confirmed = record&.verification_method_qrcode? && record&.status_present? %>
-          <% roll_call_confirmed = record&.verification_method_roll_call? && record&.status_present? %>
-          <% already_present = record&.status_present? || record&.status_late? %>
-
-          <div class="card">
-            <div class="card-body py-3">
-              <div class="flex items-center justify-between gap-4">
-                <div class="flex items-center gap-3 min-w-0">
-                  <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="background: var(--color-bg-hover);">
-                    <span class="text-sm font-semibold"><%= student.name.first(1) %></span>
-                  </div>
-                  <div class="min-w-0">
-                    <div class="font-medium truncate"><%= student.name %></div>
-                    <div class="text-xs text-body-muted"><%= student.student_id %></div>
-                  </div>
-                </div>
-
-                <div class="flex items-center gap-2 flex-shrink-0">
-                  <% if qr_confirmed %>
-                    <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium" style="background: var(--color-success-light, rgba(16,185,129,0.1)); color: var(--color-success);">
-                      <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
-                      QR確認済み
-                    </span>
-                  <% elsif already_present %>
-                    <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium" style="background: var(--color-info-light, rgba(59,130,246,0.1)); color: var(--color-info);">
-                      <%= record&.status_label || "出席" %>
-                    </span>
-                  <% else %>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        name="student_ids[]"
-                        value="<%= student.id %>"
-                        <%= "checked" if roll_call_confirmed %>
-                        class="sr-only peer"
-                        data-action="change->roll-call#toggle"
-                      />
-                      <div class="w-14 h-8 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-1 after:left-1 after:rounded-full after:h-6 after:w-6 after:transition-all" style="background: var(--color-bg-hover);" data-checked-style="background: var(--color-success);"></div>
-                    </label>
-                  <% end %>
-                </div>
-              </div>
-            </div>
+      <%# 進捗バー %>
+      <div class="card">
+        <div class="card-body">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-medium">確認済み</span>
+            <span class="text-sm font-semibold" data-roll-call-target="counter">
+              <%= @confirmed %> / <%= @total %> 人
+            </span>
           </div>
-        <% end %>
+          <div class="w-full rounded-full h-3" style="background: var(--color-bg-hover);">
+            <div
+              class="rounded-full h-3 transition-all duration-300"
+              style="width: <%= @total > 0 ? (@confirmed * 100.0 / @total).round : 0 %>%; background: var(--color-success);"
+              data-roll-call-target="progressBar"
+            ></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header flex items-center justify-between">
+          <h2 class="font-semibold">出欠登録</h2>
+          <button type="button" class="btn btn-sm btn-outline" data-action="roll-call#selectAll">
+            全員出席
+          </button>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>学生</th>
+                <% statuses.each do |_val, label| %>
+                  <th class="text-center"><%= label %></th>
+                <% end %>
+                <th class="text-center">状態</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @students.each do |student| %>
+                <% record = @records[student.id] %>
+                <% qr_confirmed = record&.verification_method_qrcode? && record&.status_present? %>
+                <%# QR出席済みは変更不可 %>
+                <tr>
+                  <td>
+                    <div class="flex items-center gap-3">
+                      <div>
+                        <div class="font-medium"><%= student.name %></div>
+                        <div class="text-xs text-body-muted"><%= student.student_id %></div>
+                      </div>
+                    </div>
+                  </td>
+                  <% if qr_confirmed %>
+                    <td colspan="<%= statuses.size %>" class="text-center">
+                      <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium" style="background: var(--color-success-light); color: var(--color-success);">
+                        <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        QR出席済み
+                      </span>
+                    </td>
+                    <td class="text-center">
+                      <span class="badge badge-success">出席</span>
+                    </td>
+                  <% else %>
+                    <% current_status = record&.status %>
+                    <% statuses.each do |val, label| %>
+                      <td class="text-center">
+                        <label class="inline-flex items-center cursor-pointer">
+                          <input
+                            type="radio"
+                            name="attendance[<%= student.id %>]"
+                            value="<%= val %>"
+                            <%= "checked" if current_status == val %>
+                            class="roll-call-radio"
+                            data-action="change->roll-call#statusChanged"
+                            data-roll-call-target="radio"
+                          />
+                        </label>
+                      </td>
+                    <% end %>
+                    <td class="text-center">
+                      <% if current_status.present? %>
+                        <span class="<%= AttendanceStatus.badge_class(current_status) %>"><%= AttendanceStatus.label(current_status) %></span>
+                      <% else %>
+                        <span class="text-body-muted text-xs">未登録</span>
+                      <% end %>
+                    </td>
+                  <% end %>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <div class="mt-6">

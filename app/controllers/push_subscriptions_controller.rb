@@ -49,19 +49,41 @@ class PushSubscriptionsController < ApplicationController
       return
     end
 
-    notification = current_user.notifications.create!(
+    payload = {
       title: "テスト通知",
-      body: "Push通知が正常に動作しています。",
-      kind: "info",
-      action_path: "/profile"
-    )
+      options: {
+        body: "Push通知が正常に動作しています。",
+        data: { path: "/profile" }
+      }
+    }
 
-    PushNotifier.new(notification, action_url: "/profile").deliver
+    vapid = {
+      subject: ENV.fetch("WEBPUSH_SUBJECT", "mailto:admin@example.com"),
+      public_key: ENV.fetch("WEBPUSH_PUBLIC_KEY"),
+      private_key: ENV.fetch("WEBPUSH_PRIVATE_KEY")
+    }
 
-    render json: { ok: true }
-  rescue => e
-    Rails.logger.error("テストPush通知の送信に失敗: #{e.class} #{e.message}")
-    render json: { ok: false, error: "送信に失敗しました: #{e.message}" }, status: :unprocessable_entity
+    errors = []
+    current_user.push_subscriptions.find_each do |sub|
+      Webpush.payload_send(
+        message: JSON.generate(payload),
+        endpoint: sub.endpoint,
+        p256dh: sub.p256dh,
+        auth: sub.auth,
+        vapid: vapid
+      )
+    rescue Webpush::InvalidSubscription, Webpush::ExpiredSubscription
+      sub.destroy
+      errors << "無効なsubscription（削除済み）"
+    rescue => e
+      errors << e.message
+    end
+
+    if errors.any?
+      render json: { ok: false, error: errors.join(", ") }, status: :unprocessable_entity
+    else
+      render json: { ok: true }
+    end
   end
 
   private
