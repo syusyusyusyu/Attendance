@@ -113,48 +113,79 @@ end %>
   </div>
 
   <%# 通知設定カード %>
-  <div class="card p-6" data-controller="push-subscription" data-push-subscription-public-key-value="<%= ENV['WEBPUSH_PUBLIC_KEY'].to_s %>">
-    <h2 class="text-lg font-medium mb-4">通知設定</h2>
-
-    <div class="space-y-5">
+  <div class="card" data-controller="push-subscription" data-push-subscription-public-key-value="<%= ENV['WEBPUSH_PUBLIC_KEY'].to_s %>">
+    <div class="card-header">
+      <h2 class="font-semibold">通知設定</h2>
+    </div>
+    <div class="card-body space-y-0 divide-y" style="border-color: var(--color-border);">
       <%# Push通知 %>
-      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p class="text-sm font-medium" style="color: var(--color-text-primary);">Push通知</p>
-          <p class="text-xs text-body-muted mt-1">ブラウザのPush通知で出席関連のお知らせを受け取ります。</p>
+      <div class="py-4 first:pt-0 last:pb-0">
+        <div class="flex items-start gap-3">
+          <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style="background: var(--color-primary-light);">
+            <svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--color-primary);">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-1">
+              <p class="text-sm font-medium" style="color: var(--color-text-primary);">Push通知</p>
+              <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium" style="background: var(--color-bg-hover); color: var(--color-text-muted);" data-push-subscription-target="badge">
+                無効
+              </span>
+            </div>
+            <p class="text-xs text-body-muted">ブラウザのPush通知で出席関連のお知らせを受け取ります。</p>
+            <div class="flex flex-wrap items-center gap-2 mt-3">
+              <button type="button" class="btn btn-primary btn-sm" data-push-subscription-target="subscribeButton" data-action="push-subscription#subscribe">
+                有効化
+              </button>
+              <button type="button" class="btn btn-secondary btn-sm hidden" data-push-subscription-target="unsubscribeButton" data-action="push-subscription#unsubscribe">
+                解除
+              </button>
+              <button type="button" class="btn btn-secondary btn-sm hidden" data-push-subscription-target="testButton" data-action="push-subscription#test">
+                テスト送信
+              </button>
+            </div>
+            <p class="text-xs mt-2 hidden" data-push-subscription-target="status"></p>
+          </div>
         </div>
-        <div class="flex items-center gap-2">
-          <button type="button" class="btn btn-primary btn-sm" data-push-subscription-target="subscribeButton" data-action="push-subscription#subscribe">
-            有効化
-          </button>
-          <button type="button" class="btn btn-secondary btn-sm" data-push-subscription-target="unsubscribeButton" data-action="push-subscription#unsubscribe" disabled>
-            解除
-          </button>
-        </div>
-      </div>
-      <div class="flex items-center gap-2">
-        <button type="button" class="btn btn-secondary btn-sm" data-push-subscription-target="testButton" data-action="push-subscription#test" disabled>
-          テスト送信
-        </button>
-        <p class="text-xs text-body-muted" data-push-subscription-target="status"></p>
       </div>
 
       <%# メール通知（未実装） %>
-      <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between opacity-50">
-        <div>
-          <p class="text-sm font-medium" style="color: var(--color-text-primary);">メール通知</p>
-          <p class="text-xs text-body-muted mt-1">メールで通知を受け取ります。（今後対応予定）</p>
+      <div class="py-4 first:pt-0 last:pb-0 opacity-50">
+        <div class="flex items-start gap-3">
+          <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style="background: var(--color-bg-hover);">
+            <svg class="h-4.5 w-4.5 text-body-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="4" width="20" height="16" rx="2"/>
+              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+            </svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-1">
+              <p class="text-sm font-medium" style="color: var(--color-text-primary);">メール通知</p>
+              <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium" style="background: var(--color-bg-hover); color: var(--color-text-muted);">今後対応</span>
+            </div>
+            <p class="text-xs text-body-muted">メールで出席関連のお知らせを受け取ります。</p>
+          </div>
         </div>
-        <span class="text-xs text-body-muted shrink-0">未実装</span>
       </div>
 
       <%# LINE通知（未実装） %>
-      <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between opacity-50">
-        <div>
-          <p class="text-sm font-medium" style="color: var(--color-text-primary);">LINE通知</p>
-          <p class="text-xs text-body-muted mt-1">LINEで通知を受け取ります。（今後対応予定）</p>
+      <div class="py-4 first:pt-0 last:pb-0 opacity-50">
+        <div class="flex items-start gap-3">
+          <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style="background: var(--color-bg-hover);">
+            <svg class="h-4.5 w-4.5 text-body-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-1">
+              <p class="text-sm font-medium" style="color: var(--color-text-primary);">LINE通知</p>
+              <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium" style="background: var(--color-bg-hover); color: var(--color-text-muted);">今後対応</span>
+            </div>
+            <p class="text-xs text-body-muted">LINEで出席関連のお知らせを受け取ります。</p>
+          </div>
         </div>
-        <span class="text-xs text-body-muted shrink-0">未実装</span>
       </div>
     </div>
   </div>

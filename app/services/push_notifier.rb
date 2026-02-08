@@ -1,4 +1,4 @@
-require "webpush"
+require "web_push"
 
 class PushNotifier
   def initialize(notification, action_url: nil)
@@ -10,9 +10,9 @@ class PushNotifier
   def deliver
     @user.push_subscriptions.find_each do |subscription|
       send_to_subscription(subscription)
-    rescue Webpush::InvalidSubscription, Webpush::ExpiredSubscription
+    rescue WebPush::InvalidSubscription, WebPush::ExpiredSubscription
       subscription.destroy
-    rescue Webpush::ResponseError => e
+    rescue WebPush::ResponseError => e
       Rails.logger.warn("Push通知の送信に失敗しました: #{e.response&.code} #{e.response&.body}")
     rescue StandardError => e
       Rails.logger.warn("Push通知の送信に失敗しました: #{e.class} #{e.message}")
@@ -32,7 +32,7 @@ class PushNotifier
       }
     }
 
-    Webpush.payload_send(
+    WebPush.payload_send(
       message: JSON.generate(payload),
       endpoint: subscription.endpoint,
       p256dh: subscription.p256dh,

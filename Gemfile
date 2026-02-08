@@ -26,7 +26,7 @@ gem "bcrypt", "~> 3.1.7"
 gem "rqrcode", "~> 2.2"
 gem "prawn", "~> 2.4"
 gem "matrix"
-gem "webpush", "~> 1.1"
+gem "web-push", "~> 3.0"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]

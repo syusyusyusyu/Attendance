@@ -65,14 +65,14 @@ class PushSubscriptionsController < ApplicationController
 
     errors = []
     current_user.push_subscriptions.find_each do |sub|
-      Webpush.payload_send(
+      WebPush.payload_send(
         message: JSON.generate(payload),
         endpoint: sub.endpoint,
         p256dh: sub.p256dh,
         auth: sub.auth,
         vapid: vapid
       )
-    rescue Webpush::InvalidSubscription, Webpush::ExpiredSubscription
+    rescue WebPush::InvalidSubscription, WebPush::ExpiredSubscription
       sub.destroy
       errors << "無効なsubscription（削除済み）"
     rescue => e

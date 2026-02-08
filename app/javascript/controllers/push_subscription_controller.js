@@ -1,14 +1,14 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["status", "subscribeButton", "unsubscribeButton", "testButton"]
+  static targets = ["status", "subscribeButton", "unsubscribeButton", "testButton", "badge"]
   static values = { publicKey: String }
 
   connect() {
     this.supported = "serviceWorker" in navigator && "PushManager" in window
-    this.updateButtons()
+    this.updateUI()
     if (!this.supported) {
-      this.updateStatus("このブラウザではPush通知を利用できません。")
+      this.showStatus("このブラウザではPush通知を利用できません。", "error")
       return
     }
     if (!this.publicKeyValue) {
@@ -21,52 +21,73 @@ export default class extends Controller {
   async refreshSubscription() {
     const registration = await navigator.serviceWorker.getRegistration()
     this.subscription = registration ? await registration.pushManager.getSubscription() : null
-    this.updateButtons()
+    this.updateUI()
   }
 
   async subscribe() {
     if (!this.supported || !this.publicKeyValue) return
     if (!confirm("Push通知を有効化しますか？\nブラウザから通知の許可を求められます。")) return
 
-    const registration = await navigator.serviceWorker.register("/service-worker.js")
-    let subscription = await registration.pushManager.getSubscription()
-    if (!subscription) {
-      subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: this.decodeKey(this.publicKeyValue)
-      })
-    }
+    this.setLoading(this.subscribeButtonTarget, true)
+    try {
+      const registration = await navigator.serviceWorker.register("/service-worker.js")
+      let subscription = await registration.pushManager.getSubscription()
+      if (!subscription) {
+        subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: this.decodeKey(this.publicKeyValue)
+        })
+      }
 
-    await this.saveSubscription(subscription)
-    this.subscription = subscription
-    this.updateStatus("Push通知を有効化しました。")
-    this.updateButtons()
+      await this.saveSubscription(subscription)
+      this.subscription = subscription
+      this.showStatus("Push通知を有効化しました。", "success")
+      this.updateUI()
+    } catch (e) {
+      this.showStatus(`有効化に失敗しました: ${e.message}`, "error")
+    } finally {
+      this.setLoading(this.subscribeButtonTarget, false)
+    }
   }
 
   async unsubscribe() {
     if (!this.subscription) return
     if (!confirm("Push通知を解除しますか？")) return
 
-    await this.deleteSubscription(this.subscription)
-    await this.subscription.unsubscribe()
-    this.subscription = null
-    this.updateStatus("Push通知を解除しました。")
-    this.updateButtons()
+    this.setLoading(this.unsubscribeButtonTarget, true)
+    try {
+      await this.deleteSubscription(this.subscription)
+      await this.subscription.unsubscribe()
+      this.subscription = null
+      this.showStatus("Push通知を解除しました。", "success")
+      this.updateUI()
+    } catch (e) {
+      this.showStatus(`解除に失敗しました: ${e.message}`, "error")
+    } finally {
+      this.setLoading(this.unsubscribeButtonTarget, false)
+    }
   }
 
   async test() {
     if (!this.subscription) return
 
-    const response = await fetch("/push-subscription/test", {
-      method: "POST",
-      headers: this.headers()
-    })
-    const data = await response.json()
+    this.setLoading(this.testButtonTarget, true)
+    try {
+      const response = await fetch("/push-subscription/test", {
+        method: "POST",
+        headers: this.headers()
+      })
+      const data = await response.json()
 
-    if (response.ok) {
-      this.updateStatus("テスト通知を送信しました。")
-    } else {
-      this.updateStatus(data.error || "テスト通知の送信に失敗しました。")
+      if (response.ok) {
+        this.showStatus("テスト通知を送信しました。", "success")
+      } else {
+        this.showStatus(data.error || "テスト通知の送信に失敗しました。", "error")
+      }
+    } catch (e) {
+      this.showStatus(`送信に失敗しました: ${e.message}`, "error")
+    } finally {
+      this.setLoading(this.testButtonTarget, false)
     }
   }
 
@@ -98,21 +119,62 @@ export default class extends Controller {
     return meta ? meta.content : ""
   }
 
-  updateButtons() {
+  updateUI() {
+    const active = !!this.subscription
+
+    // 有効化ボタン: subscription がなければ表示
     if (this.hasSubscribeButtonTarget) {
+      this.subscribeButtonTarget.classList.toggle("hidden", active)
       this.subscribeButtonTarget.disabled = !this.supported || !this.publicKeyValue
     }
+    // 解除・テストボタン: subscription があれば表示
     if (this.hasUnsubscribeButtonTarget) {
-      this.unsubscribeButtonTarget.disabled = !this.subscription
+      this.unsubscribeButtonTarget.classList.toggle("hidden", !active)
     }
     if (this.hasTestButtonTarget) {
-      this.testButtonTarget.disabled = !this.subscription
+      this.testButtonTarget.classList.toggle("hidden", !active)
+    }
+    // バッジ
+    if (this.hasBadgeTarget) {
+      if (active) {
+        this.badgeTarget.textContent = "有効"
+        this.badgeTarget.style.background = "var(--color-success-light)"
+        this.badgeTarget.style.color = "var(--color-success)"
+      } else {
+        this.badgeTarget.textContent = "無効"
+        this.badgeTarget.style.background = "var(--color-bg-hover)"
+        this.badgeTarget.style.color = "var(--color-text-muted)"
+      }
     }
   }
 
-  updateStatus(message) {
-    if (this.hasStatusTarget && message) {
-      this.statusTarget.textContent = message
+  showStatus(message, type) {
+    if (!this.hasStatusTarget) return
+    this.statusTarget.textContent = message
+    this.statusTarget.classList.remove("hidden")
+    if (type === "success") {
+      this.statusTarget.style.color = "var(--color-success)"
+    } else if (type === "error") {
+      this.statusTarget.style.color = "var(--color-error)"
+    } else {
+      this.statusTarget.style.color = ""
+    }
+    // 5秒後に自動非表示
+    clearTimeout(this._statusTimer)
+    this._statusTimer = setTimeout(() => {
+      this.statusTarget.classList.add("hidden")
+    }, 5000)
+  }
+
+  setLoading(button, loading) {
+    if (!button) return
+    button.disabled = loading
+    if (loading) {
+      button.dataset.originalText = button.textContent
+      button.textContent = "..."
+    } else if (button.dataset.originalText) {
+      button.textContent = button.dataset.originalText
+      delete button.dataset.originalText
     }
   }
 

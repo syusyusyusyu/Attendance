@@ -25,7 +25,7 @@ class PushNotifierTest < ActiveSupport::TestCase
       "WEBPUSH_PUBLIC_KEY" => "BPubKey123",
       "WEBPUSH_PRIVATE_KEY" => "PrivKey456"
     ) do
-      Webpush.stub(:payload_send, ->(message:, endpoint:, p256dh:, auth:, vapid:) {
+      WebPush.stub(:payload_send, ->(message:, endpoint:, p256dh:, auth:, vapid:) {
         sent_endpoints << endpoint
       }) do
         PushNotifier.new(@notification, action_url: "https://app.example.com/notifications").deliver
@@ -42,7 +42,7 @@ class PushNotifierTest < ActiveSupport::TestCase
       "WEBPUSH_PUBLIC_KEY" => "BPubKey123",
       "WEBPUSH_PRIVATE_KEY" => "PrivKey456"
     ) do
-      Webpush.stub(:payload_send, ->(**_) { true }) do
+      WebPush.stub(:payload_send, ->(**_) { true }) do
         PushNotifier.new(@notification).deliver
       end
     end
@@ -56,8 +56,8 @@ class PushNotifierTest < ActiveSupport::TestCase
       "WEBPUSH_PUBLIC_KEY" => "BPubKey123",
       "WEBPUSH_PRIVATE_KEY" => "PrivKey456"
     ) do
-      Webpush.stub(:payload_send, ->(**_) {
-        error = Webpush::ExpiredSubscription.new(nil, "https://push.example.com")
+      WebPush.stub(:payload_send, ->(**_) {
+        error = WebPush::ExpiredSubscription.new(nil, "https://push.example.com")
         raise error
       }) do
         assert_difference -> { PushSubscription.count }, -1 do
@@ -72,8 +72,8 @@ class PushNotifierTest < ActiveSupport::TestCase
       "WEBPUSH_PUBLIC_KEY" => "BPubKey123",
       "WEBPUSH_PRIVATE_KEY" => "PrivKey456"
     ) do
-      Webpush.stub(:payload_send, ->(**_) {
-        error = Webpush::InvalidSubscription.new(nil, "https://push.example.com")
+      WebPush.stub(:payload_send, ->(**_) {
+        error = WebPush::InvalidSubscription.new(nil, "https://push.example.com")
         raise error
       }) do
         assert_difference -> { PushSubscription.count }, -1 do
@@ -88,8 +88,8 @@ class PushNotifierTest < ActiveSupport::TestCase
       "WEBPUSH_PUBLIC_KEY" => "BPubKey123",
       "WEBPUSH_PRIVATE_KEY" => "PrivKey456"
     ) do
-      Webpush.stub(:payload_send, ->(**_) {
-        raise Webpush::ResponseError.new(nil, "https://push.example.com")
+      WebPush.stub(:payload_send, ->(**_) {
+        raise WebPush::ResponseError.new(nil, "https://push.example.com")
       }) do
         assert_nothing_raised do
           PushNotifier.new(@notification).deliver
@@ -107,7 +107,7 @@ class PushNotifierTest < ActiveSupport::TestCase
       "WEBPUSH_PUBLIC_KEY" => "BPubKey123",
       "WEBPUSH_PRIVATE_KEY" => "PrivKey456"
     ) do
-      Webpush.stub(:payload_send, ->(message:, **_) {
+      WebPush.stub(:payload_send, ->(message:, **_) {
         captured_payload = JSON.parse(message)
       }) do
         PushNotifier.new(@notification, action_url: "https://app.example.com/notifications").deliver
@@ -127,7 +127,7 @@ class PushNotifierTest < ActiveSupport::TestCase
       "WEBPUSH_PRIVATE_KEY" => "my-private-key",
       "WEBPUSH_SUBJECT" => "mailto:admin@school.jp"
     ) do
-      Webpush.stub(:payload_send, ->(vapid:, **_) {
+      WebPush.stub(:payload_send, ->(vapid:, **_) {
         captured_vapid = vapid
       }) do
         PushNotifier.new(@notification).deliver
