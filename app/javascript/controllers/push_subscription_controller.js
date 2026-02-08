@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["status", "subscribeButton", "unsubscribeButton"]
+  static targets = ["status", "subscribeButton", "unsubscribeButton", "testButton"]
   static values = { publicKey: String }
 
   connect() {
@@ -54,6 +54,22 @@ export default class extends Controller {
     this.updateButtons()
   }
 
+  async test() {
+    if (!this.subscription) return
+
+    const response = await fetch("/push-subscription/test", {
+      method: "POST",
+      headers: this.headers()
+    })
+    const data = await response.json()
+
+    if (response.ok) {
+      this.updateStatus("テスト通知を送信しました。")
+    } else {
+      this.updateStatus(data.error || "テスト通知の送信に失敗しました。")
+    }
+  }
+
   async saveSubscription(subscription) {
     await fetch("/push-subscription", {
       method: "POST",
@@ -88,6 +104,9 @@ export default class extends Controller {
     }
     if (this.hasUnsubscribeButtonTarget) {
       this.unsubscribeButtonTarget.disabled = !this.subscription
+    }
+    if (this.hasTestButtonTarget) {
+      this.testButtonTarget.disabled = !this.subscription
     }
   }
 

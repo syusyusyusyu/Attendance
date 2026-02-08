@@ -35,6 +35,22 @@ class PushSubscriptionsController < ApplicationController
     render json: { ok: true }
   end
 
+  def test
+    if current_user.push_subscriptions.none?
+      render json: { ok: false, error: "Push通知が有効化されていません。" }, status: :unprocessable_entity
+      return
+    end
+
+    notification = current_user.notifications.create!(
+      title: "テスト通知",
+      body: "Push通知が正常に動作しています。",
+      kind: "info",
+      action_path: "/profile"
+    )
+
+    render json: { ok: true }
+  end
+
   private
 
   def subscription_params

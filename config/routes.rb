@@ -54,7 +54,9 @@ Rails.application.routes.draw do
   end
 
   resource :profile, only: [:show, :update]
-  resource :push_subscription, only: [:create, :destroy], path: "push-subscription"
+  resource :push_subscription, only: [:create, :destroy], path: "push-subscription" do
+    post :test, on: :collection
+  end
 
   resources :school_classes do
     post :roster_import, on: :member

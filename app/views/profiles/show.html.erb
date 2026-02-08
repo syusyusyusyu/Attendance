@@ -132,7 +132,12 @@ end %>
           </button>
         </div>
       </div>
-      <p class="text-xs text-body-muted" data-push-subscription-target="status"></p>
+      <div class="flex items-center gap-2">
+        <button type="button" class="btn btn-secondary btn-sm" data-push-subscription-target="testButton" data-action="push-subscription#test" disabled>
+          テスト送信
+        </button>
+        <p class="text-xs text-body-muted" data-push-subscription-target="status"></p>
+      </div>
 
       <%# メール通知（未実装） %>
       <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between opacity-50">
