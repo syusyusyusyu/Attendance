@@ -117,6 +117,21 @@ export default class extends Controller {
     this.updateChangeSummary()
   }
 
+  validateSubmit(event) {
+    if (!this.editingValue) return
+
+    const changedRows = this.rowTargets.filter((row) => row.dataset.changed === "true")
+    if (changedRows.length === 0) return
+
+    const reasonField = this.reasonBlockTarget?.querySelector("textarea")
+    if (reasonField && reasonField.value.trim() === "") {
+      event.preventDefault()
+      reasonField.focus()
+      reasonField.style.borderColor = "var(--color-error)"
+      reasonField.setAttribute("placeholder", "修正理由を入力してください（必須）")
+    }
+  }
+
   submitEnd(event) {
     if (!event.detail.success) return
 

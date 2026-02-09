@@ -78,7 +78,8 @@ class ClassAttendancesController < ApplicationController
 
     if class_session&.locked? && !current_user.admin?
       redirect_to attendance_path(class_id: selected_class.id, date: date),
-                  alert: "出席が確定済みのため修正できません。" and return
+                  alert: "出席が確定済みのため修正できません。",
+                  status: :see_other and return
     end
 
     changes = []
@@ -96,7 +97,8 @@ class ClassAttendancesController < ApplicationController
 
     if changes.any? && reason.blank?
       redirect_to attendance_path(class_id: selected_class.id, date: date),
-                  alert: "修正理由を入力してください。" and return
+                  alert: "修正理由を入力してください。",
+                  status: :see_other and return
     end
 
     if changes.any? && !current_user.admin?
@@ -112,7 +114,7 @@ class ClassAttendancesController < ApplicationController
       respond_to do |format|
         format.turbo_stream { head :ok }
         format.html do
-          redirect_to attendance_path(class_id: selected_class.id, date: date), notice: "修正内容を承認申請しました。"
+          redirect_to attendance_path(class_id: selected_class.id, date: date), notice: "修正内容を承認申請しました。", status: :see_other
         end
       end
       return
@@ -162,7 +164,7 @@ class ClassAttendancesController < ApplicationController
     respond_to do |format|
       format.turbo_stream { head :ok }
       format.html do
-        redirect_to attendance_path(class_id: selected_class.id, date: date), notice: "出席を更新しました。"
+        redirect_to attendance_path(class_id: selected_class.id, date: date), notice: "出席を更新しました。", status: :see_other
       end
     end
   rescue ArgumentError

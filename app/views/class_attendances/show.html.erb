@@ -338,17 +338,15 @@
         </div>
 
         <%= form_with url: attendance_path, method: :patch, class: "space-y-4",
-          data: { action: "turbo:submit-end->attendance#submitEnd" } do |f| %>
+          data: { action: "submit->attendance#validateSubmit turbo:submit-end->attendance#submitEnd" } do |f| %>
           <%= hidden_field_tag :class_id, @selected_class.id %>
           <%= hidden_field_tag :date, @date %>
 
           <%# 修正理由 %>
           <div
-            class="rounded-lg p-4 hidden drawer-panel"
-
+            class="rounded-lg p-4 hidden"
+            style="background: var(--color-surface-hover);"
             data-attendance-target="reasonBlock"
-            data-controller="drawer"
-            data-drawer-open-value="false"
           >
             <%= label_tag :reason, "修正理由", class: "block text-sm font-medium mb-2", style: "color: var(--color-text-primary);" %>
             <%= text_area_tag :reason, nil, rows: 2, class: "input", placeholder: "例: 公欠申請・遅延連絡" %>
