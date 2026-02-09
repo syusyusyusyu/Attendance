@@ -1,4 +1,4 @@
-<div class="max-w-5xl mx-auto space-y-6">
+<div class="max-w-5xl mx-auto space-y-6" data-turbo-cache="false">
   <%# ページヘッダー %>
   <div class="page-header">
     <div>
@@ -131,11 +131,11 @@
                       </td>
                     <% end %>
                     <td class="text-center">
-                      <% if current_status.present? %>
-                        <span class="<%= AttendanceStatus.badge_class(current_status) %>"><%= AttendanceStatus.label(current_status) %></span>
-                      <% else %>
-                        <span class="text-body-muted text-xs">未登録</span>
-                      <% end %>
+                      <span
+                        data-roll-call-target="badge"
+                        data-student-id="<%= student.id %>"
+                        class="<%= current_status.present? ? AttendanceStatus.badge_class(current_status) : 'text-body-muted text-xs' %>"
+                      ><%= current_status.present? ? AttendanceStatus.label(current_status) : '未登録' %></span>
                     </td>
                   <% end %>
                 </tr>

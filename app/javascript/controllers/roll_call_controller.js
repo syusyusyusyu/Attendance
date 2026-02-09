@@ -1,9 +1,26 @@
 import { Controller } from "@hotwired/stimulus"
 
-export default class extends Controller {
-  static targets = ["counter", "progressBar", "radio"]
+const STATUS_LABELS = {
+  present: "出席",
+  absent: "欠席",
+  late: "遅刻",
+  excused: "公欠",
+  early_leave: "早退"
+}
 
-  statusChanged() {
+const STATUS_BADGE_CLASSES = {
+  present: "badge badge-success",
+  absent: "badge badge-error",
+  late: "badge badge-warning",
+  excused: "badge badge-info",
+  early_leave: "badge badge-warning"
+}
+
+export default class extends Controller {
+  static targets = ["counter", "progressBar", "radio", "badge"]
+
+  statusChanged(event) {
+    this.updateBadge(event.target)
     this.updateProgress()
   }
 
@@ -12,8 +29,23 @@ export default class extends Controller {
     const radios = this.radioTargets.filter(r => r.value === "present")
     radios.forEach(radio => {
       radio.checked = true
+      this.updateBadge(radio)
     })
     this.updateProgress()
+  }
+
+  updateBadge(radio) {
+    // name="attendance[123]" → studentId="123"
+    const match = radio.name.match(/attendance\[(\d+)\]/)
+    if (!match) return
+
+    const studentId = match[1]
+    const badge = this.badgeTargets.find(b => b.dataset.studentId === studentId)
+    if (!badge) return
+
+    const status = radio.value
+    badge.textContent = STATUS_LABELS[status] || status
+    badge.className = STATUS_BADGE_CLASSES[status] || "badge"
   }
 
   updateProgress() {
