@@ -1,0 +1,132 @@
+<%# AdminKit風操作申請: DataGrid、バッジ、フィルター %>
+<% kind_labels = {
+  "attendance_correction" => "出席修正",
+  "attendance_finalize" => "出席確定",
+  "attendance_unlock" => "確定解除",
+  "attendance_csv_import" => "CSV反映"
+} %>
+<% status_labels = {
+  "pending" => "審査中",
+  "approved" => "承認",
+  "rejected" => "却下"
+} %>
+<% status_badges = {
+  "pending" => "badge badge-warning",
+  "approved" => "badge badge-success",
+  "rejected" => "badge badge-error"
+} %>
+
+<div class="max-w-6xl mx-auto space-y-6">
+  <%# ページヘッダー %>
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">操作申請</h1>
+      <p class="page-subtitle">教員からの操作申請を管理します。</p>
+      <%= breadcrumb(["管理", admin_path], ["操作申請"]) %>
+    </div>
+  </div>
+
+  <%= turbo_frame_tag "operation_requests_results", class: "relative" do %>
+  <%= render "shared/frame_loader" %>
+
+  <%# フィルターカード %>
+  <div class="card">
+    <div class="card-header">
+      <h2 class="font-semibold">絞り込み条件</h2>
+    </div>
+    <div class="card-body">
+      <%= form_with url: admin_operation_requests_path,
+        method: :get,
+        class: "grid grid-cols-1 md:grid-cols-3 gap-4 items-end",
+        data: {
+          controller: "request-filter",
+          action: "change->request-filter#submit input->request-filter#submitDebounced"
+        } do |f| %>
+        <div>
+          <%= f.label :status, "状態", class: "block text-sm font-medium mb-2", style: "color: var(--color-text-primary);" %>
+          <%= f.select :status,
+            options_for_select(status_labels.map { |key, label| [label, key] }, @status),
+            { include_blank: "すべて" },
+            class: "input" %>
+        </div>
+        <div>
+          <%= f.label :kind, "種別", class: "block text-sm font-medium mb-2", style: "color: var(--color-text-primary);" %>
+          <%= f.select :kind,
+            options_for_select(kind_labels.map { |key, label| [label, key] }, @kind),
+            { include_blank: "すべて" },
+            class: "input" %>
+        </div>
+        <div class="flex flex-col gap-2">
+          <%= f.submit "絞り込む", class: "btn btn-primary w-full" %>
+          <% if session[:admin_operation_requests_last_filter].present? %>
+            <%= link_to "前回条件",
+              admin_operation_requests_path(session[:admin_operation_requests_last_filter]),
+              class: "btn btn-secondary w-full" %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <%# サマリー %>
+  <% status_counts = @requests.group_by(&:status).transform_values(&:count) %>
+  <% kind_counts = @requests.group_by(&:kind).transform_values(&:count) %>
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+    <div class="card">
+      <div class="card-body py-3">
+        <div class="text-xs text-body-muted">表示件数</div>
+        <div class="text-lg font-semibold"><%= @requests.size %>件</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-body py-3">
+        <div class="text-xs text-body-muted">状態内訳</div>
+        <div class="text-sm">
+          審査中 <%= status_counts["pending"].to_i %> / 承認 <%= status_counts["approved"].to_i %> / 却下 <%= status_counts["rejected"].to_i %>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-body py-3">
+        <div class="text-xs text-body-muted">種別内訳</div>
+        <div class="text-sm">
+          修正 <%= kind_counts["attendance_correction"].to_i %> / 確定 <%= kind_counts["attendance_finalize"].to_i %> / 解除 <%= kind_counts["attendance_unlock"].to_i %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%# データテーブル %>
+  <div class="card">
+    <div class="card-body p-0">
+      <div class="table-container">
+        <table class="w-full">
+          <thead>
+            <tr>
+              <th>申請日時</th>
+              <th>種別</th>
+              <th>クラス</th>
+              <th>申請者</th>
+              <th>理由</th>
+              <th>状態</th>
+              <th class="text-right">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <%= render partial: "row", collection: @requests, as: :operation_request %>
+            <% if @requests.empty? %>
+              <tr>
+                <td colspan="7" class="px-4 py-8 text-center">
+                  <div class="empty-state">
+                    <div class="empty-state-title">該当なし</div>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <% end %>
+</div>

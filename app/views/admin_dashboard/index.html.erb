@@ -13,7 +13,7 @@
     <div class="flex flex-wrap gap-2">
       <%= link_to "ユーザー管理", admin_users_path, class: "btn btn-secondary text-sm" %>
       <%= link_to "ロール/権限", admin_roles_path, class: "btn btn-secondary text-sm" %>
-
+      <%= link_to "操作申請", admin_operation_requests_path, class: "btn btn-secondary text-sm" %>
       <%= link_to "監査ログ", attendance_logs_path, class: "btn btn-secondary text-sm" %>
     </div>
   </div>
@@ -120,6 +120,46 @@
       </div>
     </div>
 
+    <%# 未処理の操作申請 %>
+    <div class="card">
+      <div class="card-header">
+        <h2 class="text-lg font-semibold">未処理の操作申請</h2>
+      </div>
+      <div class="table-container">
+        <table class="w-full">
+          <thead>
+            <tr>
+              <th>申請者</th>
+              <th>クラス</th>
+              <th>種別</th>
+              <th>申請日時</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if @pending_operations.any? %>
+              <% @pending_operations.each do |request| %>
+                <tr>
+                  <td class="px-4 py-3 text-sm"><%= request.user&.name || "-" %></td>
+                  <td class="px-4 py-3 text-sm"><%= request.school_class&.name || "-" %></td>
+                  <td class="px-4 py-3 text-sm">
+                    <span class="badge badge-info"><%= request.kind %></span>
+                  </td>
+                  <td class="px-4 py-3 text-sm text-body-secondary"><%= request.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+                </tr>
+              <% end %>
+            <% else %>
+              <tr>
+                <td colspan="4" class="px-4 py-8 text-center">
+                  <div class="empty-state">
+                    <div class="empty-state-title">該当なし</div>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
   <%# ログテーブル %>
