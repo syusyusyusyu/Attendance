@@ -99,7 +99,7 @@ RoR出席管理システムは、QRコードによる出席登録と位置情報
 | **出席申請** | 欠席/遅刻/公欠の申請 → 教員承認ワークフロー |
 | **監査ログ** | すべての操作を記録、CSV出力対応 |
 | **レポート** | 週次/日次の出席率推移、要注意者抽出、期末PDF/CSV |
-| **通知** | Push通知 / メール・LINE通知（未実装） |
+| **通知** | Push通知 / メール / LINE通知 |
 
 <br>
 
@@ -309,9 +309,9 @@ flowchart LR
   Model -->|ActiveRecord| DB["PostgreSQL"]
   User -->|Geolocation| GPS["位置情報API"]
   User -->|Camera| QR["QRスキャン"]
-  Rails -.->|メール（未実装）| SMTP["SendGrid"]
+  Rails -->|メール| SMTP["SendGrid"]
   Rails -->|Push通知| WebPush["Web Push API"]
-  Rails -.->|LINE（未実装）| LINE["LINE Messaging API"]
+  Rails -->|LINE通知| LINE["LINE Messaging API"]
 ```
 
 <br>
@@ -355,8 +355,9 @@ graph TD
   H --> H2[要注意者抽出]
   H --> H3[期末PDF/CSV]
   A --> I[通知]
-  I --> I1[Push通知（実装済）]
-  I --> I2[メール/LINE（未実装）]
+  I --> I1[Push通知]
+  I --> I2[メール通知]
+  I --> I3[LINE通知]
   A --> J[管理者機能]
   J --> J1[ユーザー管理]
   J --> J2[権限管理]
@@ -530,8 +531,16 @@ flowchart TB
 | GET/PATCH | `/roll-call` | 点呼モード | 教員/管理者 |
 | GET | `/history` | 出席履歴 | 学生のみ |
 | GET/PATCH | `/attendance` | 出席確認・修正 | 教員/管理者 |
+| GET | `/attendance/export` | 出席データCSVエクスポート | 教員/管理者 |
+| POST | `/attendance/import` | 出席データCSVインポート | 教員/管理者 |
+| PATCH | `/attendance/policy` | 出席ポリシー更新 | 教員/管理者 |
+| PATCH | `/attendance/finalize` | 出席確定 | 教員/管理者 |
+| PATCH | `/attendance/unlock` | 出席確定解除 | 教員/管理者 |
 | GET/POST | `/attendance_requests` | 出席申請 | 全員 |
 | GET | `/reports` | レポート | 教員/管理者 |
+| GET | `/notifications` | 通知一覧 | ログイン必須 |
+| PATCH | `/notifications/:id/mark-read` | 通知既読 | ログイン必須 |
+| PATCH | `/notifications/mark-all` | 全通知既読 | ログイン必須 |
 | GET | `/scan-logs` | スキャンログ | 教員/管理者 |
 | GET | `/attendance-logs` | 変更ログ | 教員/管理者 |
 | GET | `/admin` | 管理画面 | 管理者のみ |
@@ -558,9 +567,9 @@ erDiagram
     string role "student/teacher/admin"
     string student_id UK "学籍番号"
     string password_digest "パスワードハッシュ"
+    string profile_image "プロフィール画像"
     jsonb settings "通知設定等"
-    datetime locked_at "ロック日時"
-    integer failed_attempts "ログイン失敗回数"
+    datetime last_login "最終ログイン"
     datetime created_at
     datetime updated_at
   }
@@ -582,7 +591,6 @@ erDiagram
     bigint school_class_id FK
     bigint student_id FK
     datetime enrolled_at "履修開始日"
-    datetime dropped_at "履修取消日"
     datetime created_at
     datetime updated_at
   }
@@ -593,9 +601,9 @@ erDiagram
     date date "授業日"
     datetime start_at "開始時刻"
     datetime end_at "終了時刻"
-    string status "scheduled/completed/canceled"
+    string status "regular/makeup/canceled"
     datetime locked_at "確定日時"
-    bigint locked_by_id FK "確定者"
+    text note "備考"
     datetime created_at
     datetime updated_at
   }
@@ -603,11 +611,11 @@ erDiagram
   CLASS_SESSION_OVERRIDES {
     bigint id PK
     bigint school_class_id FK
-    date original_date "元の日付"
-    date new_date "変更後日付"
-    string override_type "cancel/reschedule/makeup"
-    string reason "理由"
-    bigint created_by_id FK "作成者"
+    date date "対象日"
+    string start_time "開始時刻"
+    string end_time "終了時刻"
+    string status "regular/makeup/canceled"
+    text note "備考"
     datetime created_at
     datetime updated_at
   }
@@ -634,12 +642,13 @@ erDiagram
     bigint school_class_id FK
     bigint class_session_id FK
     date date "対象日"
-    string request_type "absence/late/excused/correction"
+    string request_type "absent/late/excused"
     string status "pending/approved/rejected"
     text reason "申請理由"
-    text admin_note "管理者メモ"
-    bigint approved_by_id FK "承認者"
-    datetime approved_at "承認日時"
+    datetime submitted_at "申請日時"
+    bigint processed_by_id FK "処理者"
+    datetime processed_at "処理日時"
+    text decision_reason "処理理由"
     datetime created_at
     datetime updated_at
   }
@@ -647,14 +656,19 @@ erDiagram
   ATTENDANCE_CHANGES {
     bigint id PK
     bigint attendance_record_id FK
-    bigint changed_by_id FK "変更者"
+    bigint user_id FK "対象ユーザー"
+    bigint school_class_id FK
+    date date "対象日"
     string previous_status "変更前ステータス"
     string new_status "変更後ステータス"
     text reason "変更理由"
-    string source "manual/request/system/import"
-    string ip_address "IPアドレス"
+    bigint modified_by_id FK "変更者"
+    string source "manual/csv/system"
+    string ip "IPアドレス"
     string user_agent "ブラウザ情報"
+    datetime changed_at "変更日時"
     datetime created_at
+    datetime updated_at
   }
 
   ATTENDANCE_POLICIES {
@@ -673,11 +687,11 @@ erDiagram
     bigint id PK
     bigint school_class_id FK
     bigint teacher_id FK "発行教員"
-    bigint class_session_id FK
     date attendance_date "出席対象日"
+    datetime issued_at "発行日時"
     datetime expires_at "有効期限"
     datetime revoked_at "失効日時"
-    string token_digest "トークンハッシュ"
+    boolean demo_mode "デモモード"
     datetime created_at
     datetime updated_at
   }
@@ -686,22 +700,24 @@ erDiagram
     bigint id PK
     bigint qr_session_id FK
     bigint user_id FK "スキャン者"
-    string status "success/failure/..."
-    string error_code "エラーコード"
+    bigint school_class_id FK
+    string status "success/expired/revoked/..."
     string token_digest "トークンハッシュ"
-    string ip_address "IPアドレス"
+    string ip "IPアドレス"
     string user_agent "ブラウザ情報"
-    jsonb location "位置情報"
+    string attendance_status "出席ステータス"
+    datetime scanned_at "スキャン日時"
     datetime created_at
+    datetime updated_at
   }
 
   NOTIFICATIONS {
     bigint id PK
     bigint user_id FK "受信者"
-    string notification_type "通知種別"
+    string kind "info/warning/success"
     string title "タイトル"
     text body "本文"
-    jsonb data "追加データ"
+    string action_path "アクションURL"
     datetime read_at "既読日時"
     datetime created_at
     datetime updated_at
@@ -711,8 +727,10 @@ erDiagram
     bigint id PK
     bigint user_id FK
     string endpoint UK "Push Endpoint"
-    string p256dh_key "公開鍵"
-    string auth_key "認証キー"
+    string p256dh "公開鍵"
+    string auth "認証キー"
+    string user_agent "ブラウザ情報"
+    datetime last_used_at "最終使用日時"
     datetime created_at
     datetime updated_at
   }
@@ -731,15 +749,14 @@ erDiagram
   USERS ||--o{ ENROLLMENTS : "enrolls(student_id)"
   USERS ||--o{ ATTENDANCE_RECORDS : "has(user_id)"
   USERS ||--o{ ATTENDANCE_REQUESTS : "creates(user_id)"
-  USERS ||--o{ ATTENDANCE_REQUESTS : "approves(approved_by_id)"
-  USERS ||--o{ ATTENDANCE_CHANGES : "changes(changed_by_id)"
+  USERS ||--o{ ATTENDANCE_REQUESTS : "processes(processed_by_id)"
+  USERS ||--o{ ATTENDANCE_CHANGES : "changes(modified_by_id)"
   USERS ||--o{ QR_SESSIONS : "issues(teacher_id)"
   USERS ||--o{ QR_SCAN_EVENTS : "scans(user_id)"
   USERS ||--o{ NOTIFICATIONS : "receives(user_id)"
   USERS ||--o{ PUSH_SUBSCRIPTIONS : "has(user_id)"
   USERS ||--o{ AUDIT_SAVED_SEARCHES : "saves(user_id)"
-  USERS ||--o{ CLASS_SESSIONS : "locks(locked_by_id)"
-  USERS ||--o{ CLASS_SESSION_OVERRIDES : "creates(created_by_id)"
+  USERS ||--o{ OPERATION_REQUESTS : "creates(user_id)"
 
   %% クラス関連
   SCHOOL_CLASSES ||--o{ ENROLLMENTS : "has"
@@ -753,7 +770,7 @@ erDiagram
   %% セッション関連
   CLASS_SESSIONS ||--o{ ATTENDANCE_RECORDS : "has"
   CLASS_SESSIONS ||--o{ ATTENDANCE_REQUESTS : "has"
-  CLASS_SESSIONS ||--o{ QR_SESSIONS : "has"
+  QR_SCAN_EVENTS }o--|| SCHOOL_CLASSES : "belongs_to"
 
   %% QR関連
   QR_SESSIONS ||--o{ QR_SCAN_EVENTS : "has"
@@ -776,7 +793,9 @@ erDiagram
 | role | string | student/teacher/admin |
 | student_id | string | 学籍番号（一意） |
 | password_digest | string | パスワードハッシュ |
+| profile_image | string | プロフィール画像 |
 | settings | jsonb | 通知設定等 |
+| last_login | datetime | 最終ログイン |
 
 #### attendance_records
 
@@ -1039,16 +1058,15 @@ classDiagram
     +string student_id
     +string password_digest
     +jsonb settings
-    +datetime locked_at
-    +integer failed_attempts
+    +datetime last_login
     +authenticate(password) bool
     +student?() bool
     +teacher?() bool
     +admin?() bool
-    +can_manage_class?(class) bool
-    +enrolled_in?(class) bool
-    +lock!()
-    +unlock!()
+    +staff?() bool
+    +manageable_classes() SchoolClass[]
+    +notification_preferences() hash
+    +has_permission?(key) bool
   }
 
   class SchoolClass {
@@ -1072,10 +1090,8 @@ classDiagram
     +bigint school_class_id
     +bigint student_id
     +datetime enrolled_at
-    +datetime dropped_at
     +school_class() SchoolClass
     +student() User
-    +active?() bool
   }
 
   class ClassSession {
@@ -1086,28 +1102,22 @@ classDiagram
     +datetime end_at
     +string status
     +datetime locked_at
-    +bigint locked_by_id
     +school_class() SchoolClass
     +attendance_records() AttendanceRecord[]
-    +active?() bool
     +locked?() bool
-    +canceled?() bool
-    +lock!(user)
-    +unlock!(user)
+    +duration_minutes() int
+    +status_label() string
   }
 
   class ClassSessionOverride {
     +bigint id
     +bigint school_class_id
-    +date original_date
-    +date new_date
-    +string override_type
-    +string reason
-    +bigint created_by_id
+    +date date
+    +string start_time
+    +string end_time
+    +string status
+    +text note
     +school_class() SchoolClass
-    +cancel?() bool
-    +reschedule?() bool
-    +makeup?() bool
   }
 
   class AttendanceRecord {
@@ -1143,30 +1153,33 @@ classDiagram
     +string request_type
     +string status
     +text reason
-    +text admin_note
-    +bigint approved_by_id
-    +datetime approved_at
+    +datetime submitted_at
+    +bigint processed_by_id
+    +datetime processed_at
+    +text decision_reason
     +user() User
-    +approver() User
-    +pending?() bool
-    +approved?() bool
-    +rejected?() bool
-    +approve!(user, note)
-    +reject!(user, note)
+    +processed_by() User
+    +status_pending?() bool
+    +status_approved?() bool
+    +status_rejected?() bool
   }
 
   class AttendanceChange {
     +bigint id
     +bigint attendance_record_id
-    +bigint changed_by_id
+    +bigint user_id
+    +bigint school_class_id
+    +date date
     +string previous_status
     +string new_status
     +text reason
+    +bigint modified_by_id
     +string source
-    +string ip_address
+    +string ip
     +string user_agent
+    +datetime changed_at
     +attendance_record() AttendanceRecord
-    +changed_by() User
+    +modified_by() User
   }
 
   class AttendancePolicy {
@@ -1195,46 +1208,42 @@ classDiagram
     +bigint id
     +bigint school_class_id
     +bigint teacher_id
-    +bigint class_session_id
     +date attendance_date
+    +datetime issued_at
     +datetime expires_at
     +datetime revoked_at
-    +string token_digest
+    +boolean demo_mode
     +school_class() SchoolClass
     +teacher() User
     +scan_events() QrScanEvent[]
-    +valid?() bool
-    +expired?() bool
     +revoked?() bool
-    +revoke!()
+    +active?(reference_time) bool
   }
 
   class QrScanEvent {
     +bigint id
     +bigint qr_session_id
     +bigint user_id
+    +bigint school_class_id
     +string status
-    +string error_code
     +string token_digest
-    +string ip_address
+    +string ip
     +string user_agent
-    +jsonb location
+    +string attendance_status
+    +datetime scanned_at
     +qr_session() QrSession
     +user() User
-    +success?() bool
-    +failure?() bool
   }
 
   class Notification {
     +bigint id
     +bigint user_id
-    +string notification_type
+    +string kind
     +string title
     +text body
-    +jsonb data
+    +string action_path
     +datetime read_at
     +user() User
-    +read?() bool
     +mark_read!()
   }
 
@@ -1242,8 +1251,10 @@ classDiagram
     +bigint id
     +bigint user_id
     +string endpoint
-    +string p256dh_key
-    +string auth_key
+    +string p256dh
+    +string auth
+    +string user_agent
+    +datetime last_used_at
     +user() User
   }
 
@@ -1299,7 +1310,7 @@ classDiagram
 
   class AttendanceToken {
     <<service>>
-    +generate(session_id, class_id, expires_at)$ string
+    +generate(qr_session)$ string
     +verify(token)$ hash
     -verifier()$ MessageVerifier
   }
@@ -1311,24 +1322,20 @@ classDiagram
     -location: hash
     -ip: string
     -user_agent: string
-    +initialize(token, user, location, ip, user_agent)
-    +process() Result
+    +initialize(user, token, ip, user_agent, location, now)
+    +call() Result
     -verify_token() bool
     -verify_session() bool
     -verify_enrollment() bool
     -verify_location() bool
-    -verify_rate_limit() bool
     -create_attendance_record() AttendanceRecord
-    -log_scan_event(status, error)
-    -detect_fraud() array
   }
 
-  class GeoCalculator {
-    <<service>>
-    +EARTH_RADIUS_KM$ float
-    +distance_km(lat1, lng1, lat2, lng2)$ float
-    +within_radius?(lat, lng, center_lat, center_lng, radius_m)$ bool
-    -to_radians(degrees)$ float
+  class AttendancePolicyGeo {
+    <<model>>
+    +validate(latitude, longitude, accuracy) Result
+    -within_fence?() bool
+    -accuracy_acceptable?() bool
   }
 
   class AttendanceFinalizer {
@@ -1340,34 +1347,16 @@ classDiagram
     -create_change_logs()
   }
 
-  class AttendanceStatsCalculator {
-    <<service>>
-    -user: User
-    -school_class: SchoolClass
-    -start_date: date
-    -end_date: date
-    +initialize(user, school_class, start_date, end_date)
-    +calculate() Stats
-    -attendance_rate() float
-    -absence_count() int
-    -late_count() int
-    -present_count() int
-  }
-
   class TermReportBuilder {
     <<service>>
     -school_class: SchoolClass
-    -term_start: date
-    -term_end: date
     +initialize(school_class, term_start, term_end)
     +build() Report
     +to_pdf() binary
     +to_csv() string
-    -aggregate_stats()
-    -identify_warnings()
   }
 
-  class FraudDetector {
+  class QrFraudDetector {
     <<service>>
     +check(user, ip, token_digest)$ array
     -check_failure_burst(user)$ bool
@@ -1375,35 +1364,44 @@ classDiagram
     -check_token_sharing(token_digest)$ bool
   }
 
-  class NotificationService {
+  class NotificationDispatcher {
     <<service>>
-    +send_email(user, type, data)$
-    +send_line(user, message)$
-    +send_push(user, title, body)$
-    +notify_fraud_alert(teacher, alert)$
-    +notify_attendance_warning(user, stats)$
+    -notification: Notification
+    +initialize(notification)
+    +deliver()
+    -deliver_email()
+    -deliver_line()
+    -deliver_push()
   }
 
-  class CsvImporter {
+  class LineNotifier {
     <<service>>
-    -file: File
-    -school_class: SchoolClass
+    +initialize(channel_token)
+    +push(user_id, message)
+  }
+
+  class PushNotifier {
+    <<service>>
+    +initialize(notification, action_url)
+    +deliver()
+  }
+
+  class BaseCsvImporter {
+    <<service>>
     +initialize(file, school_class)
     +import() Result
     -parse_csv() array
     -validate_rows(rows) array
-    -import_enrollments(rows)
-    -import_attendance(rows)
   }
 
-  class CsvExporter {
+  class QrScanRateLimiter {
     <<service>>
-    -records: array
-    -type: string
-    +initialize(records, type)
-    +export() string
-    -headers() array
-    -row_data(record) array
+    +check(user, school_class)$ bool
+  }
+
+  class QrScanEventLogger {
+    <<service>>
+    +log(params)$ QrScanEvent
   }
 
   class Result {
@@ -1417,22 +1415,22 @@ classDiagram
   }
 
   QrScanProcessor ..> AttendanceToken : uses
-  QrScanProcessor ..> GeoCalculator : uses
-  QrScanProcessor ..> FraudDetector : uses
+  QrScanProcessor ..> AttendancePolicyGeo : uses
+  QrScanProcessor ..> QrFraudDetector : uses
+  QrScanProcessor ..> QrScanRateLimiter : uses
+  QrScanProcessor ..> QrScanEventLogger : uses
   QrScanProcessor ..> AttendanceRecord : creates
-  QrScanProcessor ..> QrScanEvent : creates
   QrScanProcessor ..> Result : returns
 
   AttendanceFinalizer ..> AttendanceRecord : updates
   AttendanceFinalizer ..> AttendanceChange : creates
   AttendanceFinalizer ..> Result : returns
 
-  AttendanceStatsCalculator ..> AttendanceRecord : reads
-  TermReportBuilder ..> AttendanceStatsCalculator : uses
-  TermReportBuilder ..> AttendanceRecord : reads
+  NotificationDispatcher ..> LineNotifier : uses
+  NotificationDispatcher ..> PushNotifier : uses
+  NotificationDispatcher ..> NotificationMailer : uses
 
-  FraudDetector ..> QrScanEvent : reads
-  FraudDetector ..> NotificationService : uses
+  QrFraudDetector ..> QrScanEvent : reads
 ```
 
 <br>
@@ -1509,6 +1507,12 @@ flowchart LR
 | AttendancePolicy | 出席ポリシー | 遅刻/締切/警告の閾値 |
 | AttendanceToken | トークン生成/検証 | 署名付きQRトークン |
 | QrScanProcessor | スキャン処理 | 検証→記録の統括 |
+| QrFraudDetector | 不正検知 | 失敗多発/IP集中/トークン共有検知 |
+| QrScanRateLimiter | レート制限 | クラス/学生単位のスキャン制限 |
+| QrScanEventLogger | スキャンログ記録 | スキャンイベントの永続化 |
+| NotificationDispatcher | 通知配信 | メール/LINE/Push通知の統括 |
+| LineNotifier | LINE通知 | LINE Messaging API連携 |
+| PushNotifier | Push通知 | Web Push配信 |
 | RollCallsController | 点呼モード | テーブル形式でステータス選択、一括出席登録 |
 | AttendanceFinalizer | 自動確定 | 締切後の欠席確定 |
 | TermReportBuilder | レポート生成 | 期末集計 |
@@ -1656,8 +1660,8 @@ bin/render-build.sh
 | DATABASE_URL | DB接続URL |
 | RAILS_MASTER_KEY | Rails暗号化キー |
 | QR_TOKEN_SECRET | QRトークン署名用 |
-| SENDGRID_API_KEY | メール送信（未実装） |
-| LINE_CHANNEL_ACCESS_TOKEN | LINE通知（未実装） |
+| SENDGRID_API_KEY | メール送信 |
+| LINE_CHANNEL_ACCESS_TOKEN | LINE通知 |
 | WEBPUSH_PUBLIC_KEY | Push通知公開鍵（VAPID） |
 | WEBPUSH_PRIVATE_KEY | Push通知秘密鍵（VAPID） |
 | WEBPUSH_SUBJECT | Push通知送信元（mailto:） |
