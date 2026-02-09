@@ -40,7 +40,8 @@ class RollCallsController < ApplicationController
 
     if class_session&.locked? && !current_user.admin?
       redirect_to roll_call_path(class_id: selected_class.id, date: date),
-                  alert: "出席が確定済みのため修正できません。" and return
+                  alert: "出席が確定済みのため修正できません。",
+                  status: :see_other and return
     end
 
     attendance = params[:attendance] || {}
@@ -86,7 +87,8 @@ class RollCallsController < ApplicationController
     end
 
     redirect_to roll_call_path(class_id: selected_class.id, date: date),
-                notice: "点呼を完了しました。#{registered}名の出席を登録しました。"
+                notice: "点呼を完了しました。#{registered}名の出席を登録しました。",
+                status: :see_other
   rescue ArgumentError
     redirect_to roll_call_path, alert: "日付の形式が正しくありません。"
   end

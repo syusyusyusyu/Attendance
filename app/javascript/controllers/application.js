@@ -49,9 +49,6 @@ document.addEventListener("turbo:submit-end", (event) => {
 })
 
 document.addEventListener("submit", (event) => {
-  if (event.target?.hasAttribute("data-turbo") && event.target.getAttribute("data-turbo") === "false") {
-    return
-  }
   applyLoading(event.submitter)
 })
 

@@ -45,7 +45,7 @@
     %>
 
     <%# 学生リスト（テーブル形式） %>
-    <%= form_with url: roll_call_path, method: :patch, data: { controller: "roll-call" } do |f| %>
+    <%= form_with url: roll_call_path, method: :patch, data: { controller: "roll-call", turbo: false } do |f| %>
       <%= f.hidden_field :class_id, value: @selected_class.id %>
       <%= f.hidden_field :date, value: @date %>
 
