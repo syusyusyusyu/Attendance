@@ -459,7 +459,7 @@ class ClassAttendancesController < ApplicationController
         kind: "warning",
         title: "操作申請が届きました",
         body: "#{current_user.name} から#{kind_labels[kind] || kind}の申請があります。",
-        action_path: admin_operation_requests_path(status: "pending")
+        action_path: admin_path
       )
     end
   end

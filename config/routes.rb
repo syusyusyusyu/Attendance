@@ -36,7 +36,7 @@ Rails.application.routes.draw do
   namespace :admin do
     resources :users, only: [:index, :new, :create, :edit, :update, :destroy]
     resources :roles, only: [:index, :update]
-    resources :operation_requests, only: [:index, :update]
+
   end
 
   get "/history", to: "attendance_history#show"

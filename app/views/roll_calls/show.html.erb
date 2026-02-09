@@ -1,4 +1,7 @@
-<div class="max-w-5xl mx-auto space-y-6" data-turbo-cache="false">
+<% content_for :head do %>
+  <meta name="turbo-cache-control" content="no-cache">
+<% end %>
+<div class="max-w-5xl mx-auto space-y-6">
   <%# ページヘッダー %>
   <div class="page-header">
     <div>
@@ -45,7 +48,7 @@
     %>
 
     <%# 学生リスト（テーブル形式） %>
-    <%= form_with url: roll_call_path, method: :patch, data: { controller: "roll-call", turbo: false } do |f| %>
+    <%= form_with url: roll_call_path, method: :patch, data: { controller: "roll-call", turbo_action: "replace" } do |f| %>
       <%= f.hidden_field :class_id, value: @selected_class.id %>
       <%= f.hidden_field :date, value: @date %>
 

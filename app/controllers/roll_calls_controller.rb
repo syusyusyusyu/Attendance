@@ -18,13 +18,7 @@ class RollCallsController < ApplicationController
 
     return unless @selected_class
 
-    @students = @selected_class.students.order(:name)
-    @records = AttendanceRecord
-               .where(school_class: @selected_class, date: @date)
-               .index_by(&:user_id)
-
-    @total = @students.size
-    @confirmed = @records.count { |_, r| r.status_present? || r.status_late? }
+    load_show_data(@selected_class, @date)
   rescue ArgumentError
     redirect_to roll_call_path, alert: "日付の形式が正しくありません。"
   end
@@ -86,10 +80,24 @@ class RollCallsController < ApplicationController
       )
     end
 
-    redirect_to roll_call_path(class_id: selected_class.id, date: date),
-                notice: "点呼を完了しました。#{registered}名の出席を登録しました。",
-                status: :see_other
+    flash.now[:notice] = "点呼を完了しました。#{registered}名の出席を登録しました。"
+    load_show_data(selected_class, date)
+    render :show, status: :ok
   rescue ArgumentError
     redirect_to roll_call_path, alert: "日付の形式が正しくありません。"
+  end
+
+  private
+
+  def load_show_data(selected_class, date)
+    @classes = current_user.manageable_classes.order(:name)
+    @selected_class = selected_class
+    @date = date
+    @students = selected_class.students.order(:name)
+    @records = AttendanceRecord
+               .where(school_class: selected_class, date: date)
+               .index_by(&:user_id)
+    @total = @students.size
+    @confirmed = @records.count { |_, r| r.status_present? || r.status_late? }
   end
 end
