@@ -53,7 +53,9 @@ Rails.application.routes.draw do
     patch :bulk_update, on: :collection
   end
 
-  resource :profile, only: [:show, :update]
+  resource :profile, only: [:show, :update] do
+    patch :update_theme, on: :member
+  end
   resource :push_subscription, only: [:create, :destroy], path: "push-subscription" do
     post :test, on: :collection
   end

@@ -22,6 +22,17 @@ class ProfilesController < ApplicationController
     end
   end
 
+  def update_theme
+    theme = params[:theme].to_s
+    unless %w[light dark].include?(theme)
+      return head :unprocessable_entity
+    end
+
+    current_user.settings["theme"] = theme
+    current_user.save!
+    head :ok
+  end
+
   private
 
   def profile_params

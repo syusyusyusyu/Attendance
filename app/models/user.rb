@@ -101,5 +101,6 @@ class User < ApplicationRecord
     settings["notifications"]["push"] = false if settings["notifications"]["push"].nil?
     settings["notifications"]["line"] = false if settings["notifications"]["line"].nil?
     settings["onboarding_seen"] = false if settings["onboarding_seen"].nil?
+    settings["theme"] ||= "light"
   end
 end

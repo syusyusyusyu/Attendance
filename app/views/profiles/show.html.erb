@@ -190,4 +190,36 @@ end %>
     </div>
   </div>
 
+  <%# 表示設定カード %>
+  <div class="card" data-controller="theme">
+    <div class="card-header">
+      <h2 class="font-semibold">表示設定</h2>
+    </div>
+    <div class="card-body">
+      <div class="py-4 first:pt-0 last:pb-0">
+        <div class="flex items-start gap-3">
+          <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style="background: var(--color-primary-light);">
+            <svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--color-primary);">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium" style="color: var(--color-text-primary);">ダークモード</p>
+                <p class="text-xs text-body-muted mt-0.5">画面の配色をダークテーマに切り替えます。</p>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" data-theme-target="checkbox" data-action="change->theme#toggle"
+                  <%= 'checked' if current_user.settings.dig('theme') == 'dark' %>>
+                <div class="toggle-switch-track"></div>
+                <div class="toggle-switch-thumb"></div>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>

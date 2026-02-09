@@ -110,6 +110,58 @@
   --topbar-border: #E5E7EB;
 }
 
+html[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* === Primary Colors === */
+  --color-primary: #7B7BF0;
+  --color-primary-hover: #8E8EF5;
+  --color-primary-light: rgba(123, 123, 240, 0.15);
+  --color-primary-dark: #9D9DF5;
+
+  /* === Status Colors (明度を上げた版) === */
+  --color-success: #4ADE80;
+  --color-success-light: rgba(74, 222, 128, 0.15);
+  --color-success-dark: #22C55E;
+
+  --color-warning: #FBBF24;
+  --color-warning-light: rgba(251, 191, 36, 0.15);
+  --color-warning-dark: #F59E0B;
+
+  --color-error: #F87171;
+  --color-error-light: rgba(248, 113, 113, 0.15);
+  --color-error-dark: #EF4444;
+
+  --color-info: #7B7BF0;
+  --color-info-light: rgba(123, 123, 240, 0.15);
+  --color-info-dark: #9D9DF5;
+
+  /* === Surface & Background === */
+  --color-background: #111118;
+  --color-surface: #1A1A26;
+  --color-surface-hover: #232334;
+
+  /* === Text Colors === */
+  --color-text-primary: #E5E5ED;
+  --color-text-secondary: #A1A1B5;
+  --color-text-muted: #6E6E82;
+  --color-text-inverse: #111118;
+
+  /* === Border & Outline === */
+  --color-border: #2D2D3F;
+  --color-border-hover: #3D3D52;
+  --color-outline-focus: #7B7BF0;
+
+  /* === Elevation === */
+  --shadow-sm: none;
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.4);
+
+  /* === Topbar === */
+  --topbar-bg: #1A1A26;
+  --topbar-border: #2D2D3F;
+}
+
 @layer base {
   html {
     font-family: var(--font-family);
@@ -152,7 +204,8 @@
   h4,
   h5,
   h6 {
-    @apply font-medium text-gray-900 tracking-tight;
+    @apply font-medium tracking-tight;
+    color: var(--color-text-primary);
   }
 
   button,
@@ -1098,6 +1151,42 @@
     background-color: var(--color-surface);
     border: 1px solid var(--color-border);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+
+  /* === Toggle Switch === */
+  .toggle-switch {
+    @apply relative inline-flex items-center cursor-pointer;
+  }
+
+  .toggle-switch input {
+    @apply sr-only;
+  }
+
+  .toggle-switch-track {
+    @apply w-11 h-6 rounded-full transition-colors;
+    background-color: var(--color-border);
+  }
+
+  .toggle-switch input:checked + .toggle-switch-track {
+    background-color: var(--color-primary);
+  }
+
+  .toggle-switch-thumb {
+    @apply absolute left-0.5 top-0.5 w-5 h-5 rounded-full transition-transform;
+    background-color: var(--color-text-inverse);
+    transform: translateX(0);
+  }
+
+  html[data-theme="dark"] .toggle-switch-thumb {
+    background-color: #FFFFFF;
+  }
+
+  .toggle-switch input:checked ~ .toggle-switch-thumb {
+    transform: translateX(1.25rem);
+  }
+
+  .toggle-switch input:focus-visible + .toggle-switch-track {
+    box-shadow: 0 0 0 2px var(--color-primary-light);
   }
 
   /* === フォーカスリング強化 (アクセシビリティ) === */
