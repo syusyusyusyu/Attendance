@@ -709,10 +709,87 @@ tbody tr:hover {
   background-color: var(--color-surface-hover);
 }
 
+/* Data Grid (検索/絞り込み対応テーブル) */
+.data-grid {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  overflow: clip;
+}
+
 .data-grid .table-container {
   border: none;
   border-radius: 0;
   box-shadow: none;
+}
+
+.data-grid-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.data-grid-search {
+  flex: 1;
+  min-width: 200px;
+}
+
+.data-grid-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.data-grid-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-grid-table th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 0.875rem;
+  font-weight: 600;
+  background-color: var(--color-surface-hover);
+  color: var(--color-text-secondary);
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+
+.data-grid-table td {
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: var(--color-text-primary);
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+
+.data-grid-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.data-grid-table tbody tr:hover {
+  background-color: var(--color-surface-hover);
+}
+
+.data-grid-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+/* Responsive column visibility */
+@media (max-width: 639px) {
+  .col-hide-sm { display: none; }
+}
+@media (max-width: 767px) {
+  .col-hide-md { display: none; }
 }
 
 /* Inputs */

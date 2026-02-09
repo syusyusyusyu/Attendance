@@ -34,7 +34,7 @@
             </div>
             <%= f.text_field :q,
               value: @query,
-              class: "input pl-10",
+              class: "input input-search",
               placeholder: "氏名/メール/学籍IDで検索..." %>
           </div>
         </div>
@@ -62,9 +62,9 @@
           <tr>
             <th>氏名</th>
             <th>メール</th>
-            <th>学籍ID</th>
+            <th class="col-hide-sm">学籍ID</th>
             <th>ロール</th>
-            <th>最終ログイン</th>
+            <th class="col-hide-md">最終ログイン</th>
             <th class="text-right">操作</th>
           </tr>
         </thead>
