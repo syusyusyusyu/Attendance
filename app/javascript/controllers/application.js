@@ -40,12 +40,15 @@ const clearLoading = (submitter) => {
   delete submitter.dataset.loadingOriginal
 }
 
+const getSubmitter = (event) =>
+  event.detail?.submitter || event.detail?.formSubmission?.submitter
+
 document.addEventListener("turbo:submit-start", (event) => {
-  applyLoading(event.detail.submitter)
+  applyLoading(getSubmitter(event))
 })
 
 document.addEventListener("turbo:submit-end", (event) => {
-  clearLoading(event.detail.submitter)
+  clearLoading(getSubmitter(event))
 })
 
 document.addEventListener("submit", (event) => {
