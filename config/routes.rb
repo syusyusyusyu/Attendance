@@ -30,7 +30,7 @@ Rails.application.routes.draw do
   get "/reports", to: "reports#index"
   get "/notifications", to: "notifications#index"
   patch "/notifications/:id/mark-read", to: "notifications#mark_read", as: :notification_mark_read
-  patch "/notifications/mark-all", to: "notifications#mark_all"
+  patch "/notifications/mark-all", to: "notifications#mark_all", as: :notifications_mark_all
   get "/admin", to: "admin_dashboard#index"
 
   namespace :admin do
@@ -43,9 +43,9 @@ Rails.application.routes.draw do
   get "/history/export", to: "attendance_history#export", as: :attendance_history_export
   get "/attendance", to: "class_attendances#show"
   patch "/attendance", to: "class_attendances#update"
-  get "/attendance/export", to: "class_attendances#export"
-  post "/attendance/import", to: "class_attendances#import"
-  patch "/attendance/policy", to: "class_attendances#update_policy"
+  get "/attendance/export", to: "class_attendances#export", as: :attendance_export
+  post "/attendance/import", to: "class_attendances#import", as: :attendance_import
+  patch "/attendance/policy", to: "class_attendances#update_policy", as: :attendance_policy
   patch "/attendance/finalize", to: "class_attendances#finalize", as: :attendance_finalize
   patch "/attendance/unlock", to: "class_attendances#unlock", as: :attendance_unlock
 

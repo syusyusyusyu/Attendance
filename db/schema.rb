@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_12_142000) do
+ActiveRecord::Schema[8.0].define(version: 2026_02_09_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -21,7 +21,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_12_142000) do
     t.date "date", null: false
     t.string "previous_status"
     t.string "new_status", null: false
-    t.text "reason"
+    t.text "reason", null: false
     t.bigint "modified_by_id"
     t.string "source", default: "manual", null: false
     t.string "ip"
@@ -95,7 +95,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_12_142000) do
     t.date "date", null: false
     t.string "request_type", null: false
     t.string "status", default: "pending", null: false
-    t.text "reason"
+    t.text "reason", null: false
     t.datetime "submitted_at", null: false
     t.bigint "processed_by_id"
     t.datetime "processed_at"
@@ -247,6 +247,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_12_142000) do
     t.datetime "issued_at", null: false
     t.datetime "expires_at", null: false
     t.datetime "revoked_at"
+    t.boolean "demo_mode", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["expires_at"], name: "index_qr_sessions_on_expires_at"
