@@ -45,18 +45,18 @@
       <%= status_labels[request.status] || request.status %>
     </span>
   </td>
-  <td class="px-4 py-3">
+  <td class="px-4 py-3" style="min-width: 140px;">
     <% if request.status_pending? %>
       <%= form_with model: request, url: attendance_request_path(request), method: :patch, class: "space-y-2" do |f| %>
-        <div class="grid grid-cols-2 gap-2">
-          <button type="submit" name="attendance_request[status]" value="approved" class="btn btn-primary text-sm">
+        <%= f.text_area :decision_reason, rows: 1, class: "input", placeholder: "コメント任意" %>
+        <div class="flex gap-2">
+          <button type="submit" name="attendance_request[status]" value="approved" class="btn btn-primary text-sm flex-1 whitespace-nowrap">
             承認
           </button>
-          <button type="submit" name="attendance_request[status]" value="rejected" class="btn btn-secondary text-sm">
+          <button type="submit" name="attendance_request[status]" value="rejected" class="btn btn-secondary text-sm flex-1 whitespace-nowrap">
             却下
           </button>
         </div>
-        <%= f.text_area :decision_reason, rows: 2, class: "input", placeholder: "コメント任意" %>
       <% end %>
     <% else %>
       <div class="text-xs text-body-muted">
