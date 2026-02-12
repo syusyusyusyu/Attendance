@@ -17,6 +17,204 @@ RoR出席管理システムは、QRコードによる出席登録と位置情報
 
 ---
 
+## アーキテクチャ全体図
+
+システム全体のレイヤー構成、API通信、外部サービス連携を俯瞰する設計図です。
+
+### 全体構成（レイヤー × 外部サービス）
+
+```mermaid
+flowchart TB
+  subgraph Client["クライアント（ブラウザ / PWA）"]
+    direction LR
+    Stimulus["Stimulus Controllers<br/>qr_scan / qr / push_subscription / theme ..."]
+    Turbo["Turbo Frame / Stream<br/>リアルタイム部分更新"]
+    Camera["Camera API<br/>BarcodeDetector + jsQR"]
+    Geo["Geolocation API<br/>GPS座標取得"]
+    SW["Service Worker<br/>Push通知受信"]
+  end
+
+  subgraph Rails["Rails 8 サーバー"]
+    direction TB
+    subgraph Controllers["Controller層（リクエスト受付・認可）"]
+      direction LR
+      Sessions["Sessions<br/>ログイン/ログアウト"]
+      QrScans["QrScans<br/>QRスキャン受付"]
+      QrCodes["QrCodes<br/>QR生成・更新"]
+      RollCalls["RollCalls<br/>点呼モード"]
+      Attendance["ClassAttendances<br/>出席確認・修正"]
+      Requests["AttendanceRequests<br/>出席申請"]
+      Reports["Reports<br/>レポート"]
+      Admin["Admin::<br/>Users / Roles /<br/>OperationRequests"]
+      Others["Dashboard / Profile /<br/>Notifications / ..."]
+    end
+
+    subgraph Services["Service層（ビジネスロジック）"]
+      direction LR
+      Token["AttendanceToken<br/>署名付きトークン<br/>生成・検証"]
+      Processor["QrScanProcessor<br/>10段階検証<br/>出席記録作成"]
+      Finalizer["AttendanceFinalizer<br/>出席確定・欠席自動判定"]
+      Fraud["QrFraudDetector<br/>不正パターン検知"]
+      RateLimit["QrScanRateLimiter<br/>レート制限"]
+      OpProcessor["OperationRequest<br/>Processor<br/>操作申請処理"]
+      Dispatcher["NotificationDispatcher<br/>通知振り分け"]
+      TermReport["TermReportBuilder<br/>期末レポート"]
+    end
+
+    subgraph Models["Model層（データ・バリデーション）"]
+      direction LR
+      User["User<br/>3ロール"]
+      SchoolClass["SchoolClass<br/>+ Enrollment"]
+      AR["AttendanceRecord<br/>+ AttendanceChange"]
+      QrSession["QrSession<br/>+ QrScanEvent"]
+      Policy["AttendancePolicy<br/>Geo / Access /<br/>RateLimit / Fraud"]
+      Notif["Notification<br/>+ PushSubscription"]
+      OpReq["OperationRequest"]
+    end
+
+    Job["NotificationDeliveryJob<br/>非同期ジョブ"]
+  end
+
+  subgraph External["外部サービス"]
+    direction LR
+    SendGrid["SendGrid<br/>SMTP メール"]
+    LINE["LINE Messaging API<br/>Push通知"]
+    WebPush["Web Push API<br/>ブラウザ通知"]
+  end
+
+  DB[("PostgreSQL")]
+
+  %% クライアント → サーバー
+  Camera -->|"POST /scan<br/>token + 位置情報"| QrScans
+  Geo -.->|"座標付与"| Camera
+  Stimulus -->|"HTTP / Turbo"| Controllers
+  SW -.->|"購読登録"| Others
+
+  %% Controller → Service
+  QrScans --> Processor
+  QrCodes --> Token
+  RollCalls --> Finalizer
+  Attendance --> OpProcessor
+  Requests --> Dispatcher
+
+  %% Service → Service
+  Processor --> Token
+  Processor --> Fraud
+  Processor --> RateLimit
+  Processor --> Policy
+  OpProcessor --> Finalizer
+
+  %% Service → Model → DB
+  Services --> Models
+  Models --> DB
+
+  %% 通知フロー
+  Dispatcher --> Job
+  Job --> SendGrid
+  Job --> LINE
+  Job --> WebPush
+  WebPush -.->|"Push"| SW
+
+  %% レスポンス
+  Controllers -->|"Turbo Stream /<br/>HTML / JSON"| Turbo
+```
+
+### 主要APIフロー（リクエスト／レスポンス）
+
+```mermaid
+sequenceDiagram
+  participant S as 学生ブラウザ
+  participant T as 教員ブラウザ
+  participant C as Rails Controller
+  participant SVC as Service層
+  participant DB as PostgreSQL
+  participant EXT as 外部通知<br/>(Mail/LINE/Push)
+
+  Note over T,C: ① QRコード発行（教員）
+  T->>C: GET /generate-qr?class_id=1
+  C->>SVC: AttendanceToken.generate(qr_session)
+  SVC->>DB: QrSession作成
+  C-->>T: QRコード画像（10秒自動更新）
+
+  Note over S,C: ② QRスキャン出席（学生）
+  S->>S: Camera + Geolocation取得
+  S->>C: POST /scan {token, lat, lng, accuracy}
+  C->>SVC: QrScanProcessor.call
+  SVC->>SVC: トークン検証 → セッション検証 → 履修確認
+  SVC->>SVC: レート制限 → 位置情報検証 → 不正検知
+  SVC->>DB: AttendanceRecord 作成/更新
+  SVC->>DB: QrScanEvent ログ記録
+  C-->>S: Turbo Stream（出席完了）
+  C-->>T: Turbo Stream（リアルタイム反映）
+
+  Note over T,C: ③ 点呼モード（教員）
+  T->>C: GET /roll-call?class_id=1
+  C->>DB: 履修者一覧 + 既出席者取得
+  C-->>T: 点呼テーブル表示
+  T->>C: PATCH /roll-call {student_id => status}
+  C->>DB: AttendanceRecord一括作成（roll_call）
+  C-->>T: 点呼完了
+
+  Note over T,EXT: ④ 出席修正（承認ワークフロー）
+  T->>C: PATCH /attendance {record_id, new_status}
+  C->>DB: OperationRequest作成（pending）
+  C->>EXT: 管理者へ承認依頼通知
+  Note over C,DB: 管理者が承認
+  C->>SVC: OperationRequestProcessor.approve!
+  SVC->>DB: AttendanceRecord更新 + AttendanceChange記録
+  C->>EXT: 教員へ承認完了通知
+
+  Note over S,EXT: ⑤ 通知配信
+  DB->>SVC: Notification作成 → after_create_commit
+  SVC->>SVC: NotificationDeliveryJob（非同期）
+  SVC->>EXT: Email / LINE / WebPush（設定に応じて選択配信）
+```
+
+### レイヤー責務と依存方向
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  Client: Stimulus + Turbo + Camera + Geolocation + PWA  │
+├─────────────────────────────────────────────────────────┤
+│              ↕ HTTP (HTML / Turbo Stream / JSON)         │
+├─────────────────────────────────────────────────────────┤
+│  Controller層: 認証・認可・リクエスト振り分け            │
+│  ┌─────────────────────────────────────────────────┐    │
+│  │ require_login → require_role! → require_permission!│  │
+│  └─────────────────────────────────────────────────┘    │
+├─────────────────────────────────────────────────────────┤
+│  Service層: ビジネスロジック（↓のみ依存）               │
+│  ┌──────────────┬──────────────┬──────────────────┐     │
+│  │ QrScan       │ Attendance   │ Notification     │     │
+│  │ Processor    │ Finalizer    │ Dispatcher       │     │
+│  │ (10段階検証) │ (確定・欠席) │ (Mail/LINE/Push) │     │
+│  └──────────────┴──────────────┴──────────────────┘     │
+├─────────────────────────────────────────────────────────┤
+│  Model層: ActiveRecord + バリデーション + 関連定義       │
+│  ┌──────┬──────────┬────────────┬──────────────────┐    │
+│  │ User │ SchoolCls│ Attendance │ QrSession/Event  │    │
+│  │(3役割)│ Session  │ Record/Chg │ Notification     │    │
+│  └──────┴──────────┴────────────┴──────────────────┘    │
+├─────────────────────────────────────────────────────────┤
+│  Infrastructure: PostgreSQL / SendGrid / LINE / WebPush │
+└─────────────────────────────────────────────────────────┘
+```
+
+### 外部サービス連携まとめ
+
+| サービス | 用途 | API / プロトコル | 環境変数 |
+|:---|:---|:---|:---|
+| **PostgreSQL** | データ永続化 | ActiveRecord | `DATABASE_URL` |
+| **SendGrid** | メール通知 | SMTP (port 587) | `SENDGRID_API_KEY` |
+| **LINE Messaging** | LINE Push通知 | REST API (`api.line.me`) | `LINE_CHANNEL_ACCESS_TOKEN` |
+| **Web Push** | ブラウザPush通知 | Web Push Protocol (VAPID) | `WEBPUSH_PUBLIC_KEY`, `WEBPUSH_PRIVATE_KEY` |
+| **Geolocation** | 位置情報取得 | Browser API (クライアント側) | ー |
+| **Camera** | QRスキャン | BarcodeDetector / jsQR (クライアント側) | ー |
+
+<br>
+
+---
+
 ## 目次
 
 | セクション | 内容 |
