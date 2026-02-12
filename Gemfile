@@ -23,7 +23,7 @@ gem "jbuilder"
 gem "bcrypt", "~> 3.1.7"
 
 # Generate QR codes for attendance tokens
-gem "rqrcode", "~> 2.2"
+gem "rqrcode", "~> 3.2"
 gem "prawn", "~> 2.4"
 gem "matrix"
 gem "web-push", "~> 3.0"
